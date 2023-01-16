@@ -9,7 +9,6 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -22,16 +21,16 @@ public class SwerveModule {
     private final SwerveConstants constants;
 
     /** The motor controlling the angle of the swerve module. */
-    private final TalonFX angleMotor;
+    private final LazyTalonFX angleMotor;
 
     /** The motor controlling the speed of the swerve module. */
-    private final TalonFX driveMotor;
+    private final LazyTalonFX driveMotor;
 
     private final DutyCycleEncoder angleEncoder;
 
     public SwerveModule(SwerveConstants constants) {
-        this.angleMotor = new TalonFX(constants.angleMotor);
-        this.driveMotor = new TalonFX(constants.driveMotor);
+        this.angleMotor = new LazyTalonFX(constants.angleMotor);
+        this.driveMotor = new LazyTalonFX(constants.driveMotor);
         this.angleEncoder = new DutyCycleEncoder(constants.angleEncoder);
         this.constants = constants;
 
