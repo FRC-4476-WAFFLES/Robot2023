@@ -13,10 +13,9 @@ public class LowCANTalonFX {
     private final LazyTalonFX talonFX;
 
     public LowCANTalonFX() {
-        this.talonFX = new LazyTalonFX(0);
+        this.talonFX = new LazyTalonFX(0); // Create a "lazy" Talon FX
 
-        talonFX.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100);
-        talonFX.setStatusFramePeriod(StatusFrameEnhanced.Status_2_Feedback0, 100);
-        talonFX.setControlFramePeriod(ControlFrame.Control_3_General, 100);
+        talonFX.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100); // Increase the time between status frame updates
+        talonFX.setControlFramePeriod(ControlFrame.Control_3_General, 100); // Increase the time between control frame updates
     }
 }

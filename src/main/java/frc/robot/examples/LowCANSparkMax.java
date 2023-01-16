@@ -15,10 +15,10 @@ public class LowCANSparkMax {
     private final LazySparkMaxPIDController pidController;
     
     public LowCANSparkMax() {
-        sparkMax = new CANSparkMax(0, MotorType.kBrushless);
-        pidController = new LazySparkMaxPIDController(sparkMax.getPIDController());
+        sparkMax = new CANSparkMax(0, MotorType.kBrushless); // Create a new SparkMax as usual
+        pidController = new LazySparkMaxPIDController(sparkMax.getPIDController()); // Create a "lazy" PID controller from the SparkMax's controller
 
-        sparkMax.setControlFramePeriodMs(100);
-        sparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 100);
+        sparkMax.setControlFramePeriodMs(100); // Increase the time between control frame updates
+        sparkMax.setPeriodicFramePeriod(PeriodicFrame.kStatus0, 100); // Increase the time between status frame updates
     }
 }
