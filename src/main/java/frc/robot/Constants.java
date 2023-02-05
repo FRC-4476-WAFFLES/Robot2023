@@ -31,6 +31,15 @@ public final class Constants {
   public static final int swerveModule3Encoder = -1; // CTRE CANcoder
   public static final int swerveModule4Encoder = -1; // CTRE CANcoder
 
+  public static final int armShoulder1 = -1; // Spark MAX
+  public static final int armShoulder2 = -1; // Spark MAX
+  public static final int armElbow1 = -1; // Spark MAX
+  public static final int armElbow2 = -1; // Spark MAX
+  public static final int armWrist1 = -1; // Spark MAX
+  public static final int armWrist2 = -1; // Spark MAX
+  public static final int intake1 = -1; // Spark MAX
+  public static final int intake2 = -1; // Spark MAX
+
   public static final class SwerveConstants {
     /** Represents the offset from the centre of the robot, in metres. */
     public final Translation2d position;
@@ -78,19 +87,48 @@ public final class Constants {
     public final double steeringDegreesToTicks = ticksPerSteeringRevolution / 360.0;
 
     public SwerveConstants(Translation2d position, double calibration, int angleMotor, int driveMotor, int angleEncoder) {
-        this.position = position;
-        this.calibration = calibration;
-        this.angleMotor = angleMotor;
-        this.driveMotor = driveMotor;
-        this.angleEncoder = angleEncoder;
+      this.position = position;
+      this.calibration = calibration;
+      this.angleMotor = angleMotor;
+      this.driveMotor = driveMotor;
+      this.angleEncoder = angleEncoder;
     }
-}
+  }
 
-public static final SwerveConstants swerveModules[] = new SwerveConstants[] {
+  public static final class ArmConstants {
+    public static final double a1 = 1.0;
+    public static final double a2 = 1.0;
+    public static final double a3 = 0.1;
+
+    public final double calibration;
+    public final int motorID;
+    public final double ratio;
+    public final int currentLimit;
+    public final boolean isInverted;
+
+    public ArmConstants(double calibration, int motorID, double ratio, int currentLimit, boolean isInverted) {
+      this.calibration = calibration;
+      this.motorID = motorID;
+      this.ratio = ratio;
+      this.currentLimit = currentLimit;
+      this.isInverted = isInverted;
+    }
+  }
+
+  public static final SwerveConstants swerveModules[] = new SwerveConstants[] {
     // Modules are in the order of Front Left, Back Left, Back Right, Front Right, when intake is front of robot
     new SwerveConstants(new Translation2d(0.2921, 0.2921), 48.68, swerveModule1Angle, swerveModule1Drive, swerveModule1Encoder),
     new SwerveConstants(new Translation2d(-0.2921, 0.2921), 229.16, swerveModule2Angle, swerveModule2Drive, swerveModule2Encoder),
     new SwerveConstants(new Translation2d(-0.2921, -0.2921), 230.14, swerveModule3Angle, swerveModule3Drive, swerveModule3Encoder),
     new SwerveConstants(new Translation2d(0.2921, -0.2921), 267.42, swerveModule4Angle, swerveModule4Drive, swerveModule4Encoder),
-};
+  };
+
+  public static final ArmConstants armMotors[] = new ArmConstants[] {
+    new ArmConstants(0.0, armShoulder1, (1 / 80) * (15 / 36), 40, false),
+    new ArmConstants(0.0, armShoulder2, (1 / 80) * (15 / 36), 40, true),
+    new ArmConstants(0.0, armElbow1, (1 / 80), 40, false),
+    new ArmConstants(0.0, armElbow2, (1 / 80), 40, true),
+    new ArmConstants(0.0, armWrist1, (1 / 1) * (16 / 36), 20, false),
+    new ArmConstants(0.0, armWrist2, (1 / 1) * (16 / 36), 20, true),
+  };
 }
