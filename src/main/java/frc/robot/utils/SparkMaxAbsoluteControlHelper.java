@@ -1,19 +1,17 @@
 package frc.robot.utils;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.SparkMaxAbsoluteEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 
 import frc.robot.Constants.ArmConstants;
 
 public class SparkMaxAbsoluteControlHelper {
   private final CANSparkMax m_sparkMax;
   private final SparkMaxPIDController m_PIDController;
-  private final SparkMaxAbsoluteEncoder m_absoluteEncoder;
+  // private final SparkMaxAbsoluteEncoder m_absoluteEncoder;
 
   public SparkMaxAbsoluteControlHelper(ArmConstants constants) {
     m_sparkMax = new CANSparkMax(constants.motorID, MotorType.kBrushless);
@@ -23,12 +21,12 @@ public class SparkMaxAbsoluteControlHelper {
     m_sparkMax.setControlFramePeriodMs(40);
     m_sparkMax.setInverted(constants.isInverted);
 
-    m_absoluteEncoder = m_sparkMax.getAbsoluteEncoder(Type.kDutyCycle);
-    m_absoluteEncoder.setZeroOffset(constants.calibration);
-    m_absoluteEncoder.setPositionConversionFactor(360); // TODO: I think that the absolute encoder returns position in degrees, which would be great. Otherwise this should be altered to make it be degrees
+    // m_absoluteEncoder = m_sparkMax.getAbsoluteEncoder(Type.kDutyCycle);
+    // m_absoluteEncoder.setZeroOffset(constants.calibration);
+    // m_absoluteEncoder.setPositionConversionFactor(360); // TODO: I think that the absolute encoder returns position in degrees, which would be great. Otherwise this should be altered to make it be degrees
 
     m_PIDController = m_sparkMax.getPIDController();
-    m_PIDController.setFeedbackDevice(m_absoluteEncoder);
+    // m_PIDController.setFeedbackDevice(m_absoluteEncoder);
 
     // TODO: set these values to better values determined through testing. 
     // set PID coefficients
@@ -49,7 +47,8 @@ public class SparkMaxAbsoluteControlHelper {
   }
 
   public double getPosition() {
-    return m_absoluteEncoder.getPosition();
+    // return m_absoluteEncoder.getPosition();
+    return 0;
   }
 
   public void setP(double kP) {

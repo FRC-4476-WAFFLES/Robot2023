@@ -16,13 +16,10 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Robot;
 import frc.robot.Constants.SwerveConstants;
 import frc.robot.utils.SwerveModule;
 
@@ -31,16 +28,11 @@ public class DriveSubsystem extends SubsystemBase {
     private final SwerveModule[] modules;
     private final SwerveModulePosition[] modulePositions;
 
-    /** Allows us to calculate the swerve module states from a chassis motion. */
+    // /** Allows us to calculate the swerve module states from a chassis motion. */
     public final SwerveDriveKinematics kinematics;
     private final SwerveDriveOdometry odometry;
 
-    private final ADXRS450_Gyro ADXRS450Gyro = new ADXRS450_Gyro();
     private final AHRS ahrsIMU = new AHRS(SPI.Port.kMXP);
-
-    private Translation2d goalOffsetFromStartingPosition = new Translation2d();
-
-    public final Field2d field = new Field2d();
 
     public DriveSubsystem() {
         ArrayList<Translation2d> positions = new ArrayList<Translation2d>();
@@ -72,10 +64,6 @@ public class DriveSubsystem extends SubsystemBase {
         this.kinematics = new SwerveDriveKinematics(positionArry);
         this.modules = moduleArray;
         this.odometry = new SwerveDriveOdometry(kinematics, Rotation2d.fromDegrees(0), modulePositions);
-        
-        ADXRS450Gyro.calibrate();
-
-        SmartDashboard.putData("Field", field);
     }
 
     /** This method will be called once per scheduler run. */
@@ -86,11 +74,9 @@ public class DriveSubsystem extends SubsystemBase {
             moduleStates[x] = modules[x].getState();
         }
         odometry.update(Rotation2d.fromDegrees(-ahrsIMU.getAngle()), modulePositions);
-        SmartDashboard.putNumber("X location", getOdometryLocation().getX());
+        SmartDashboard.putNumber("X location Is this changing", getOdometryLocation().getX());
         SmartDashboard.putNumber("Y location", getOdometryLocation().getY());
         SmartDashboard.putNumber("Odometry Heading", odometry.getPoseMeters().getRotation().getDegrees());
-        SmartDashboard.putNumber("Gyro Heading", -ADXRS450Gyro.getAngle());
-        SmartDashboard.putNumber("Gyro Rate", -ADXRS450Gyro.getRate());
         SmartDashboard.putNumber("New Gyro Angle", ahrsIMU.getAngle());
         SmartDashboard.putNumber("New Gyro Rate", ahrsIMU.getRate());
         SmartDashboard.putNumber("Vx", getChassisSpeeds().vxMetersPerSecond);
@@ -101,14 +87,12 @@ public class DriveSubsystem extends SubsystemBase {
             SmartDashboard.putNumber("Module " + String.valueOf(x) + " Speed", moduleStates[x].speedMetersPerSecond);
         }
 
-        int i = 1;
-        for (SwerveModule module : modules) {
-            SmartDashboard.putNumber("Encoder" + String.valueOf(i), module.getState().angle.getDegrees());
-            i++;
+        for (int i = 0; i < modules.length; i++) {
+            SmartDashboard.putNumber("Module " + String.valueOf(i + 1) + "Angle", modules[i].getState().angle.getDegrees());
         }
 
-        if(Robot.isReal()) {
-            field.setRobotPose(this.getOdometryLocation());
+        for (int i = 0; i < modules.length; i++) {
+            SmartDashboard.putNumber("Drive Encoder" + String.valueOf(i + 1), modules[i].getAbsoluteEncoderPosition());
         }
         //field.setRobotPose(this.getOdometryLocation());
 
@@ -132,6 +116,10 @@ public class DriveSubsystem extends SubsystemBase {
         } else {
             chassisSpeeds = new ChassisSpeeds(forward, right, rotation);
         }
+
+        SmartDashboard.putNumber("Target X Velocity", chassisSpeeds.vxMetersPerSecond);
+        SmartDashboard.putNumber("Target Y Velocity", chassisSpeeds.vyMetersPerSecond);
+        SmartDashboard.putNumber("Target Angular Velocity", chassisSpeeds.omegaRadiansPerSecond);
         
         SwerveModuleState[] swerveModuleState = kinematics.toSwerveModuleStates(chassisSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleState, Constants.SwerveConstants.maxAttainableSpeedMetersPerSecond);
@@ -149,14 +137,6 @@ public class DriveSubsystem extends SubsystemBase {
             -odometry.getPoseMeters().getX(), 
             odometry.getPoseMeters().getY(), 
             odometry.getPoseMeters().getRotation());
-    }
-
-    public Pose2d getGoalOdometryLocation() {
-        return new Pose2d(
-            -odometry.getPoseMeters().getX() + goalOffsetFromStartingPosition.getX(), 
-            odometry.getPoseMeters().getY() - goalOffsetFromStartingPosition.getY(), 
-            odometry.getPoseMeters().getRotation()
-        );
     }
 
     public ChassisSpeeds getChassisSpeeds() {
@@ -180,10 +160,6 @@ public class DriveSubsystem extends SubsystemBase {
 
     public void resetOdometry(Pose2d robotPose) {
         odometry.resetPosition(Rotation2d.fromDegrees(-ahrsIMU.getAngle()), modulePositions, robotPose);
-    }
-
-    public void setGoalOffset(Translation2d newGoalOffset) {
-        this.goalOffsetFromStartingPosition = newGoalOffset;
     }
 
     public void resetSteerEncoders() {

@@ -18,27 +18,36 @@ public final class Constants {
 
   // CAN bus
   // TODO: set these adresses
-  public static final int swerveModule1Angle = -1; // FX Front Left 2
-  public static final int swerveModule1Drive = -1; // FX Front Left 1
-  public static final int swerveModule2Angle = -1; // FX Back Left 2
-  public static final int swerveModule2Drive = -1; // FX Back Left 1
-  public static final int swerveModule3Angle = -1; // FX Back Right 1
-  public static final int swerveModule3Drive = -1; // FX Back Right 2
-  public static final int swerveModule4Angle = -1; // FX Front Right 1
-  public static final int swerveModule4Drive = -1; // FX Front Right 2
-  public static final int swerveModule1Encoder = -1; // CTRE CANcoder
-  public static final int swerveModule2Encoder = -1; // CTRE CANcoder
-  public static final int swerveModule3Encoder = -1; // CTRE CANcoder
-  public static final int swerveModule4Encoder = -1; // CTRE CANcoder
+  public static final int swerveModuleBLAngle = 18; // FX Back Left 2
+  public static final int swerveModuleBLDrive = 21; // FX Back Left 1
+  public static final int swerveModuleFLAngle = 25; // FX Front Left 2
+  public static final int swerveModuleFLDrive = 23; // FX Front Left 1
+  public static final int swerveModuleFRAngle = 19; // FX Front Right 1
+  public static final int swerveModuleFRDrive = 17; // FX Front Right 2
+  public static final int swerveModuleBRAngle = 24; // FX Back Right 1
+  public static final int swerveModuleBRDrive = 22; // FX Back Right 2
 
-  public static final int armShoulder1 = -1; // Spark MAX
-  public static final int armShoulder2 = -1; // Spark MAX
-  public static final int armElbow1 = -1; // Spark MAX
-  public static final int armElbow2 = -1; // Spark MAX
-  public static final int armWrist1 = -1; // Spark MAX
-  public static final int armWrist2 = -1; // Spark MAX
-  public static final int intake1 = -1; // Spark MAX
-  public static final int intake2 = -1; // Spark MAX
+  public static final int climb1Left = 9; // Spark MAX
+  public static final int climb1Right = 11; // Spark MAX
+  public static final int climb2Left = 10; // Spark MAX
+  public static final int climb2Right = 12; // Spark MAX
+  public static final int intakePivotLeft = 13; // Spark MAX
+  public static final int intakePivotRight = 14; // Spark MAX
+  public static final int intakeLeft = 15; // Spark MAX
+  public static final int intakeRight = 16; // Spark MAX
+
+  // DIO ports
+  public static final int climb1LeftEncoder = 0; // REV Through-Bore Encoder
+  public static final int climb1RightEncoder = 1; // REV Through-Bore Encoder
+  public static final int climb2LeftEncoder = 5; // REV Through-Bore Encoder
+  public static final int climb2RightEncoder = 4; // REV Through-Bore Encoder
+  public static final int intakePivotEncoder = 7; // REV Through-Bore Encoder
+
+  // Analog Inputs
+  public static final int swerveModule1Encoder = 0; // IDK what kind of absolute encoder this is
+  public static final int swerveModule2Encoder = 1; // IDK what kind of absolute encoder this is
+  public static final int swerveModule3Encoder = 2; // IDK what kind of absolute encoder this is
+  public static final int swerveModule4Encoder = 3; // IDK what kind of absolute encoder this is
 
   public static final class SwerveConstants {
     /** Represents the offset from the centre of the robot, in metres. */
@@ -69,7 +78,7 @@ public final class Constants {
     public final double thirdStageRatio = 15.0/60.0;
     public final double driveOverallRatio = 1.0 / (firstStageRatio * secondStageRatio * thirdStageRatio); // Drive gear ratio
 
-    public final double steeringRatio = 12.8;
+    public final double steeringRatio = 21.4;
 
     public final double steeringToDriveRatio = 1.0 / (firstStageRatio * secondStageRatio * steeringRatio);
     
@@ -81,8 +90,11 @@ public final class Constants {
 
     public static final double aimToleranceDegrees = 1.5; // Tolerance of drive aiming, in degrees
 
+    public static final double wheelbaseWidthM = 0.4763;
+    public static final double wheelbaseLengthM = 0.7303;
+
     // The number of ticks of the motor's built-in encoder per revolution of the steering module
-    public final double ticksPerSteeringRevolution = 26214.4;
+    public final double ticksPerSteeringRevolution = 2048 * steeringRatio;
     // Convert degrees to motor ticks
     public final double steeringDegreesToTicks = ticksPerSteeringRevolution / 360.0;
 
@@ -102,13 +114,15 @@ public final class Constants {
 
     public final double calibration;
     public final int motorID;
+    public final int encoderID;
     public final double ratio;
     public final int currentLimit;
     public final boolean isInverted;
 
-    public ArmConstants(double calibration, int motorID, double ratio, int currentLimit, boolean isInverted) {
+    public ArmConstants(double calibration, int motorID, int encoderID, double ratio, int currentLimit, boolean isInverted) {
       this.calibration = calibration;
       this.motorID = motorID;
+      this.encoderID = encoderID;
       this.ratio = ratio;
       this.currentLimit = currentLimit;
       this.isInverted = isInverted;
@@ -116,19 +130,18 @@ public final class Constants {
   }
 
   public static final SwerveConstants swerveModules[] = new SwerveConstants[] {
-    // Modules are in the order of Front Left, Back Left, Back Right, Front Right, when intake is front of robot
-    new SwerveConstants(new Translation2d(0.2921, 0.2921), 48.68, swerveModule1Angle, swerveModule1Drive, swerveModule1Encoder),
-    new SwerveConstants(new Translation2d(-0.2921, 0.2921), 229.16, swerveModule2Angle, swerveModule2Drive, swerveModule2Encoder),
-    new SwerveConstants(new Translation2d(-0.2921, -0.2921), 230.14, swerveModule3Angle, swerveModule3Drive, swerveModule3Encoder),
-    new SwerveConstants(new Translation2d(0.2921, -0.2921), 267.42, swerveModule4Angle, swerveModule4Drive, swerveModule4Encoder),
+    // Modules are in the order of Back Left, Front Left, Front Right, Back Right, when intake is front of robot
+    new SwerveConstants(new Translation2d(-SwerveConstants.wheelbaseLengthM / 2, SwerveConstants.wheelbaseWidthM / 2), 280, swerveModuleBLAngle, swerveModuleBLDrive, swerveModule1Encoder),
+    new SwerveConstants(new Translation2d(SwerveConstants.wheelbaseLengthM / 2, SwerveConstants.wheelbaseWidthM / 2), 161, swerveModuleFLAngle, swerveModuleFLDrive, swerveModule2Encoder),
+    new SwerveConstants(new Translation2d(SwerveConstants.wheelbaseLengthM / 2, -SwerveConstants.wheelbaseWidthM / 2), 26, swerveModuleFRAngle, swerveModuleFRDrive, swerveModule3Encoder),
+    new SwerveConstants(new Translation2d(-SwerveConstants.wheelbaseLengthM / 2, -SwerveConstants.wheelbaseWidthM / 2), 5, swerveModuleBRAngle, swerveModuleBRDrive, swerveModule4Encoder),
   };
 
   public static final ArmConstants armMotors[] = new ArmConstants[] {
-    new ArmConstants(0.0, armShoulder1, (1 / 80) * (15 / 36), 40, false),
-    new ArmConstants(0.0, armShoulder2, (1 / 80) * (15 / 36), 40, true),
-    new ArmConstants(0.0, armElbow1, (1 / 80), 40, false),
-    new ArmConstants(0.0, armElbow2, (1 / 80), 40, true),
-    new ArmConstants(0.0, armWrist1, (1 / 1) * (16 / 36), 20, false),
-    new ArmConstants(0.0, armWrist2, (1 / 1) * (16 / 36), 20, true),
+    new ArmConstants(0.0, climb1Left, climb1LeftEncoder, (1 / 80) * (15 / 36), 40, false),
+    new ArmConstants(0.0, climb1Right, climb1RightEncoder, (1 / 80) * (15 / 36), 40, true),
+    new ArmConstants(0.0, climb2Left, climb2LeftEncoder, (1 / 80), 40, false),
+    new ArmConstants(0.0, climb2Right, climb2RightEncoder, (1 / 80), 40, true),
+    new ArmConstants(0.0, intakePivotLeft, intakePivotEncoder, (1 / 1) * (16 / 36), 20, false),
   };
 }

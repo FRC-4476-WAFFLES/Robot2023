@@ -13,7 +13,7 @@ import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.AnalogEncoder;
 import frc.robot.Constants.SwerveConstants;
 
 public class SwerveModule {
@@ -26,16 +26,20 @@ public class SwerveModule {
     /** The motor controlling the speed of the swerve module. */
     private final LazyTalonFX driveMotor;
 
-    private final DutyCycleEncoder angleEncoder;
+    private final AnalogEncoder angleEncoder;
+    
+    private double lastAngle;
 
     public SwerveModule(SwerveConstants constants) {
         this.angleMotor = new LazyTalonFX(constants.angleMotor);
         this.driveMotor = new LazyTalonFX(constants.driveMotor);
-        this.angleEncoder = new DutyCycleEncoder(constants.angleEncoder);
+        this.angleEncoder = new AnalogEncoder(constants.angleEncoder);
         this.constants = constants;
 
         driveMotor.configFactoryDefault();
         angleMotor.configFactoryDefault();
+
+        angleMotor.setInverted(true);
 
         driveMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 60, 60, 0.03));
         angleMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 30, 30, 0.03));
@@ -96,7 +100,11 @@ public class SwerveModule {
         // If future library versions change this, this code may no longer work.
         double targetAngle = currentAngleRaw + optimizedState.angle.minus(Rotation2d.fromDegrees(currentAngleRaw)).getDegrees();
 
-        angleMotor.set(ControlMode.Position, targetAngle * constants.steeringDegreesToTicks);
+        double angle = (Math.abs(desired.speedMetersPerSecond) <= (SwerveConstants.maxAttainableSpeedMetersPerSecond * 0.01)) ? lastAngle : targetAngle; //Prevent rotating module if speed is less then 1%. Prevents Jittering.
+        
+        lastAngle = angle;
+
+        angleMotor.set(ControlMode.Position, angle * constants.steeringDegreesToTicks);
         driveMotor.set(ControlMode.Velocity, optimizedState.speedMetersPerSecond * constants.metersPerSecondToTicksPer100ms - velocityOffset);
         //driveMotor.set(ControlMode.Velocity, -velocityOffset);
     }
@@ -122,6 +130,10 @@ public class SwerveModule {
         }
 
         return new SwerveModuleState(currentVelocity, Rotation2d.fromDegrees(currentAngle));
+    }
+
+    public double getAbsoluteEncoderPosition() {
+        return angleEncoder.getDistance();
     }
 
     /** Stops all motors from running. */
