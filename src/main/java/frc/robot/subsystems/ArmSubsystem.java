@@ -52,12 +52,12 @@ public class ArmSubsystem extends SubsystemBase {
     climb1LeftEncoder = new DutyCycleEncoder(Constants.climb1LeftEncoder);
     climb1RightEncoder = new DutyCycleEncoder(Constants.climb1RightEncoder);
     climb2Encoder = new DutyCycleEncoder(Constants.climb2LeftEncoder);
-    wristEncoder = new DutyCycleEncoder(Constants.intakePivotEncoder);
+    //wristEncoder = new DutyCycleEncoder(Constants.intakePivotEncoder);
 
     climb1LeftEncoder.setDistancePerRotation(360);
     climb1RightEncoder.setDistancePerRotation(360);
     climb2Encoder.setDistancePerRotation(360);
-    wristEncoder.setDistancePerRotation(360);
+    //wristEncoder.setDistancePerRotation(360);
   }
 
   @Override

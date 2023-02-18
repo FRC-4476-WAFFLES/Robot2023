@@ -131,10 +131,10 @@ public final class Constants {
 
   public static final SwerveConstants swerveModules[] = new SwerveConstants[] {
     // Modules are in the order of Back Left, Front Left, Front Right, Back Right, when intake is front of robot
-    new SwerveConstants(new Translation2d(-SwerveConstants.wheelbaseLengthM / 2, SwerveConstants.wheelbaseWidthM / 2), 280, swerveModuleBLAngle, swerveModuleBLDrive, swerveModule1Encoder),
-    new SwerveConstants(new Translation2d(SwerveConstants.wheelbaseLengthM / 2, SwerveConstants.wheelbaseWidthM / 2), 161, swerveModuleFLAngle, swerveModuleFLDrive, swerveModule2Encoder),
-    new SwerveConstants(new Translation2d(SwerveConstants.wheelbaseLengthM / 2, -SwerveConstants.wheelbaseWidthM / 2), 26, swerveModuleFRAngle, swerveModuleFRDrive, swerveModule3Encoder),
-    new SwerveConstants(new Translation2d(-SwerveConstants.wheelbaseLengthM / 2, -SwerveConstants.wheelbaseWidthM / 2), 5, swerveModuleBRAngle, swerveModuleBRDrive, swerveModule4Encoder),
+    new SwerveConstants(new Translation2d(-SwerveConstants.wheelbaseLengthM / 2, SwerveConstants.wheelbaseWidthM / 2), 279, swerveModuleBLAngle, swerveModuleBLDrive, swerveModule1Encoder),
+    new SwerveConstants(new Translation2d(SwerveConstants.wheelbaseLengthM / 2, SwerveConstants.wheelbaseWidthM / 2), 345, swerveModuleFLAngle, swerveModuleFLDrive, swerveModule2Encoder),
+    new SwerveConstants(new Translation2d(SwerveConstants.wheelbaseLengthM / 2, -SwerveConstants.wheelbaseWidthM / 2), 336, swerveModuleFRAngle, swerveModuleFRDrive, swerveModule3Encoder),
+    new SwerveConstants(new Translation2d(-SwerveConstants.wheelbaseLengthM / 2, -SwerveConstants.wheelbaseWidthM / 2), 353, swerveModuleBRAngle, swerveModuleBRDrive, swerveModule4Encoder),
   };
 
   public static final ArmConstants armMotors[] = new ArmConstants[] {
