@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import java.util.HashMap;
+
+import com.fasterxml.jackson.databind.annotation.JsonAppend.Attr;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
@@ -21,9 +24,91 @@ import frc.robot.kinematics.ThreeJointArmState;
 import frc.robot.kinematics.constraint.CircleConstraint;
 import frc.robot.utils.SparkMaxAbsoluteControlHelper;
 
+
+
 public class ArmSubsystem extends SubsystemBase {
   // private Pose2d targetPos = new Pose2d();
 
+  private static class ArmState {
+    enum Side{
+      RIGHT,
+      LEFT,
+    }
+    enum Height{
+      HIGH,
+      MEDIUM,
+      LOW, 
+      HPPICKUP,
+    }
+    enum GamePiece{
+      CUBE,
+      CONE,
+    }
+    public Side side = Side.LEFT;
+    public Height height = Height.LOW;
+    public GamePiece piece = GamePiece.CUBE;
+    public boolean altpickupl = true;
+    public boolean fudge= true;
+    ArmState(Side side, Height height, GamePiece piece, boolean altpickupl, boolean fudge){
+      this.side= side;
+      this.height= height;
+      this.piece= piece;
+      this.altpickupl= altpickupl;
+      this.fudge=fudge;
+    }
+
+    public boolean equals(ArmState o){
+      return this.side==o.side && this.height==o.height && this.piece==o.piece && this.altpickupl==o.altpickupl;
+    }
+    public int hashcode(){
+      int temp= 0;
+      temp += side.ordinal();
+      temp += height.ordinal()*2;
+      temp += piece.ordinal()*4;
+      temp += altpickupl ? 16 : 0;
+      return temp;
+    }
+  }
+  private static class SetPoint{
+
+  }
+  HashMap<ArmState,SetPoint> setPoints = new HashMap<ArmState, SetPoint>() {{
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.HIGH, ArmState.GamePiece.CONE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.HIGH, ArmState.GamePiece.CONE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.LOW, ArmState.GamePiece.CUBE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.LOW, ArmState.GamePiece.CUBE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, false, false), new SetPoint());
+
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.HIGH, ArmState.GamePiece.CONE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.HIGH, ArmState.GamePiece.CONE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.LOW, ArmState.GamePiece.CUBE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.LOW, ArmState.GamePiece.CONE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.LOW, ArmState.GamePiece.CUBE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.LOW, ArmState.GamePiece.CONE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, true, false), new SetPoint());
+  }};
+
+  private ArmState state;
   private final CANSparkMax climb1Left;
   private final CANSparkMax climb1Right;
   private final CANSparkMax climb2Left;
