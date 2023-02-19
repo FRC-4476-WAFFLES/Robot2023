@@ -44,17 +44,19 @@ public class ArmSubsystem extends SubsystemBase {
       CUBE,
       CONE,
     }
-    public Side side = Side.LEFT;
-    public Height height = Height.LOW;
-    public GamePiece piece = GamePiece.CUBE;
-    public boolean altpickupl = true;
-    public boolean fudge= true;
+    public Side side;
+    public Height height;
+    public GamePiece piece;
+    public boolean altpickupl;
+    public boolean fudge;
+    public boolean isFudgeElbow;
     ArmState(Side side, Height height, GamePiece piece, boolean altpickupl, boolean fudge){
       this.side= side;
       this.height= height;
       this.piece= piece;
       this.altpickupl= altpickupl;
       this.fudge=fudge;
+      isFudgeElbow = false;
     }
 
     public boolean equals(ArmState o){
@@ -240,41 +242,50 @@ public class ArmSubsystem extends SubsystemBase {
 
   public void updateSideLeft() {
     state.side = ArmState.Side.LEFT;
+    state.altpickupl = false;
   }
 
   public void updateSideRight() {
     state.side = ArmState.Side.RIGHT;
+    state.altpickupl = false;
   }
 
   public void updateHeightHigh() {
     state.height = ArmState.Height.HIGH;
+    state.altpickupl = false;
   }
 
   public void updateHeightMedium() {
     state.height = ArmState.Height.MEDIUM;
+    state.altpickupl = false;
   }
 
   public void updateHeightLow() {
     state.height = ArmState.Height.LOW;
+    state.altpickupl = false;
   }
 
   public void updateHeightPickup() {
     state.height = ArmState.Height.HPPICKUP;
+    state.altpickupl = false;
   }
 
   public void updateGamePieceCube() {
     state.piece = ArmState.GamePiece.CUBE;
+    state.altpickupl = false;
   }
 
   public void updateGamePieceCone() {
     state.piece = ArmState.GamePiece.CONE;
+    state.altpickupl = false;
   }
 
   public void updateAltPickuplTrue() {
     state.altpickupl = true;
   }
-  public void updateAltPickuplFalse() {
-    state.altpickupl = false;
+
+  public void updateFudgeJoint(boolean isFudgeElbow) {
+    state.isFudgeElbow = isFudgeElbow;
   }
 }
 
