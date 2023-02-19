@@ -235,4 +235,29 @@ public class ArmSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Left 2 Encoder", climb2Encoder.getDistance());
     SmartDashboard.putNumber("Wrist Encoder", intakePivotEncoder.getDistance());
   }
+
+  public void updateSideLeft() {
+    state.side = ArmState.Side.LEFT;
+  }
+
+  public void updateSideRight() {
+    state.side = ArmState.Side.RIGHT;
+  }
+
+  public void updateHeightHigh() {
+    state.height = ArmState.Height.HIGH;
+  }
+
+  public void updateHeightMedium() {
+    state.height = ArmState.Height.MEDIUM;
+  }
+
+  public void updateHeightLow() {
+    state.height = ArmState.Height.LOW;
+  }
+
+  public void updateHeightPickup() {
+    state.height = ArmState.Height.HPPICKUP;
+  }
+
 }

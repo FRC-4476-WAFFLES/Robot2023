@@ -55,8 +55,19 @@ public class RobotContainer {
    */
   private void configureBindings() {
     final var rightToggle = new JoystickButton(rightJoystick, 1);
+    final var leftToggle = new JoystickButton(rightJoystick, 2);
+    //TODO: fix placeholder numbers
+    final var aButton = new JoystickButton(rightJoystick, 2);
+    final var bButton = new JoystickButton(rightJoystick, 2);
+    final var xButton = new JoystickButton(rightJoystick, 2);
+    final var yButton = new JoystickButton(rightJoystick, 2);
 
     rightToggle.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem));
+    leftToggle.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem));
+    aButton.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem));
+    bButton.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem));
+    xButton.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem));
+    yButton.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem));
   }
 
   /**
