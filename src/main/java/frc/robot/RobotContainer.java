@@ -55,19 +55,24 @@ public class RobotContainer {
    */
   private void configureBindings() {
     final var rightToggle = new JoystickButton(rightJoystick, 1);
-    final var leftToggle = new JoystickButton(rightJoystick, 2);
-    //TODO: fix placeholder numbers
-    final var aButton = new JoystickButton(rightJoystick, 2);
-    final var bButton = new JoystickButton(rightJoystick, 2);
-    final var xButton = new JoystickButton(rightJoystick, 2);
-    final var yButton = new JoystickButton(rightJoystick, 2);
+    final var aButton = new JoystickButton(operate, 1);
+    final var bButton = new JoystickButton(operate, 2);
+    final var xButton = new JoystickButton(operate, 3);
+    final var yButton = new JoystickButton(operate, 4);
+    final var oneButton = new JoystickButton(operate, 9);
+    final var twoButton = new JoystickButton(operate, 10);
+    final var leftBumperButton = new JoystickButton(operate, 5);
+    final var rightBumperButton = new JoystickButton(operate, 6);
 
     rightToggle.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem));
-    leftToggle.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem));
-    aButton.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem));
-    bButton.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem));
-    xButton.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem));
-    yButton.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem));
+    aButton.onTrue(new InstantCommand(armSubsystem::updateHeightLow, armSubsystem));
+    bButton.onTrue(new InstantCommand(armSubsystem::updateHeightMedium, armSubsystem));
+    yButton.onTrue(new InstantCommand(armSubsystem::updateHeightHigh, armSubsystem));
+    xButton.onTrue(new InstantCommand(armSubsystem::updateHeightPickup, armSubsystem));
+    oneButton.onTrue(new InstantCommand(armSubsystem::updateSideLeft, armSubsystem));
+    twoButton.onTrue(new InstantCommand(armSubsystem::updateSideRight, armSubsystem));
+    leftBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCONE, armSubsystem));
+    rightBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCUBE, armSubsystem));
   }
 
   /**
