@@ -42,7 +42,7 @@ public class DriveTeleop extends CommandBase {
     right *= Constants.SwerveConstants.maxAttainableSpeedMetersPerSecond;
     rotation *= 6;
     
-    driveSubsystem.robotDrive(forward, right, rotation, true);
+    driveSubsystem.robotDrive(forward, right, rotation, false);
   }
 
   // Called once the command ends or is interrupted.

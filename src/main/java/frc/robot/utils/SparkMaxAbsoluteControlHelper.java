@@ -1,19 +1,23 @@
 package frc.robot.utils;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import frc.robot.Constants.ArmConstants;
 
 public class SparkMaxAbsoluteControlHelper {
   private final CANSparkMax m_sparkMax;
   private final SparkMaxPIDController m_PIDController;
   // private final SparkMaxAbsoluteEncoder m_absoluteEncoder;
+  private final RelativeEncoder internalEncoder;
+  private final DutyCycleEncoder externalEncoder;
 
-  public SparkMaxAbsoluteControlHelper(ArmConstants constants) {
+  public SparkMaxAbsoluteControlHelper(ArmConstants constants, DutyCycleEncoder externalEncoder) {
     m_sparkMax = new CANSparkMax(constants.motorID, MotorType.kBrushless);
     m_sparkMax.restoreFactoryDefaults();
     m_sparkMax.setSmartCurrentLimit(constants.currentLimit);
@@ -24,6 +28,11 @@ public class SparkMaxAbsoluteControlHelper {
     // m_absoluteEncoder = m_sparkMax.getAbsoluteEncoder(Type.kDutyCycle);
     // m_absoluteEncoder.setZeroOffset(constants.calibration);
     // m_absoluteEncoder.setPositionConversionFactor(360); // TODO: I think that the absolute encoder returns position in degrees, which would be great. Otherwise this should be altered to make it be degrees
+
+    this.internalEncoder = m_sparkMax.getEncoder();
+    this.externalEncoder = externalEncoder;
+
+    internalEncoder.setPosition(((externalEncoder.getDistance() - constants.calibration) / 360) / constants.ratio);
 
     m_PIDController = m_sparkMax.getPIDController();
     // m_PIDController.setFeedbackDevice(m_absoluteEncoder);
@@ -48,7 +57,11 @@ public class SparkMaxAbsoluteControlHelper {
 
   public double getPosition() {
     // return m_absoluteEncoder.getPosition();
-    return 0;
+    return internalEncoder.getPosition();
+  }
+
+  public double getAbsolutePosition() {
+    return externalEncoder.getDistance();
   }
 
   public void setP(double kP) {

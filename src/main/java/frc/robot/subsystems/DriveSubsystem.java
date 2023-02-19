@@ -30,7 +30,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     // /** Allows us to calculate the swerve module states from a chassis motion. */
     public final SwerveDriveKinematics kinematics;
-    private final SwerveDriveOdometry odometry;
+    //private final SwerveDriveOdometry odometry;
 
     private final AHRS ahrsIMU = new AHRS(SPI.Port.kMXP);
 
@@ -63,20 +63,20 @@ public class DriveSubsystem extends SubsystemBase {
 
         this.kinematics = new SwerveDriveKinematics(positionArry);
         this.modules = moduleArray;
-        this.odometry = new SwerveDriveOdometry(kinematics, Rotation2d.fromDegrees(0), modulePositions);
+        //this.odometry = new SwerveDriveOdometry(kinematics, Rotation2d.fromDegrees(0), modulePositions);
     }
 
     /** This method will be called once per scheduler run. */
     @Override
     public void periodic() {
-        SwerveModuleState[] moduleStates = new SwerveModuleState[4];
+        SwerveModuleState[] moduleStates = new SwerveModuleState[modules.length];
         for(int x=0; x<modules.length; x++){
             moduleStates[x] = modules[x].getState();
         }
-        odometry.update(Rotation2d.fromDegrees(-ahrsIMU.getAngle()), modulePositions);
-        SmartDashboard.putNumber("X location Is this changing", getOdometryLocation().getX());
-        SmartDashboard.putNumber("Y location", getOdometryLocation().getY());
-        SmartDashboard.putNumber("Odometry Heading", odometry.getPoseMeters().getRotation().getDegrees());
+        //odometry.update(Rotation2d.fromDegrees(-ahrsIMU.getAngle()), modulePositions);
+        // SmartDashboard.putNumber("X location Is this changing", getOdometryLocation().getX());
+        // SmartDashboard.putNumber("Y location", getOdometryLocation().getY());
+        //SmartDashboard.putNumber("Odometry Heading", odometry.getPoseMeters().getRotation().getDegrees());
         SmartDashboard.putNumber("New Gyro Angle", ahrsIMU.getAngle());
         SmartDashboard.putNumber("New Gyro Rate", ahrsIMU.getRate());
         SmartDashboard.putNumber("Vx", getChassisSpeeds().vxMetersPerSecond);
@@ -94,9 +94,24 @@ public class DriveSubsystem extends SubsystemBase {
         for (int i = 0; i < modules.length; i++) {
             SmartDashboard.putNumber("Drive Encoder" + String.valueOf(i + 1), modules[i].getAbsoluteEncoderPosition());
         }
+
+        // for (int i = 0; i < modules.length; i++) {
+        //     double encoderAngle = modules[i].getAbsoluteEncoderPosition() * (21.4 * 2048 / 360);
+        //     double motorAngle = modules[i].getAngleMotorPosition();
+        //     SmartDashboard.putNumber("Module " + String.valueOf(i + 1) + "Angle Difference", (motorAngle-encoderAngle) % 2048);
+        // }
+
+        // for (int i = 0; i < modules.length; i++) {
+        //     SmartDashboard.putNumber("Analog" + String.valueOf(i + 1), modules[i].getRawAnalogValue());
+        // }
+
+        // for (int i = 0; i < modules.length; i++) {
+        //     SmartDashboard.putNumber("Ratio" + String.valueOf(i + 1), modules[i].getAbsoluteEncoderPosition() / modules[i].getRawAnalogValue());
+        // }
+
         //field.setRobotPose(this.getOdometryLocation());
 
-        SmartDashboard.putNumber("Drive Target Heading (Degrees)", Math.toDegrees(Math.atan2(-getOdometryLocation().getY(), getOdometryLocation().getX())));
+        //SmartDashboard.putNumber("Drive Target Heading (Degrees)", Math.toDegrees(Math.atan2(-getOdometryLocation().getY(), getOdometryLocation().getX())));
     }
 
     public void robotDrive(double forward, double right, double rotation, boolean fieldCentric){
@@ -112,7 +127,8 @@ public class DriveSubsystem extends SubsystemBase {
         if (fieldCentric){
             //chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(forward, right, rotation, gyro.getHeadingAsRotation2d());
             //chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(forward, right, rotation, Rotation2d.fromDegrees(-ahrsIMU.getAngle()));
-            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(forward, right, rotation, odometry.getPoseMeters().getRotation());
+            //chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(forward, right, rotation, odometry.getPoseMeters().getRotation());
+            chassisSpeeds = new ChassisSpeeds(forward, right, rotation);
         } else {
             chassisSpeeds = new ChassisSpeeds(forward, right, rotation);
         }
@@ -132,15 +148,15 @@ public class DriveSubsystem extends SubsystemBase {
         }
     }
 
-    public Pose2d getOdometryLocation(){
-        return new Pose2d(
-            -odometry.getPoseMeters().getX(), 
-            odometry.getPoseMeters().getY(), 
-            odometry.getPoseMeters().getRotation());
-    }
+    // public Pose2d getOdometryLocation(){
+    //     return new Pose2d(
+    //         -odometry.getPoseMeters().getX(), 
+    //         odometry.getPoseMeters().getY(), 
+    //         odometry.getPoseMeters().getRotation());
+    // }
 
     public ChassisSpeeds getChassisSpeeds() {
-        SwerveModuleState[] moduleStates = new SwerveModuleState[4];
+        SwerveModuleState[] moduleStates = new SwerveModuleState[modules.length];
         for(int x=0; x<modules.length; x++){
             moduleStates[x] = modules[x].getState();
         }
@@ -158,9 +174,9 @@ public class DriveSubsystem extends SubsystemBase {
         ahrsIMU.reset();
     }
 
-    public void resetOdometry(Pose2d robotPose) {
-        odometry.resetPosition(Rotation2d.fromDegrees(-ahrsIMU.getAngle()), modulePositions, robotPose);
-    }
+    // public void resetOdometry(Pose2d robotPose) {
+    //     odometry.resetPosition(Rotation2d.fromDegrees(-ahrsIMU.getAngle()), modulePositions, robotPose);
+    // }
 
     public void resetSteerEncoders() {
         for (SwerveModule module : modules) {

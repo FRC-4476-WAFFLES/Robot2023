@@ -17,16 +17,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 public final class Constants {
 
   // CAN bus
-  // TODO: set these adresses
-  public static final int swerveModuleBLAngle = 18; // FX Back Left 2
-  public static final int swerveModuleBLDrive = 21; // FX Back Left 1
-  public static final int swerveModuleFLAngle = 25; // FX Front Left 2
-  public static final int swerveModuleFLDrive = 23; // FX Front Left 1
-  public static final int swerveModuleFRAngle = 19; // FX Front Right 1
-  public static final int swerveModuleFRDrive = 17; // FX Front Right 2
-  public static final int swerveModuleBRAngle = 24; // FX Back Right 1
-  public static final int swerveModuleBRDrive = 22; // FX Back Right 2
-
   public static final int climb1Left = 9; // Spark MAX
   public static final int climb1Right = 11; // Spark MAX
   public static final int climb2Left = 10; // Spark MAX
@@ -36,18 +26,35 @@ public final class Constants {
   public static final int intakeLeft = 15; // Spark MAX
   public static final int intakeRight = 16; // Spark MAX
 
+  public static final int swerveModuleBLAngle = 18; // FX Back Left 2
+  public static final int swerveModuleBLDrive = 21; // FX Back Left 1
+  public static final int swerveModuleFLAngle = 25; // FX Front Left 2
+  public static final int swerveModuleFLDrive = 23; // FX Front Left 1
+  public static final int swerveModuleFRAngle = 19; // FX Front Right 1
+  public static final int swerveModuleFRDrive = 17; // FX Front Right 2
+  public static final int swerveModuleBRAngle = 24; // FX Back Right 1
+  public static final int swerveModuleBRDrive = 22; // FX Back Right 2
+
   // DIO ports
   public static final int climb1LeftEncoder = 0; // REV Through-Bore Encoder
   public static final int climb1RightEncoder = 1; // REV Through-Bore Encoder
   public static final int climb2LeftEncoder = 5; // REV Through-Bore Encoder
   public static final int climb2RightEncoder = 4; // REV Through-Bore Encoder
-  public static final int intakePivotEncoder = 7; // REV Through-Bore Encoder
+  public static final int intakePivotEncoder = 3; // REV Through-Bore Encoder
 
   // Analog Inputs
-  public static final int swerveModule1Encoder = 0; // IDK what kind of absolute encoder this is
-  public static final int swerveModule2Encoder = 1; // IDK what kind of absolute encoder this is
-  public static final int swerveModule3Encoder = 2; // IDK what kind of absolute encoder this is
-  public static final int swerveModule4Encoder = 3; // IDK what kind of absolute encoder this is
+  public static final int swerveModule1Encoder = 0; // Thriftybot Analog Encoder
+  public static final int swerveModule2Encoder = 1; // Thriftybot Analog Encoder
+  public static final int swerveModule3Encoder = 2; // Thriftybot Analog Encoder
+  public static final int swerveModule4Encoder = 3; // Thriftybot Analog Encoder
+
+  // Arm Initialization
+  public static final ArmConstants climb1LeftConstants = new ArmConstants(-17, climb1Left, (1 / 80) * (15 / 36), -72, 38, 40, false);
+  public static final ArmConstants climb1RightConstants = new ArmConstants(284, climb1Right, (1 / 80) * (15 / 36), 229, 339, 40, true);
+  public static final ArmConstants climb2LeftConstants = new ArmConstants(-44, climb2Left, (1 / 80), -200, 112, 40, false);
+  public static final ArmConstants climb2RightConstants = new ArmConstants(-44, climb2Right, (1 / 80), -200, 112, 40, true);
+  public static final ArmConstants intakePivotLeftConstants = new ArmConstants(94, intakePivotLeft, (1 / 80), -86, 274, 20, false);
+  public static final ArmConstants intakePivotRightConstants = new ArmConstants(94, intakePivotRight, (1 / 80), -86, 274, 20, true);
 
   public static final class SwerveConstants {
     /** Represents the offset from the centre of the robot, in metres. */
@@ -78,7 +85,7 @@ public final class Constants {
     public final double thirdStageRatio = 15.0/60.0;
     public final double driveOverallRatio = 1.0 / (firstStageRatio * secondStageRatio * thirdStageRatio); // Drive gear ratio
 
-    public final double steeringRatio = 21.4;
+    public final double steeringRatio = 150/7; //150/7 is on datasheet, 6 degrees of error were observed over 1 full rotation of 360 degrees
 
     public final double steeringToDriveRatio = 1.0 / (firstStageRatio * secondStageRatio * steeringRatio);
     
@@ -96,7 +103,7 @@ public final class Constants {
     // The number of ticks of the motor's built-in encoder per revolution of the steering module
     public final double ticksPerSteeringRevolution = 2048 * steeringRatio;
     // Convert degrees to motor ticks
-    public final double steeringDegreesToTicks = ticksPerSteeringRevolution / 360.0;
+    public final double ticksPerSteeringDegree = ticksPerSteeringRevolution / 360.0;
 
     public SwerveConstants(Translation2d position, double calibration, int angleMotor, int driveMotor, int angleEncoder) {
       this.position = position;
@@ -112,18 +119,28 @@ public final class Constants {
     public static final double a2 = 1.0;
     public static final double a3 = 0.1;
 
+
+
+    // arm 1 left limit 1 : 39 degrees (at back, decreases going to front), zero at -17
+    // arm 1 right limit 1 : 229 degrees (at back, increases going to front), zero at 284
+    // zero secodn pivot at -44
+
+    // intake 0 94
+
     public final double calibration;
     public final int motorID;
-    public final int encoderID;
     public final double ratio;
+    public final double minimumLimit;
+    public final double maximumLimit;
     public final int currentLimit;
     public final boolean isInverted;
 
-    public ArmConstants(double calibration, int motorID, int encoderID, double ratio, int currentLimit, boolean isInverted) {
+    public ArmConstants(double calibration, int motorID, double ratio, double minimumLimit, double maximumLimit, int currentLimit, boolean isInverted) {
       this.calibration = calibration;
       this.motorID = motorID;
-      this.encoderID = encoderID;
       this.ratio = ratio;
+      this.minimumLimit = minimumLimit;
+      this.maximumLimit = maximumLimit;
       this.currentLimit = currentLimit;
       this.isInverted = isInverted;
     }
@@ -131,17 +148,9 @@ public final class Constants {
 
   public static final SwerveConstants swerveModules[] = new SwerveConstants[] {
     // Modules are in the order of Back Left, Front Left, Front Right, Back Right, when intake is front of robot
-    new SwerveConstants(new Translation2d(-SwerveConstants.wheelbaseLengthM / 2, SwerveConstants.wheelbaseWidthM / 2), 279, swerveModuleBLAngle, swerveModuleBLDrive, swerveModule1Encoder),
-    new SwerveConstants(new Translation2d(SwerveConstants.wheelbaseLengthM / 2, SwerveConstants.wheelbaseWidthM / 2), 345, swerveModuleFLAngle, swerveModuleFLDrive, swerveModule2Encoder),
-    new SwerveConstants(new Translation2d(SwerveConstants.wheelbaseLengthM / 2, -SwerveConstants.wheelbaseWidthM / 2), 336, swerveModuleFRAngle, swerveModuleFRDrive, swerveModule3Encoder),
-    new SwerveConstants(new Translation2d(-SwerveConstants.wheelbaseLengthM / 2, -SwerveConstants.wheelbaseWidthM / 2), 353, swerveModuleBRAngle, swerveModuleBRDrive, swerveModule4Encoder),
-  };
-
-  public static final ArmConstants armMotors[] = new ArmConstants[] {
-    new ArmConstants(0.0, climb1Left, climb1LeftEncoder, (1 / 80) * (15 / 36), 40, false),
-    new ArmConstants(0.0, climb1Right, climb1RightEncoder, (1 / 80) * (15 / 36), 40, true),
-    new ArmConstants(0.0, climb2Left, climb2LeftEncoder, (1 / 80), 40, false),
-    new ArmConstants(0.0, climb2Right, climb2RightEncoder, (1 / 80), 40, true),
-    new ArmConstants(0.0, intakePivotLeft, intakePivotEncoder, (1 / 1) * (16 / 36), 20, false),
+    new SwerveConstants(new Translation2d(-SwerveConstants.wheelbaseLengthM / 2, SwerveConstants.wheelbaseWidthM / 2), 0, swerveModuleBLAngle, swerveModuleBLDrive, swerveModule1Encoder), // 280
+    new SwerveConstants(new Translation2d(SwerveConstants.wheelbaseLengthM / 2, SwerveConstants.wheelbaseWidthM / 2), 0, swerveModuleFLAngle, swerveModuleFLDrive, swerveModule2Encoder), // 170
+    new SwerveConstants(new Translation2d(SwerveConstants.wheelbaseLengthM / 2, -SwerveConstants.wheelbaseWidthM / 2), 0, swerveModuleFRAngle, swerveModuleFRDrive, swerveModule3Encoder), // 20
+    new SwerveConstants(new Translation2d(-SwerveConstants.wheelbaseLengthM / 2, -SwerveConstants.wheelbaseWidthM / 2), 0, swerveModuleBRAngle, swerveModuleBRDrive, swerveModule4Encoder), // 2
   };
 }
