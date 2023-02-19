@@ -71,8 +71,8 @@ public class RobotContainer {
     xButton.onTrue(new InstantCommand(armSubsystem::updateHeightPickup, armSubsystem));
     oneButton.onTrue(new InstantCommand(armSubsystem::updateSideLeft, armSubsystem));
     twoButton.onTrue(new InstantCommand(armSubsystem::updateSideRight, armSubsystem));
-    leftBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCONE, armSubsystem));
-    rightBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCUBE, armSubsystem));
+    leftBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCone, armSubsystem));
+    rightBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCube, armSubsystem));
   }
 
   /**
