@@ -108,6 +108,8 @@ public class ArmSubsystem extends SubsystemBase {
     put(new ArmState(ArmState.Side.LEFT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, true, false), new SetPoint());
   }};
 
+
+
   private ArmState state;
   private final CANSparkMax climb1Left;
   private final CANSparkMax climb1Right;
@@ -260,4 +262,19 @@ public class ArmSubsystem extends SubsystemBase {
     state.height = ArmState.Height.HPPICKUP;
   }
 
+  public void updateGamePieceCube() {
+    state.piece = ArmState.GamePiece.CUBE;
+  }
+
+  public void updateGamePieceCone() {
+    state.piece = ArmState.GamePiece.CONE;
+  }
+
+  public void updateAltPickuplTrue() {
+    state.altpickupl = true;
+  }
+  public void updateAltPickuplFalse() {
+    state.altpickupl = false;
+  }
 }
+
