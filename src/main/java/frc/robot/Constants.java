@@ -17,12 +17,12 @@ import edu.wpi.first.math.geometry.Translation2d;
 public final class Constants {
 
   // CAN bus
-  public static final int climb1Left = 9; // Spark MAX
-  public static final int climb1Right = 11; // Spark MAX
-  public static final int climb2Left = 10; // Spark MAX
-  public static final int climb2Right = 12; // Spark MAX
-  public static final int intakePivotLeft = 13; // Spark MAX
-  public static final int intakePivotRight = 14; // Spark MAX
+  public static final int shoulderLeft = 9; // Spark MAX
+  public static final int shoulderRight = 11; // Spark MAX
+  public static final int elbowLeft = 10; // Spark MAX
+  public static final int elbowRight = 12; // Spark MAX
+  public static final int wristLeft = 13; // Spark MAX
+  public static final int wristRight = 14; // Spark MAX
   public static final int intakeLeft = 15; // Spark MAX
   public static final int intakeRight = 16; // Spark MAX
 
@@ -36,11 +36,11 @@ public final class Constants {
   public static final int swerveModuleBRDrive = 22; // FX Back Right 2
 
   // DIO ports
-  public static final int climb1LeftEncoder = 0; // REV Through-Bore Encoder
-  public static final int climb1RightEncoder = 1; // REV Through-Bore Encoder
-  public static final int climb2LeftEncoder = 5; // REV Through-Bore Encoder
-  public static final int climb2RightEncoder = 4; // REV Through-Bore Encoder
-  public static final int intakePivotEncoder = 3; // REV Through-Bore Encoder
+  public static final int shoulderLeftEncoder = 0; // REV Through-Bore Encoder
+  public static final int shoulderRightEncoder = 1; // REV Through-Bore Encoder
+  public static final int elbowLeftEncoder = 5; // REV Through-Bore Encoder
+  public static final int elbowRightEncoder = 4; // REV Through-Bore Encoder
+  public static final int wristEncoder = 3; // REV Through-Bore Encoder
 
   // Analog Inputs
   public static final int swerveModule1Encoder = 0; // Thriftybot Analog Encoder
@@ -49,12 +49,12 @@ public final class Constants {
   public static final int swerveModule4Encoder = 3; // Thriftybot Analog Encoder
 
   // Arm Initialization
-  public static final ArmConstants climb1LeftConstants = new ArmConstants(-17, climb1Left, (1 / 80) * (15 / 36), -72, 38, 40, false);
-  public static final ArmConstants climb1RightConstants = new ArmConstants(284, climb1Right, (1 / 80) * (15 / 36), 229, 339, 40, true);
-  public static final ArmConstants climb2LeftConstants = new ArmConstants(-44, climb2Left, (1 / 80), -200, 112, 40, false);
-  public static final ArmConstants climb2RightConstants = new ArmConstants(-44, climb2Right, (1 / 80), -200, 112, 40, true);
-  public static final ArmConstants intakePivotLeftConstants = new ArmConstants(94, intakePivotLeft, (1 / 80), -86, 274, 20, false);
-  public static final ArmConstants intakePivotRightConstants = new ArmConstants(94, intakePivotRight, (1 / 80), -86, 274, 20, true);
+  public static final ArmConstants shoulderLeftConstants = new ArmConstants(-17, shoulderLeft, (1 / 80) * (15 / 36), -72, 38, 40, false);
+  public static final ArmConstants shoulderRightConstants = new ArmConstants(284, shoulderRight, (1 / 80) * (15 / 36), 229, 339, 40, true);
+  public static final ArmConstants elbowLeftConstants = new ArmConstants(-44, elbowLeft, (1 / 80), -200, 112, 40, false);
+  public static final ArmConstants elbowRightConstants = new ArmConstants(-44, elbowRight, (1 / 80), -200, 112, 40, true);
+  public static final ArmConstants wristLeftConstants = new ArmConstants(94, wristLeft, (1 / 80), -86, 274, 20, false);
+  public static final ArmConstants wristRightConstants = new ArmConstants(94, wristRight, (1 / 80), -86, 274, 20, true);
 
   public static final class SwerveConstants {
     /** Represents the offset from the centre of the robot, in metres. */
