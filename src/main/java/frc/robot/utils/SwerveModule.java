@@ -43,7 +43,7 @@ public class SwerveModule {
         driveMotor.configFactoryDefault();
         angleMotor.configFactoryDefault();
 
-        //angleMotor.setInverted(true);
+        angleMotor.setInverted(true);
 
         driveMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 60, 60, 0.03));
         angleMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 30, 30, 0.03));
@@ -62,8 +62,8 @@ public class SwerveModule {
         angleMotor.enableVoltageCompensation(true);
 
         driveMotor.setNeutralMode(NeutralMode.Brake);
-        //angleMotor.setNeutralMode(NeutralMode.Brake);
-        angleMotor.setNeutralMode(NeutralMode.Coast); // TODO: change this back to brake mode
+        angleMotor.setNeutralMode(NeutralMode.Brake);
+        //angleMotor.setNeutralMode(NeutralMode.Coast);
 
         driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
         angleMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
@@ -115,7 +115,7 @@ public class SwerveModule {
     }
 
     public void resetSteerEncoder() {
-        angleMotor.setSelectedSensorPosition((angleEncoder.getDistance() - constants.calibration) * constants.ticksPerSteeringDegree);
+        angleMotor.setSelectedSensorPosition((getAbsolutePosition() - constants.calibration) * constants.ticksPerSteeringDegree);
     }
 
     /**
@@ -138,7 +138,7 @@ public class SwerveModule {
     }
 
     public double getAbsoluteEncoderPosition() {
-        return angleEncoder.getDistance();
+        return getAbsolutePosition();
     }
 
     public double getRawAnalogValue() {
@@ -149,9 +149,27 @@ public class SwerveModule {
         return angleMotor.getSelectedSensorPosition();
     }
 
+    public double getCalculatedEncoderPos() {
+        return (getAbsolutePosition() - constants.calibration) * constants.ticksPerSteeringDegree;
+    }
+
     /** Stops all motors from running. */
     public void stop() {
         this.driveMotor.set(ControlMode.PercentOutput, 0);
         this.angleMotor.set(ControlMode.PercentOutput, 0);
+    }
+
+    private double getAbsolutePosition() {
+        double position = angleEncoder.getDistance();
+        if (position > 180) {
+            while (position > 180) {
+                position -= 360;
+            }
+        } else if (position < -180) {
+            while (position < -180) {
+                position += 360;
+            }
+        }
+        return position;
     }
 }

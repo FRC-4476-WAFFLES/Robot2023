@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.arm.ArmJoystickControl;
 import frc.robot.commands.drive.DriveTeleop;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
@@ -34,11 +35,12 @@ public class RobotContainer {
   public static final XboxController operate = new XboxController(2);
 
   private final DriveTeleop swerve = new DriveTeleop();
+  private final ArmJoystickControl arm1JoystickControl = new ArmJoystickControl(operate::getRightY, operate::getLeftY);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     driveSubsystem.setDefaultCommand(swerve);
-    CommandScheduler.getInstance().registerSubsystem(armSubsystem);
+    armSubsystem.setDefaultCommand(arm1JoystickControl);
     CommandScheduler.getInstance().registerSubsystem(intakeSubsystem);
     // Configure the trigger bindings
     configureBindings();

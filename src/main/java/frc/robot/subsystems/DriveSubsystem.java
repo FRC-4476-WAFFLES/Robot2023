@@ -109,6 +109,14 @@ public class DriveSubsystem extends SubsystemBase {
         //     SmartDashboard.putNumber("Ratio" + String.valueOf(i + 1), modules[i].getAbsoluteEncoderPosition() / modules[i].getRawAnalogValue());
         // }
 
+        for (int i = 0; i < modules.length; i++) {
+            SmartDashboard.putNumber("Module " + String.valueOf(i + 1) + "Builtin encoder pos", modules[i].getAngleMotorPosition());
+        }
+
+        for (int i = 0; i < modules.length; i++) {
+            SmartDashboard.putNumber("Module " + String.valueOf(i + 1) + "Calculated encoder pos", modules[i].getCalculatedEncoderPos());
+        }
+
         //field.setRobotPose(this.getOdometryLocation());
 
         //SmartDashboard.putNumber("Drive Target Heading (Degrees)", Math.toDegrees(Math.atan2(-getOdometryLocation().getY(), getOdometryLocation().getX())));
@@ -126,9 +134,9 @@ public class DriveSubsystem extends SubsystemBase {
 
         if (fieldCentric){
             //chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(forward, right, rotation, gyro.getHeadingAsRotation2d());
-            //chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(forward, right, rotation, Rotation2d.fromDegrees(-ahrsIMU.getAngle()));
+            chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(forward, right, rotation, Rotation2d.fromDegrees(-ahrsIMU.getAngle()));
             //chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(forward, right, rotation, odometry.getPoseMeters().getRotation());
-            chassisSpeeds = new ChassisSpeeds(forward, right, rotation);
+            //chassisSpeeds = new ChassisSpeeds(forward, right, rotation);
         } else {
             chassisSpeeds = new ChassisSpeeds(forward, right, rotation);
         }
