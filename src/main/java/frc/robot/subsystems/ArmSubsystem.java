@@ -4,14 +4,14 @@
 
 package frc.robot.subsystems;
 
+import java.util.HashMap;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.FollowerType;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
-import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
 import com.revrobotics.CANSparkMax;
@@ -36,6 +36,89 @@ import frc.robot.kinematics.constraint.CircleConstraint;
 import frc.robot.utils.SparkMaxAbsoluteControlHelper;
 
 public class ArmSubsystem extends SubsystemBase {
+  private static class ArmState {
+    enum Side{
+      RIGHT,
+      LEFT,
+    }
+    enum Height{
+      HIGH,
+      MEDIUM,
+      LOW, 
+      HPPICKUP,
+    }
+    enum GamePiece{
+      CUBE,
+      CONE,
+    }
+    public Side side;
+    public Height height;
+    public GamePiece piece;
+    public boolean altpickupl;
+    public boolean fudge;
+    public boolean isFudgeElbow;
+    ArmState(Side side, Height height, GamePiece piece, boolean altpickupl, boolean fudge){
+      this.side= side;
+      this.height= height;
+      this.piece= piece;
+      this.altpickupl= altpickupl;
+      this.fudge=fudge;
+      isFudgeElbow = false;
+    }
+
+    public boolean equals(ArmState o){
+      return this.side==o.side && this.height==o.height && this.piece==o.piece && this.altpickupl==o.altpickupl;
+    }
+    public int hashcode(){
+      int temp= 0;
+      temp += side.ordinal();
+      temp += height.ordinal()*2;
+      temp += piece.ordinal()*4;
+      temp += altpickupl ? 16 : 0;
+      return temp;
+    }
+  }
+  private static class SetPoint{
+
+  }
+  HashMap<ArmState,SetPoint> setPoints = new HashMap<ArmState, SetPoint>() {{
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.HIGH, ArmState.GamePiece.CONE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.HIGH, ArmState.GamePiece.CONE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.LOW, ArmState.GamePiece.CUBE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.LOW, ArmState.GamePiece.CUBE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, false, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, false, false), new SetPoint());
+
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.HIGH, ArmState.GamePiece.CONE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.HIGH, ArmState.GamePiece.CONE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.LOW, ArmState.GamePiece.CUBE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.LOW, ArmState.GamePiece.CONE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.LOW, ArmState.GamePiece.CUBE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.LOW, ArmState.GamePiece.CONE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.RIGHT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, true, false), new SetPoint());
+    put(new ArmState(ArmState.Side.LEFT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, true, false), new SetPoint());
+  }};
+
+  private ArmState state;
+
   // private Pose2d targetPos = new Pose2d();
 
   // private final CANSparkMax intakePivotLeft;
@@ -222,14 +305,9 @@ public class ArmSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Left 1 absolute encoder", getArm1LeftAdjustedAbsoluteEncoderPos());
     SmartDashboard.putNumber("Right 1 absolute encoder", getArm1RightAbsoluteEncoderPos());
 
-    // SmartDashboard.putNumber("Left 1 relative encoder", arm1LeftRelativeEncoder.getPosition());
-    // SmartDashboard.putNumber("Right 1 relative encoder", arm1RightRelativeEncoder.getPosition());
-
     SmartDashboard.putNumber("Left 1 calculated relative pos", (-(getArm1LeftAdjustedAbsoluteEncoderPos() - arm1LeftAdjustedCalibration) / Constants.arm1LeftConstants.ratio / 360.0) * 2048);
 
     SmartDashboard.putNumber("Left 2 absolute encoder", getArm2AbsoluteEncoderPos());
-
-    // SmartDashboard.putNumber("Left 2 relative encoder", arm2LeftRelativeEncoder.getPosition());
 
     SmartDashboard.putNumber("Left 2 calculated relative pos", ((getArm2LeftAdjustedAbsoluteEncoderPos() - arm2AdjustedCalibration) / Constants.arm2LeftConstants.ratio / 360.0) * 2048);
 
@@ -255,6 +333,10 @@ public class ArmSubsystem extends SubsystemBase {
       // arm1RightPID.setP(arm1p);
       arm2kP = arm2p;
     }
+
+    // TODO: here we should put the current state into the setPoints map to get the next target. If we are in 
+    // fudge mode, we will disregard these and set the speed and direction of the motors directly based on the operator joysticks.
+    // the state also has a variable to track the elbow vs wrist movement.
   }
 
   public void stop() {
@@ -317,14 +399,58 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   private void resetArm1LeftEncoder() {
-    // arm1LeftRelativeEncoder.setPosition(getArm1AbsoluteEncoderAverage() / Constants.arm1LeftConstants.ratio / 360.0);
+    arm1Left.setSelectedSensorPosition((getArm1AbsoluteEncoderAverage() / Constants.arm1LeftConstants.ratio / 360.0) * 2048.0);
   }
 
   private void resetArm2Encoder() {
-    // arm2LeftRelativeEncoder.setPosition((getArm2LeftAdjustedAbsoluteEncoderPos() - arm2AdjustedCalibration) / Constants.arm2LeftConstants.ratio / 360.0);
+    arm2Left.setSelectedSensorPosition(((getArm2LeftAdjustedAbsoluteEncoderPos() - arm2AdjustedCalibration) / Constants.arm2LeftConstants.ratio / 360.0) * 2048.0);
   }
 
-  // private void resetArm1RightEncoder() {
-  //   arm1RightRelativeEncoder.setPosition((getArm1RightAbsoluteEncoderPos() - Constants.arm1RightConstants.calibration) / Constants.arm1RightConstants.ratio / 360.0);
-  // }
+  public void updateSideLeft() {
+    state.side = ArmState.Side.LEFT;
+    state.altpickupl = false;
+  }
+
+  public void updateSideRight() {
+    state.side = ArmState.Side.RIGHT;
+    state.altpickupl = false;
+  }
+
+  public void updateHeightHigh() {
+    state.height = ArmState.Height.HIGH;
+    state.altpickupl = false;
+  }
+
+  public void updateHeightMedium() {
+    state.height = ArmState.Height.MEDIUM;
+    state.altpickupl = false;
+  }
+
+  public void updateHeightLow() {
+    state.height = ArmState.Height.LOW;
+    state.altpickupl = false;
+  }
+
+  public void updateHeightPickup() {
+    state.height = ArmState.Height.HPPICKUP;
+    state.altpickupl = false;
+  }
+
+  public void updateGamePieceCube() {
+    state.piece = ArmState.GamePiece.CUBE;
+    state.altpickupl = false;
+  }
+
+  public void updateGamePieceCone() {
+    state.piece = ArmState.GamePiece.CONE;
+    state.altpickupl = false;
+  }
+
+  public void updateAltPickuplTrue() {
+    state.altpickupl = true;
+  }
+
+  public void updateFudgeJoint(boolean isFudgeElbow) {
+    state.isFudgeElbow = isFudgeElbow;
+  }
 }

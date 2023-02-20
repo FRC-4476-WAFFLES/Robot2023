@@ -35,12 +35,12 @@ public class RobotContainer {
   public static final XboxController operate = new XboxController(2);
 
   private final DriveTeleop swerve = new DriveTeleop();
-  private final ArmJoystickControl arm1JoystickControl = new ArmJoystickControl(operate::getRightY, operate::getLeftY);
+  private final ArmJoystickControl armJoystickControl = new ArmJoystickControl(operate::getRightY, operate::getLeftY);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     driveSubsystem.setDefaultCommand(swerve);
-    armSubsystem.setDefaultCommand(arm1JoystickControl);
+    armSubsystem.setDefaultCommand(armJoystickControl);
     CommandScheduler.getInstance().registerSubsystem(intakeSubsystem);
     // Configure the trigger bindings
     configureBindings();
@@ -57,8 +57,29 @@ public class RobotContainer {
    */
   private void configureBindings() {
     final var rightToggle = new JoystickButton(rightJoystick, 1);
+    final var aButton = new JoystickButton(operate, XboxController.Button.kA.value);
+    final var bButton = new JoystickButton(operate, XboxController.Button.kB.value);
+    final var xButton = new JoystickButton(operate, XboxController.Button.kX.value);
+    final var yButton = new JoystickButton(operate, XboxController.Button.kY.value);
+    final var leftStickButton = new JoystickButton(operate, XboxController.Button.kLeftStick.value);
+    final var rightStickButton = new JoystickButton(operate, XboxController.Button.kRightStick.value);
+    final var leftBumperButton = new JoystickButton(operate, XboxController.Button.kLeftBumper.value);
+    final var rightBumperButton = new JoystickButton(operate, XboxController.Button.kRightBumper.value);
+    final var dpadDown = new Trigger(() -> operate.getPOV() == 180);
+    final var dpadUp = new Trigger(() -> operate.getPOV() == 0);
 
     rightToggle.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem));
+    aButton.onTrue(new InstantCommand(armSubsystem::updateHeightLow, armSubsystem));
+    bButton.onTrue(new InstantCommand(armSubsystem::updateHeightMedium, armSubsystem));
+    yButton.onTrue(new InstantCommand(armSubsystem::updateHeightHigh, armSubsystem));
+    xButton.onTrue(new InstantCommand(armSubsystem::updateHeightPickup, armSubsystem));
+    leftStickButton.onTrue(new InstantCommand(armSubsystem::updateSideLeft, armSubsystem));
+    rightStickButton.onTrue(new InstantCommand(armSubsystem::updateSideRight, armSubsystem));
+    leftBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCone, armSubsystem));
+    rightBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCube, armSubsystem));
+    dpadDown.onTrue(new InstantCommand(armSubsystem::updateAltPickuplTrue, armSubsystem));
+    dpadUp.onTrue(new InstantCommand(() -> {armSubsystem.updateFudgeJoint(true);}, armSubsystem));
+    dpadUp.onFalse(new InstantCommand(() -> {armSubsystem.updateFudgeJoint(false);}, armSubsystem));
   }
 
   /**
