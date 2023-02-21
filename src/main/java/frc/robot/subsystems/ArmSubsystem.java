@@ -36,8 +36,8 @@ import frc.robot.kinematics.constraint.CircleConstraint;
 import frc.robot.utils.SparkMaxAbsoluteControlHelper;
 
 public class ArmSubsystem extends SubsystemBase {
-  private static class ArmState {
-    enum Side{
+  public static class ArmState {
+    public enum Side{
       RIGHT,
       LEFT,
     }
@@ -47,7 +47,7 @@ public class ArmSubsystem extends SubsystemBase {
       LOW, 
       HPPICKUP,
     }
-    enum GamePiece{
+    public enum GamePiece{
       CUBE,
       CONE,
     }
@@ -452,5 +452,13 @@ public class ArmSubsystem extends SubsystemBase {
 
   public void updateFudgeJoint(boolean isFudgeElbow) {
     state.isFudgeElbow = isFudgeElbow;
+  }
+
+  public ArmState.Side getSide() {
+    return state.side;
+  }
+
+  public ArmState.GamePiece getPiece() {
+    return state.piece;
   }
 }
