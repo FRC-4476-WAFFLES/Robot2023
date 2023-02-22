@@ -13,12 +13,14 @@ import static frc.robot.RobotContainer.*;
 public class ArmJoystickControl extends CommandBase {
   private final Supplier<Double> joystick;
   private final Supplier<Double> joystick2;
+  private final Supplier<Double> joystick3;
 
   /** Creates a new Arm1JoystickControl. */
-  public ArmJoystickControl(Supplier<Double> joystick, Supplier<Double> joystick2) {
+  public ArmJoystickControl(Supplier<Double> joystick, Supplier<Double> joystick2, Supplier<Double> joystick3) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.joystick = joystick;
     this.joystick2 = joystick2;
+    this.joystick3 = joystick3;
     addRequirements(armSubsystem);
   }
 
@@ -31,7 +33,7 @@ public class ArmJoystickControl extends CommandBase {
   public void execute() {
     armSubsystem.moveArm1WithAnalogStick(joystick.get());
     armSubsystem.moveArm2WithAnalogStick(joystick2.get());
-    // armSubsystem.easyRun(joystick2.get());
+    armSubsystem.moveIntakeWithAnalogStick(joystick3.get());
   }
 
   // Called once the command ends or is interrupted.

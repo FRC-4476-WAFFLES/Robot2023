@@ -35,7 +35,7 @@ public class RobotContainer {
   public static final XboxController operate = new XboxController(2);
 
   private final DriveTeleop swerve = new DriveTeleop();
-  private final ArmJoystickControl armJoystickControl = new ArmJoystickControl(operate::getRightY, operate::getLeftY);
+  private final ArmJoystickControl armJoystickControl = new ArmJoystickControl(operate::getLeftX, operate::getLeftY, operate::getRightX);
   private final IntakeTeleop intakeTeleop = new IntakeTeleop(() -> -operate.getLeftTriggerAxis() + operate.getRightTriggerAxis());
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -58,7 +58,8 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    final var rightToggle = new JoystickButton(rightJoystick, 1);
+    final var right1 = new JoystickButton(rightJoystick, 1);
+
     final var aButton = new JoystickButton(operate, XboxController.Button.kA.value);
     final var bButton = new JoystickButton(operate, XboxController.Button.kB.value);
     final var xButton = new JoystickButton(operate, XboxController.Button.kX.value);
@@ -70,7 +71,8 @@ public class RobotContainer {
     final var dpadDown = new Trigger(() -> operate.getPOV() == 180);
     final var dpadUp = new Trigger(() -> operate.getPOV() == 0);
 
-    rightToggle.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem));
+    right1.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem));
+
     aButton.onTrue(new InstantCommand(armSubsystem::updateHeightLow, armSubsystem));
     bButton.onTrue(new InstantCommand(armSubsystem::updateHeightMedium, armSubsystem));
     yButton.onTrue(new InstantCommand(armSubsystem::updateHeightHigh, armSubsystem));

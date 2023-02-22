@@ -138,27 +138,28 @@ public class ArmSubsystem extends SubsystemBase {
 
   // private Pose2d targetPos = new Pose2d();
 
-  // private final CANSparkMax intakePivotLeft;
-  // private final CANSparkMax intakePivotRight;
+  private final CANSparkMax intakePivotLeft;
+  private final CANSparkMax intakePivotRight;
 
   private final LazyTalonFX arm1Left;
   private final LazyTalonFX arm1Right;
   private final LazyTalonFX arm2Left;
   private final LazyTalonFX arm2Right;
 
-  // private final SparkMaxPIDController intakePivotLeftPID;
+  private final SparkMaxPIDController intakePivotPID;
 
-  // private final RelativeEncoder intakePivotLeftEncoder;
+  private final RelativeEncoder intakePivotLeftEncoder;
 
   private final DutyCycleEncoder arm1LeftAbsoluteEncoder;
   private final DutyCycleEncoder arm1RightAbsoluteEncoder; 
   private final DutyCycleEncoder arm2AbsoluteEncoder;
-  // private final DutyCycleEncoder intakePivotEncoder;
+  private final DutyCycleEncoder intakePivotAbsoluteEncoder;
 
   // private final ThreeJointArmKinematics kinematics;
 
-  private double arm1TargetPosition = 0.0;
+  private double arm1TargetPosition = 0;
   private double arm2TargetPosition = 0;
+  private double intakeTargetPosition = 0;
 
   private final Timer timer = new Timer();
 
@@ -175,18 +176,18 @@ public class ArmSubsystem extends SubsystemBase {
 
   /** Creates a new ArmSubsystem. */
   public ArmSubsystem() {
-    arm1Left = new LazyTalonFX(Constants.arm1LeftConstants.motorID);
-    arm1Right = new LazyTalonFX(Constants.arm1RightConstants.motorID);
-    arm2Left = new LazyTalonFX(Constants.arm2LeftConstants.motorID);
-    arm2Right = new LazyTalonFX(Constants.arm2RightConstants.motorID);
+    arm1Left = new LazyTalonFX(Constants.arm1Left);
+    arm1Right = new LazyTalonFX(Constants.arm1Right);
+    arm2Left = new LazyTalonFX(Constants.arm2Left);
+    arm2Right = new LazyTalonFX(Constants.arm2Right);
 
     arm1Left.configFactoryDefault();
     arm1Right.configFactoryDefault();
     arm2Left.configFactoryDefault();
     arm2Right.configFactoryDefault();
 
-    arm1Left.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, Constants.arm1LeftConstants.currentLimit, Constants.arm1LeftConstants.currentLimit, 0.03));
-    arm1Right.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, Constants.arm1RightConstants.currentLimit, Constants.arm1RightConstants.currentLimit, 0.03));
+    arm1Left.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 40, 40, 0.03));
+    arm1Right.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 40, 40, 0.03));
     arm2Left.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 60, 60, 0.03));
     arm2Right.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 60, 60, 0.03));
 
@@ -239,39 +240,40 @@ public class ArmSubsystem extends SubsystemBase {
     arm2Right.follow(arm2Left);
     arm2Right.setInverted(InvertType.OpposeMaster);
 
-    // intakePivotLeft = new CANSparkMax(Constants.intakePivotLeftConstants.motorID, MotorType.kBrushless);
-    // intakePivotRight = new CANSparkMax(Constants.intakePivotRightConstants.motorID, MotorType.kBrushless);
+    intakePivotLeft = new CANSparkMax(Constants.intakePivotLeft, MotorType.kBrushless);
+    intakePivotRight = new CANSparkMax(Constants.intakePivotRight, MotorType.kBrushless);
 
-    // intakePivotLeft.restoreFactoryDefaults();
-    // intakePivotRight.restoreFactoryDefaults();
+    intakePivotLeft.restoreFactoryDefaults();
+    intakePivotRight.restoreFactoryDefaults();
 
-    // intakePivotLeft.setSmartCurrentLimit(Constants.intakePivotLeftConstants.currentLimit);
-    // intakePivotRight.setSmartCurrentLimit(Constants.intakePivotRightConstants.currentLimit);
+    intakePivotLeft.setSmartCurrentLimit(20);
+    intakePivotRight.setSmartCurrentLimit(20);
 
-    // intakePivotLeft.setIdleMode(IdleMode.kBrake);
-    // intakePivotRight.setIdleMode(IdleMode.kBrake);
+    intakePivotLeft.setIdleMode(IdleMode.kBrake);
+    intakePivotRight.setIdleMode(IdleMode.kBrake);
 
-    // intakePivotLeft.setControlFramePeriodMs(40);
-    // intakePivotRight.setControlFramePeriodMs(40);
+    intakePivotLeft.setControlFramePeriodMs(40);
+    intakePivotRight.setControlFramePeriodMs(40);
 
-    // intakePivotLeft.setInverted(Constants.intakePivotLeftConstants.isInverted);
+    intakePivotLeft.setInverted(true);
+    intakePivotRight.follow(intakePivotLeft, true);
 
-    // intakePivotRight.follow(intakePivotLeft, Constants.intakePivotRightConstants.isInverted);
+    intakePivotPID = intakePivotLeft.getPIDController();
 
-    // intakePivotLeftPID = intakePivotLeft.getPIDController();
+    intakePivotPID.setP(0.1);
+    intakePivotPID.setD(0.0);
 
-    // intakePivotLeftEncoder = intakePivotLeft.getEncoder();
-    // intakePivotRightEncoder = intakePivotRight.getEncoder();
+    intakePivotLeftEncoder = intakePivotLeft.getEncoder();
 
     arm1LeftAbsoluteEncoder = new DutyCycleEncoder(Constants.arm1LeftEncoder);
     arm1RightAbsoluteEncoder = new DutyCycleEncoder(Constants.arm1RightEncoder);
     arm2AbsoluteEncoder = new DutyCycleEncoder(Constants.arm2LeftEncoder);
-    // intakePivotEncoder = new DutyCycleEncoder(Constants.intakePivotEncoder);
+    intakePivotAbsoluteEncoder = new DutyCycleEncoder(Constants.intakePivotEncoder);
 
     arm1LeftAbsoluteEncoder.setDistancePerRotation(360);
     arm1RightAbsoluteEncoder.setDistancePerRotation(360);
     arm2AbsoluteEncoder.setDistancePerRotation(360);
-    // intakePivotEncoder.setDistancePerRotation(360);
+    intakePivotAbsoluteEncoder.setDistancePerRotation(360);
 
     // kinematics = new ThreeJointArmKinematics(Constants.ArmConstants.a1, Constants.ArmConstants.a2, Constants.ArmConstants.a3);
     // kinematics.addConstraint(
@@ -295,6 +297,11 @@ public class ArmSubsystem extends SubsystemBase {
 
     resetArm1LeftEncoder();
     resetArm2Encoder();
+    resetIntakeEncoder();
+
+    setArm1Setpoint(arm1Left.getSelectedSensorPosition());
+    setArm2Setpoint(arm2Left.getSelectedSensorPosition());
+    setIntakeSetpoint(intakePivotLeftEncoder.getPosition());
 
     timer.start();
   }
@@ -331,8 +338,10 @@ public class ArmSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumber("Arm 2 Target Position", arm2TargetPosition);
 
-    // SmartDashboard.putNumber("Left 2 Encoder", arm2Encoder.getDistance());
-    // SmartDashboard.putNumber("Wrist Encoder", intakePivotEncoder.getDistance());
+    SmartDashboard.putNumber("Wrist absolute pos", intakePivotAbsoluteEncoder.getDistance());
+    SmartDashboard.putNumber("Wrist relative pos", intakePivotLeftEncoder.getPosition());
+    SmartDashboard.putNumber("Wrist calculated relative pos", (intakePivotAbsoluteEncoder.getDistance() - Constants.intakePivotLeftConstants.calibration) / Constants.intakePivotLeftConstants.ratio / 360.0);
+    SmartDashboard.putNumber("Wrist target pos", intakeTargetPosition);
 
     previousLoopTime = timer.get() - previousTime;
     previousTime = timer.get();
@@ -347,6 +356,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     arm1Left.set(ControlMode.Position, arm1TargetPosition);
     arm2Left.set(ControlMode.Position, arm2TargetPosition, DemandType.ArbitraryFeedForward, sineScalar * arm2MaxFeedforward);
+    intakePivotPID.setReference(intakeTargetPosition, ControlType.kPosition);
 
     // TODO: here we should put the current state into the setPoints map to get the next target. If we are in 
     // fudge mode, we will disregard these and set the speed and direction of the motors directly based on the operator joysticks.
@@ -354,6 +364,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumber("Current Setpoint Number", setPoints.get(state.hashCode()).getSetpointNumber());
   }
+
   // public void easyRun(double power) {
   //   power = MathUtil.clamp(power, -0.3, 0.3);
   //   arm2Left.set(ControlMode.PercentOutput, power);
@@ -361,7 +372,8 @@ public class ArmSubsystem extends SubsystemBase {
 
   public void stop() {
     arm1Left.set(ControlMode.PercentOutput, 0.0);
-    arm1Right.set(ControlMode.PercentOutput, 0.0);
+    arm2Left.set(ControlMode.PercentOutput, 0.0);
+    intakePivotLeft.stopMotor();
   }
 
   public void moveArm1Setpoint(double amountToMove) {
@@ -388,6 +400,18 @@ public class ArmSubsystem extends SubsystemBase {
     moveArm2Setpoint(analogStickValue * previousLoopTime * 16.0 * 2048.0);
   }
 
+  public void moveIntakeSetpoint(double amountToMove) {
+    intakeTargetPosition += amountToMove;
+  }
+
+  public void setIntakeSetpoint(double setpoint) {
+    intakeTargetPosition = setpoint;
+  }
+
+  public void moveIntakeWithAnalogStick(double analogStickValue) {
+    moveIntakeSetpoint(analogStickValue * previousLoopTime * 8.0);
+  }
+
   private double getArm1LeftAdjustedAbsoluteEncoderPos() {
     double adjustedPos = arm1LeftAbsoluteEncoder.getDistance() - 180.0;
     while (adjustedPos < 0) {
@@ -396,16 +420,16 @@ public class ArmSubsystem extends SubsystemBase {
     return adjustedPos;
   }
 
+  private double getArm1RightAbsoluteEncoderPos() {
+    return Math.abs(arm1RightAbsoluteEncoder.getDistance());
+  }
+
   private double getArm2LeftAdjustedAbsoluteEncoderPos() {
     double adjustedPos = arm2AbsoluteEncoder.getDistance() - 180.0;
     while (adjustedPos < 0) {
       adjustedPos += 360.0;
     }
     return adjustedPos;
-  }
-
-  private double getArm1RightAbsoluteEncoderPos() {
-    return Math.abs(arm1RightAbsoluteEncoder.getDistance());
   }
 
   private double getArm2AbsoluteEncoderPos() {
@@ -422,12 +446,20 @@ public class ArmSubsystem extends SubsystemBase {
     ) / 2;
   }
 
+  private double getIntakeAbsoluteEncoderPos() {
+    return intakePivotAbsoluteEncoder.getDistance();
+  }
+
   private void resetArm1LeftEncoder() {
     arm1Left.setSelectedSensorPosition((getArm1AbsoluteEncoderAverage() / Constants.arm1LeftConstants.ratio / 360.0) * 2048.0);
   }
 
   private void resetArm2Encoder() {
     arm2Left.setSelectedSensorPosition((getArm2LeftCompensatedAbsoluteEncoderPos() / Constants.arm2LeftConstants.ratio / 360.0) * 2048.0);
+  }
+
+  private void resetIntakeEncoder() {
+    intakePivotLeftEncoder.setPosition((getIntakeAbsoluteEncoderPos() - Constants.intakePivotLeftConstants.calibration) / Constants.intakePivotLeftConstants.ratio / 360.0);
   }
 
   public void updateSideLeft() {
