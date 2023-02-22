@@ -31,6 +31,7 @@ public class ArmJoystickControl extends CommandBase {
   public void execute() {
     armSubsystem.moveArm1WithAnalogStick(joystick.get());
     armSubsystem.moveArm2WithAnalogStick(joystick2.get());
+    // armSubsystem.easyRun(joystick2.get());
   }
 
   // Called once the command ends or is interrupted.

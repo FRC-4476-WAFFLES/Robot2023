@@ -17,10 +17,10 @@ import edu.wpi.first.math.geometry.Translation2d;
 public final class Constants {
 
   // CAN bus
-  public static final int arm1Left = 9; // Spark MAX
-  public static final int arm1Right = 11; // Spark MAX
-  public static final int arm2Left = 10; // Spark MAX
-  public static final int arm2Right = 12; // Spark MAX
+  public static final int arm1Left = 9; // Talon FX
+  public static final int arm1Right = 11; // Talon FX
+  public static final int arm2Left = 10; // Talon FX
+  public static final int arm2Right = 12; // Talon FX
   public static final int intakePivotLeft = 13; // Spark MAX
   public static final int intakePivotRight = 14; // Spark MAX
   public static final int intakeLeft = 15; // Spark MAX
@@ -51,8 +51,8 @@ public final class Constants {
   // Arm Initialization
   public static final ArmConstants arm1LeftConstants = new ArmConstants(344, arm1Left, (1.0 / 80.0) * (15.0 / 36.0), -72, 38, 40, false);
   public static final ArmConstants arm1RightConstants = new ArmConstants(284, arm1Right, (1.0 / 80.0) * (15.0 / 36.0), 229, 339, 40, true);
-  public static final ArmConstants arm2LeftConstants = new ArmConstants(316, arm2Left, (1.0 / 80.0), -200, 112, 40, false);
-  public static final ArmConstants arm2RightConstants = new ArmConstants(-44, arm2Right, (1.0 / 80.0), -200, 112, 40, true);
+  public static final ArmConstants arm2LeftConstants = new ArmConstants(316, arm2Left, (1.0 / 100.0), -200, 112, 40, false);
+  public static final ArmConstants arm2RightConstants = new ArmConstants(-44, arm2Right, (1.0 / 100.0), -200, 112, 40, true);
   public static final ArmConstants intakePivotLeftConstants = new ArmConstants(94, intakePivotLeft, (1.0 / 80.0), -86, 274, 20, false);
   public static final ArmConstants intakePivotRightConstants = new ArmConstants(94, intakePivotRight, (1.0 / 80.0), -86, 274, 20, true);
 

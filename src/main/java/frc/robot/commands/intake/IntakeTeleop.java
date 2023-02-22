@@ -18,7 +18,7 @@ public class IntakeTeleop extends CommandBase {
   public IntakeTeleop(Supplier<Double> powerSupplier) {
     this.powerSupplier = powerSupplier;
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(intakeSubsystem);
+    //addRequirements(intakeSubsystem);
   }
 
   // Called when the command is initially scheduled.
@@ -35,13 +35,13 @@ public class IntakeTeleop extends CommandBase {
       rightPower *= -1.0;
     }
 
-    if (armSubsystem.getSide() == ArmSubsystem.ArmState.Side.RIGHT) {
+    if (armSubsystem.getSide() == ArmSubsystem.ArmState.Side.FRONT) {
       leftPower *= -1.0;
       rightPower *= -1.0;
     }
 
-    intakeSubsystem.setLeftPower(leftPower);
-    intakeSubsystem.setRightPower(rightPower);
+    //intakeSubsystem.setLeftPower(leftPower);
+    //intakeSubsystem.setRightPower(rightPower);
   }
 
   // Called once the command ends or is interrupted.
