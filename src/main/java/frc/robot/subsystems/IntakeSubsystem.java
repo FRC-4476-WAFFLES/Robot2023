@@ -40,4 +40,9 @@ public class IntakeSubsystem extends SubsystemBase {
   public void setRightPower(double power) {
     intakeRight.set(power);
   }
+
+  public void stop() {
+    intakeLeft.stopMotor();
+    intakeRight.stopMotor();
+  }
 }

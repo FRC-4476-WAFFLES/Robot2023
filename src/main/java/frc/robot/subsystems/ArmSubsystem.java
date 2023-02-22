@@ -13,7 +13,6 @@ import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -34,6 +33,7 @@ import frc.robot.Constants;
 import frc.robot.kinematics.ThreeJointArmKinematics;
 import frc.robot.kinematics.ThreeJointArmState;
 import frc.robot.kinematics.constraint.CircleConstraint;
+import frc.robot.utils.LazyTalonFX;
 
 public class ArmSubsystem extends SubsystemBase {
   public static class ArmState {
@@ -141,15 +141,14 @@ public class ArmSubsystem extends SubsystemBase {
   // private final CANSparkMax intakePivotLeft;
   // private final CANSparkMax intakePivotRight;
 
-  private final TalonFX arm1Left;
-  private final TalonFX arm1Right;
-  private final TalonFX arm2Left;
-  private final TalonFX arm2Right;
+  private final LazyTalonFX arm1Left;
+  private final LazyTalonFX arm1Right;
+  private final LazyTalonFX arm2Left;
+  private final LazyTalonFX arm2Right;
 
   // private final SparkMaxPIDController intakePivotLeftPID;
 
   // private final RelativeEncoder intakePivotLeftEncoder;
-  // private final RelativeEncoder intakePivotRightEncoder;
 
   private final DutyCycleEncoder arm1LeftAbsoluteEncoder;
   private final DutyCycleEncoder arm1RightAbsoluteEncoder; 
@@ -176,10 +175,10 @@ public class ArmSubsystem extends SubsystemBase {
 
   /** Creates a new ArmSubsystem. */
   public ArmSubsystem() {
-    arm1Left = new TalonFX(Constants.arm1LeftConstants.motorID);
-    arm1Right = new TalonFX(Constants.arm1RightConstants.motorID);
-    arm2Left = new TalonFX(Constants.arm2LeftConstants.motorID);
-    arm2Right = new TalonFX(Constants.arm2RightConstants.motorID);
+    arm1Left = new LazyTalonFX(Constants.arm1LeftConstants.motorID);
+    arm1Right = new LazyTalonFX(Constants.arm1RightConstants.motorID);
+    arm2Left = new LazyTalonFX(Constants.arm2LeftConstants.motorID);
+    arm2Right = new LazyTalonFX(Constants.arm2RightConstants.motorID);
 
     arm1Left.configFactoryDefault();
     arm1Right.configFactoryDefault();
@@ -295,7 +294,6 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     resetArm1LeftEncoder();
-    // resetArm1RightEncoder();
     resetArm2Encoder();
 
     timer.start();

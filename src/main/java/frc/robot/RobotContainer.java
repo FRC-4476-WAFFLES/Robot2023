@@ -13,8 +13,10 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.arm.ArmJoystickControl;
 import frc.robot.commands.drive.DriveTeleop;
+import frc.robot.commands.intake.IntakeTeleop;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -26,7 +28,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   public static final DriveSubsystem driveSubsystem = new DriveSubsystem();
   public static final ArmSubsystem armSubsystem = new ArmSubsystem();
-  //public static final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  public static final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   
   public static final Joystick leftJoystick = new Joystick(0);
   public static final Joystick rightJoystick = new Joystick(1);
@@ -34,11 +36,13 @@ public class RobotContainer {
 
   private final DriveTeleop swerve = new DriveTeleop();
   private final ArmJoystickControl armJoystickControl = new ArmJoystickControl(operate::getRightY, operate::getLeftY);
+  private final IntakeTeleop intakeTeleop = new IntakeTeleop(() -> -operate.getLeftTriggerAxis() + operate.getRightTriggerAxis());
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     driveSubsystem.setDefaultCommand(swerve);
     armSubsystem.setDefaultCommand(armJoystickControl);
+    intakeSubsystem.setDefaultCommand(intakeTeleop);
     //CommandScheduler.getInstance().registerSubsystem(intakeSubsystem);
     // Configure the trigger bindings
     configureBindings();
