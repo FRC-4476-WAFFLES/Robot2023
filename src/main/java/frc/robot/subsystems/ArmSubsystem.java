@@ -226,6 +226,18 @@ public class ArmSubsystem extends SubsystemBase {
     arm2Left.enableVoltageCompensation(true);
     arm2Right.enableVoltageCompensation(true);
 
+    arm1Left.configForwardSoftLimitThreshold((40.0 / Constants.arm1LeftConstants.ratio / 360.0) * 2048.0);
+    arm2Left.configForwardSoftLimitThreshold((160.0 / Constants.arm2LeftConstants.ratio / 360.0) * 2048.0);
+
+    arm1Left.configReverseSoftLimitThreshold((-40.0 / Constants.arm1LeftConstants.ratio / 360.0) * 2048.0);
+    arm2Left.configReverseSoftLimitThreshold((-160.0 / Constants.arm2LeftConstants.ratio / 360.0) * 2048.0);
+
+    arm1Left.configForwardSoftLimitEnable(true);
+    arm2Left.configForwardSoftLimitEnable(true);
+    
+    arm1Left.configReverseSoftLimitEnable(true);
+    arm2Left.configReverseSoftLimitEnable(true);
+
     arm1Left.config_kP(0, 0.15);
     arm1Left.config_kI(0, 0);
     arm1Left.config_kD(0, 0);

@@ -4,10 +4,19 @@
 
 package frc.robot;
 
+import java.util.HashMap;
+
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -38,6 +47,29 @@ public class RobotContainer {
   private final ArmJoystickControl armJoystickControl = new ArmJoystickControl(operate::getLeftX, operate::getLeftY, operate::getRightX);
   private final IntakeTeleop intakeTeleop = new IntakeTeleop(() -> -operate.getLeftTriggerAxis() + operate.getRightTriggerAxis());
 
+  // This is just an example event map. It would be better to have a constant, global event map
+  // in your code that will be used by all path following commands.
+  HashMap<String, Command> eventMap = new HashMap<>(){{
+    put("marker1", new PrintCommand("Passed marker 1"));
+    put("intakeRun", new IntakeTeleop(() -> 0.5));
+  }};
+
+  SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
+    driveSubsystem::getOdometryLocation, // Pose2d supplier
+    driveSubsystem::resetOdometry, // Pose2d consumer, used to reset odometry at the beginning of auto
+    driveSubsystem.kinematics, // SwerveDriveKinematics
+    new PIDConstants(5.0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
+    new PIDConstants(0.5, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
+    driveSubsystem::setModuleStates, // Module states consumer used to output to the drive subsystem
+    eventMap,
+    true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+    driveSubsystem // The drive subsystem. Used to properly set the requirements of path following commands
+  );
+
+  private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
+
+  private final Command demoAuto = autoBuilder.fullAuto(PathPlanner.loadPath("New Path", new PathConstraints(4, 3)));
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     driveSubsystem.setDefaultCommand(swerve);
@@ -46,6 +78,7 @@ public class RobotContainer {
     //CommandScheduler.getInstance().registerSubsystem(intakeSubsystem);
     // Configure the trigger bindings
     configureBindings();
+    Command autoCommand = autoBuilder.followPath(PathPlanner.loadPath("New Path", new PathConstraints(4, 3)));
   }
 
   /**
