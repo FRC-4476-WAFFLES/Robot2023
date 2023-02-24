@@ -474,12 +474,12 @@ public class ArmSubsystem extends SubsystemBase {
     intakePivotLeftEncoder.setPosition((getIntakeAbsoluteEncoderPos() - Constants.intakePivotLeftConstants.calibration) / Constants.intakePivotLeftConstants.ratio / 360.0);
   }
 
-  public void updateSideLeft() {
+  public void updateSideBack() {
     state.side = ArmState.Side.BACK;
     state.altpickupl = false;
   }
 
-  public void updateSideRight() {
+  public void updateSideFront() {
     state.side = ArmState.Side.FRONT;
     state.altpickupl = false;
   }

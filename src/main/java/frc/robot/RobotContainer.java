@@ -8,12 +8,14 @@ import java.util.HashMap;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
@@ -47,11 +49,21 @@ public class RobotContainer {
   private final ArmJoystickControl armJoystickControl = new ArmJoystickControl(operate::getLeftX, operate::getLeftY, operate::getRightX);
   private final IntakeTeleop intakeTeleop = new IntakeTeleop(() -> -operate.getLeftTriggerAxis() + operate.getRightTriggerAxis());
 
-  // This is just an example event map. It would be better to have a constant, global event map
-  // in your code that will be used by all path following commands.
-  HashMap<String, Command> eventMap = new HashMap<>(){{
+  /** A map of events and their corresponding commands */
+  private final HashMap<String, Command> eventMap = new HashMap<>() {{
     put("marker1", new PrintCommand("Passed marker 1"));
     put("intakeRun", new IntakeTeleop(() -> 0.5));
+    put("updateArmSideFront", new InstantCommand(armSubsystem::updateSideFront, armSubsystem));
+    put("updateArmSideBack", new InstantCommand(armSubsystem::updateSideBack, armSubsystem));
+    put("updateArmPieceCube", new InstantCommand(armSubsystem::updateGamePieceCube, armSubsystem));
+    put("updateArmPieceCone", new InstantCommand(armSubsystem::updateGamePieceCone, armSubsystem));
+    put("updateArmHeightLow", new InstantCommand(armSubsystem::updateHeightLow, armSubsystem));
+    put("updateArmHeightMedium", new InstantCommand(armSubsystem::updateHeightMedium, armSubsystem));
+    put("updateArmHeightHigh", new InstantCommand(armSubsystem::updateHeightHigh, armSubsystem));
+    put("updateArmHeightPickup", new InstantCommand(armSubsystem::updateHeightPickup, armSubsystem));
+    put("extendArmAndPlace", new PrintCommand("Arm Extended"));
+    put("retractArm", new PrintCommand("Arm Retracted"));
+    put("lockWheels", new InstantCommand(driveSubsystem::lockWheels, driveSubsystem));
   }};
 
   SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
@@ -68,7 +80,8 @@ public class RobotContainer {
 
   private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
 
-  private final Command demoAuto = autoBuilder.fullAuto(PathPlanner.loadPath("New Path", new PathConstraints(4, 3)));
+  private final Command oneCubeAndClimb = autoBuilder.fullAuto(PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1)));
+  private final Command twoCubeAndClimb = autoBuilder.fullAuto(PathPlanner.loadPath("2 Cube Climb", new PathConstraints(4, 3)));
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -78,7 +91,10 @@ public class RobotContainer {
     //CommandScheduler.getInstance().registerSubsystem(intakeSubsystem);
     // Configure the trigger bindings
     configureBindings();
-    Command autoCommand = autoBuilder.followPath(PathPlanner.loadPath("New Path", new PathConstraints(4, 3)));
+
+    autoChooser.addOption("1 Cube and Climb", oneCubeAndClimb);
+    autoChooser.addOption("2 Cube and Climb", twoCubeAndClimb);
+    SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
   /**
@@ -110,8 +126,8 @@ public class RobotContainer {
     bButton.onTrue(new InstantCommand(armSubsystem::updateHeightMedium, armSubsystem));
     yButton.onTrue(new InstantCommand(armSubsystem::updateHeightHigh, armSubsystem));
     xButton.onTrue(new InstantCommand(armSubsystem::updateHeightPickup, armSubsystem));
-    leftStickButton.onTrue(new InstantCommand(armSubsystem::updateSideLeft, armSubsystem));
-    rightStickButton.onTrue(new InstantCommand(armSubsystem::updateSideRight, armSubsystem));
+    leftStickButton.onTrue(new InstantCommand(armSubsystem::updateSideBack, armSubsystem));
+    rightStickButton.onTrue(new InstantCommand(armSubsystem::updateSideFront, armSubsystem));
     leftBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCone, armSubsystem));
     rightBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCube, armSubsystem));
     dpadDown.onTrue(new InstantCommand(armSubsystem::updateAltPickuplTrue, armSubsystem));
@@ -125,7 +141,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return null;
+    return autoChooser.getSelected();
   }
 }
