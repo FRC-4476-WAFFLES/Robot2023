@@ -12,6 +12,7 @@ import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.AnalogEncoder;
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -137,12 +138,12 @@ public class SwerveModule {
         return new SwerveModuleState(currentVelocity, Rotation2d.fromDegrees(currentAngle));
     }
 
-    public double getAbsoluteEncoderPosition() {
-        return getAbsolutePosition();
+    public SwerveModulePosition getPosition() {
+        return new SwerveModulePosition(driveMotor.getSelectedSensorPosition() / constants.metersToTicks, getState().angle);
     }
 
-    public double getRawAnalogValue() {
-        return analogInput.getValue();
+    public double getAbsoluteEncoderPosition() {
+        return getAbsolutePosition();
     }
 
     public double getAngleMotorPosition() {

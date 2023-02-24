@@ -26,7 +26,6 @@ import frc.robot.utils.SwerveModule;
 public class DriveSubsystem extends SubsystemBase {
     /** The array of swerve modules on the robot. */
     private final SwerveModule[] modules;
-    private final SwerveModulePosition[] modulePositions;
 
     // /** Allows us to calculate the swerve module states from a chassis motion. */
     public final SwerveDriveKinematics kinematics;
@@ -46,20 +45,14 @@ public class DriveSubsystem extends SubsystemBase {
 
         // Set up the kinematics and odometry.
         Translation2d[] positionArry = new Translation2d[positions.size()];
+        SwerveModule[] moduleArray = new SwerveModule[modules.size()];
+        SwerveModulePosition[] modulePositions = new SwerveModulePosition[positions.size()];
+
         for(int x = 0; x < positions.size(); x++){
             positionArry[x] = positions.get(x);
-        }
-
-        SwerveModule[] moduleArray = new SwerveModule[modules.size()];
-        for (int x = 0; x < modules.size(); x++){
             moduleArray[x] = modules.get(x);
+            modulePositions[x] = modules.get(x).getPosition();
         }
-
-        SwerveModulePosition[] modulePositions = new SwerveModulePosition[positions.size()];
-        for (int x = 0; x < positions.size(); x++) {
-            modulePositions[x] = new SwerveModulePosition();
-        }
-        this.modulePositions = modulePositions;
 
         this.kinematics = new SwerveDriveKinematics(positionArry);
         this.modules = moduleArray;
@@ -70,10 +63,15 @@ public class DriveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         SwerveModuleState[] moduleStates = new SwerveModuleState[modules.length];
+        SwerveModulePosition[] modulePositions = new SwerveModulePosition[modules.length];
+        
         for(int x=0; x<modules.length; x++){
             moduleStates[x] = modules[x].getState();
+            modulePositions[x] = modules[x].getPosition();
         }
+
         odometry.update(Rotation2d.fromDegrees(-ahrsIMU.getAngle()), modulePositions);
+
         SmartDashboard.putNumber("X location Is this changing", getOdometryLocation().getX());
         SmartDashboard.putNumber("Y location", getOdometryLocation().getY());
         SmartDashboard.putNumber("Odometry Heading", odometry.getPoseMeters().getRotation().getDegrees());
@@ -83,38 +81,18 @@ public class DriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Vy", getChassisSpeeds().vyMetersPerSecond);
         SmartDashboard.putNumber("Vomega", getChassisSpeeds().omegaRadiansPerSecond);
 
-        for (int x = 0; x < modules.length; x++) {
-            SmartDashboard.putNumber("Module " + String.valueOf(x) + " Speed", moduleStates[x].speedMetersPerSecond);
-        }
-
         for (int i = 0; i < modules.length; i++) {
-            SmartDashboard.putNumber("Module " + String.valueOf(i + 1) + "Angle", modules[i].getState().angle.getDegrees());
-        }
+            String moduleLabel = "Module " + String.valueOf(i) + " ";
+            SmartDashboard.putNumber(moduleLabel + "Speed", moduleStates[i].speedMetersPerSecond);
+            SmartDashboard.putNumber(moduleLabel + "Angle", modules[i].getState().angle.getDegrees());
+            SmartDashboard.putNumber(moduleLabel + "Encoder", modules[i].getAbsoluteEncoderPosition());
 
-        for (int i = 0; i < modules.length; i++) {
-            SmartDashboard.putNumber("Drive Encoder" + String.valueOf(i + 1), modules[i].getAbsoluteEncoderPosition());
-        }
-
-        for (int i = 0; i < modules.length; i++) {
             double encoderAngle = modules[i].getAbsoluteEncoderPosition() * (21.4 * 2048 / 360);
             double motorAngle = modules[i].getAngleMotorPosition();
-            SmartDashboard.putNumber("Module " + String.valueOf(i + 1) + "Angle Difference", (motorAngle-encoderAngle) % 2048);
-        }
+            SmartDashboard.putNumber(moduleLabel + "Angle Difference", (motorAngle-encoderAngle) % 2048);
 
-        for (int i = 0; i < modules.length; i++) {
-            SmartDashboard.putNumber("Analog" + String.valueOf(i + 1), modules[i].getRawAnalogValue());
-        }
-
-        for (int i = 0; i < modules.length; i++) {
-            SmartDashboard.putNumber("Ratio" + String.valueOf(i + 1), modules[i].getAbsoluteEncoderPosition() / modules[i].getRawAnalogValue());
-        }
-
-        for (int i = 0; i < modules.length; i++) {
-            SmartDashboard.putNumber("Module " + String.valueOf(i + 1) + "Builtin encoder pos", modules[i].getAngleMotorPosition());
-        }
-
-        for (int i = 0; i < modules.length; i++) {
-            SmartDashboard.putNumber("Module " + String.valueOf(i + 1) + "Calculated encoder pos", modules[i].getCalculatedEncoderPos());
+            SmartDashboard.putNumber(moduleLabel + "Builtin encoder pos", modules[i].getAngleMotorPosition());
+            SmartDashboard.putNumber(moduleLabel + "Calculated encoder pos", modules[i].getCalculatedEncoderPos());
         }
 
         //field.setRobotPose(this.getOdometryLocation());
@@ -183,6 +161,11 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void resetOdometry(Pose2d robotPose) {
+        SwerveModulePosition[] modulePositions = new SwerveModulePosition[modules.length];
+        
+        for(int x=0; x<modules.length; x++){
+            modulePositions[x] = modules[x].getPosition();
+        }
         odometry.resetPosition(Rotation2d.fromDegrees(-ahrsIMU.getAngle()), modulePositions, robotPose);
     }
 
@@ -193,8 +176,8 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void lockWheels() {
-        for (SwerveModule module : modules) {
-            module.drive(new SwerveModuleState(0, Rotation2d.fromDegrees(45))); // TODO: test to make sure this is the correct angle
+        for (int i = 0; i < modules.length; i++) {
+            modules[i].drive(new SwerveModuleState(0, Rotation2d.fromDegrees(i % 2 == 0 ? 45 : -45)));
         }
     }
 }

@@ -89,7 +89,8 @@ public final class Constants {
 
     public final double steeringToDriveRatio = 1.0 / (firstStageRatio * secondStageRatio * steeringRatio);
     
-    public final double metersPerSecondToTicksPer100ms = CPR * driveOverallRatio / wheelCircumfrence / 10.0;
+    public final double metersToTicks = CPR * driveOverallRatio / wheelCircumfrence;
+    public final double metersPerSecondToTicksPer100ms = metersToTicks / 10.0;
 
     public static final double maxAttainableSpeedMetersPerSecond = 4.1;
     public static final double maxAttainableRotationRateRadiansPerSecond = 8.0;
