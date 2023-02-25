@@ -38,8 +38,8 @@ public class DriveTeleop extends CommandBase {
     right = MathUtil.applyDeadband(right, 0.05);
     rotation = MathUtil.applyDeadband(rotation, 0.05);
 
-    forward *= Constants.SwerveConstants.maxAttainableSpeedMetersPerSecond;
-    right *= Constants.SwerveConstants.maxAttainableSpeedMetersPerSecond;
+    forward *= -Constants.SwerveConstants.maxAttainableSpeedMetersPerSecond;
+    right *= -Constants.SwerveConstants.maxAttainableSpeedMetersPerSecond;
     rotation *= 6;
     
     driveSubsystem.robotDrive(forward, right, rotation, true);

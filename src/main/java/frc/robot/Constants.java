@@ -81,8 +81,8 @@ public final class Constants {
     public final double wheelCircumfrence = wheelDiameter * Math.PI; // Wheel circumfrence in meters
 
     public final double firstStageRatio = 14.0/50.0;
-    public final double secondStageRatio = 28.0/16.0;
-    public final double thirdStageRatio = 15.0/60.0;
+    public final double secondStageRatio = 25.0/19.0;
+    public final double thirdStageRatio = 15.0/45.0;
     public final double driveOverallRatio = 1.0 / (firstStageRatio * secondStageRatio * thirdStageRatio); // Drive gear ratio
 
     public final double steeringRatio = 150.0/7.0; //150/7 is on datasheet, 6 degrees of error were observed over 1 full rotation of 360 degrees

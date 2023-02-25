@@ -18,10 +18,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.arm.ArmJoystickControl;
+import frc.robot.commands.auto.AutoPlaceGamepiece;
 import frc.robot.commands.drive.DriveTeleop;
 import frc.robot.commands.intake.IntakeTeleop;
 import frc.robot.subsystems.ArmSubsystem;
@@ -50,7 +52,6 @@ public class RobotContainer {
 
   /** A map of events and their corresponding commands */
   private final HashMap<String, Command> eventMap = new HashMap<>() {{
-    put("marker1", new PrintCommand("Passed marker 1"));
     put("intakeRun", new IntakeTeleop(() -> 0.5));
     put("updateArmSideFront", new InstantCommand(armSubsystem::updateSideFront, armSubsystem));
     put("updateArmSideBack", new InstantCommand(armSubsystem::updateSideBack, armSubsystem));
@@ -60,18 +61,19 @@ public class RobotContainer {
     put("updateArmHeightMedium", new InstantCommand(armSubsystem::updateHeightMedium, armSubsystem));
     put("updateArmHeightHigh", new InstantCommand(armSubsystem::updateHeightHigh, armSubsystem));
     put("updateArmHeightPickup", new InstantCommand(armSubsystem::updateHeightPickup, armSubsystem));
-    put("extendArmAndPlace", new PrintCommand("Arm Extended"));
+    put("extendArmAndPlace", new AutoPlaceGamepiece());
     put("retractArm", new PrintCommand("Arm Retracted"));
     put("lockWheels", new InstantCommand(driveSubsystem::lockWheels, driveSubsystem));
+    put("wait 1 sec", new WaitCommand(1));
+    put("reachedPoint", new PrintCommand("reached Point"));
   }};
 
   SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
     driveSubsystem::getOdometryLocation, // Pose2d supplier
     driveSubsystem::resetOdometry, // Pose2d consumer, used to reset odometry at the beginning of auto
-    driveSubsystem.kinematics, // SwerveDriveKinematics
-    new PIDConstants(5.0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
-    new PIDConstants(0.5, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
-    driveSubsystem::setModuleStates, // Module states consumer used to output to the drive subsystem
+    new PIDConstants(2, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
+    new PIDConstants(0.1, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
+    driveSubsystem::setChassisSpeeds, // Module states consumer used to output to the drive subsystem
     eventMap,
     true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
     driveSubsystem // The drive subsystem. Used to properly set the requirements of path following commands
@@ -81,6 +83,7 @@ public class RobotContainer {
 
   private final Command oneCubeAndClimb = autoBuilder.fullAuto(PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1)));
   private final Command twoCubeAndClimb = autoBuilder.fullAuto(PathPlanner.loadPath("2 Cube Climb", new PathConstraints(4, 3)));
+  private final Command testAuto = autoBuilder.fullAuto(PathPlanner.loadPath("New Path", new PathConstraints(1, 1)));
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -93,6 +96,7 @@ public class RobotContainer {
 
     autoChooser.addOption("1 Cube and Climb", oneCubeAndClimb);
     autoChooser.addOption("2 Cube and Climb", twoCubeAndClimb);
+    autoChooser.addOption("Test Auto", testAuto);
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
@@ -119,7 +123,7 @@ public class RobotContainer {
     final var dpadDown = new Trigger(() -> operate.getPOV() == 180);
     final var dpadUp = new Trigger(() -> operate.getPOV() == 0);
 
-    right1.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem));
+    right1.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem).alongWith(new InstantCommand(driveSubsystem::resetGyro)));
 
     aButton.onTrue(new InstantCommand(armSubsystem::updateHeightLow, armSubsystem));
     bButton.onTrue(new InstantCommand(armSubsystem::updateHeightMedium, armSubsystem));

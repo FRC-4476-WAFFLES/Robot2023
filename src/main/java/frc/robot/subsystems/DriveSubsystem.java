@@ -54,6 +54,16 @@ public class DriveSubsystem extends SubsystemBase {
             modulePositions[x] = modules.get(x).getPosition();
         }
 
+        ahrsIMU.calibrate();
+
+        try{
+            Thread.sleep(500);
+        } catch (Exception e) {
+
+        }
+
+        resetGyro();
+
         this.kinematics = new SwerveDriveKinematics(positionArry);
         this.modules = moduleArray;
         this.odometry = new SwerveDriveOdometry(kinematics, Rotation2d.fromDegrees(0), modulePositions);
@@ -87,7 +97,7 @@ public class DriveSubsystem extends SubsystemBase {
             SmartDashboard.putNumber(moduleLabel + "Angle", modules[i].getState().angle.getDegrees());
             SmartDashboard.putNumber(moduleLabel + "Encoder", modules[i].getAbsoluteEncoderPosition());
 
-            double encoderAngle = modules[i].getAbsoluteEncoderPosition() * (21.4 * 2048 / 360);
+            double encoderAngle = modules[i].getAbsoluteEncoderPosition() * (21.4 * 2048.0 / 360.0);
             double motorAngle = modules[i].getAngleMotorPosition();
             SmartDashboard.putNumber(moduleLabel + "Angle Difference", (motorAngle-encoderAngle) % 2048);
 
@@ -103,7 +113,7 @@ public class DriveSubsystem extends SubsystemBase {
     public void robotDrive(double forward, double right, double rotation, boolean fieldCentric){
         ChassisSpeeds chassisSpeeds;
 
-        double robotRotationRate = -ahrsIMU.getRate();
+        double robotRotationRate = ahrsIMU.getRate();
         robotRotationRate = (robotRotationRate / 180.0) * Math.PI;
 
         if (forward != 0 || right != 0) {
@@ -111,10 +121,7 @@ public class DriveSubsystem extends SubsystemBase {
         }
 
         if (fieldCentric){
-            //chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(forward, right, rotation, gyro.getHeadingAsRotation2d());
-            // chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(forward, right, rotation, Rotation2d.fromDegrees(-ahrsIMU.getAngle()));
             chassisSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(forward, right, rotation, odometry.getPoseMeters().getRotation());
-            //chassisSpeeds = new ChassisSpeeds(forward, right, rotation);
         } else {
             chassisSpeeds = new ChassisSpeeds(forward, right, rotation);
         }
@@ -123,9 +130,13 @@ public class DriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Target Y Velocity", chassisSpeeds.vyMetersPerSecond);
         SmartDashboard.putNumber("Target Angular Velocity", chassisSpeeds.omegaRadiansPerSecond);
         
-        SwerveModuleState[] swerveModuleState = kinematics.toSwerveModuleStates(chassisSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleState, Constants.SwerveConstants.maxAttainableSpeedMetersPerSecond);
-        setModuleStates(swerveModuleState);
+        setChassisSpeeds(chassisSpeeds);
+    }
+
+    public void setChassisSpeeds(ChassisSpeeds chassisSpeeds) {
+        SwerveModuleState[] swerveModuleStates = kinematics.toSwerveModuleStates(chassisSpeeds);
+        SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.SwerveConstants.maxAttainableSpeedMetersPerSecond);
+        setModuleStates(swerveModuleStates);
     }
 
     public void setModuleStates(SwerveModuleState[] swerveModuleStates){
@@ -134,11 +145,8 @@ public class DriveSubsystem extends SubsystemBase {
         }
     }
 
-    public Pose2d getOdometryLocation(){
-        return new Pose2d(
-            -odometry.getPoseMeters().getX(), 
-            odometry.getPoseMeters().getY(), 
-            odometry.getPoseMeters().getRotation());
+    public Pose2d getOdometryLocation() {
+        return odometry.getPoseMeters();
     }
 
     public ChassisSpeeds getChassisSpeeds() {

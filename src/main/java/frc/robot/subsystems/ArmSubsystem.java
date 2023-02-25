@@ -366,9 +366,9 @@ public class ArmSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Arm 2 feedforward", arm2MaxFeedforward);
     SmartDashboard.putNumber("Arm 2 applied feedforward", sineScalar * arm2MaxFeedforward);
 
-    arm1Left.set(ControlMode.Position, arm1TargetPosition);
-    arm2Left.set(ControlMode.Position, arm2TargetPosition, DemandType.ArbitraryFeedForward, sineScalar * arm2MaxFeedforward);
-    intakePivotPID.setReference(intakeTargetPosition, ControlType.kPosition);
+    // arm1Left.set(ControlMode.Position, arm1TargetPosition);
+    // arm2Left.set(ControlMode.Position, arm2TargetPosition, DemandType.ArbitraryFeedForward, sineScalar * arm2MaxFeedforward);
+    // intakePivotPID.setReference(intakeTargetPosition, ControlType.kPosition);
 
     // TODO: here we should put the current state into the setPoints map to get the next target. If we are in 
     // fudge mode, we will disregard these and set the speed and direction of the motors directly based on the operator joysticks.
