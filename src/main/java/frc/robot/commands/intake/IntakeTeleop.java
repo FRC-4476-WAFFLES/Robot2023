@@ -4,8 +4,8 @@
 
 package frc.robot.commands.intake;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.ArmSubsystem;
 
 import static frc.robot.RobotContainer.*;
 
@@ -13,6 +13,7 @@ import java.util.function.Supplier;
 
 public class IntakeTeleop extends CommandBase {
   private final Supplier<Double> powerSupplier;
+  private boolean hasBeenIntaking = false;
 
   /** Creates a new IntakeTeleop. */
   public IntakeTeleop(Supplier<Double> powerSupplier) {
@@ -28,20 +29,24 @@ public class IntakeTeleop extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double leftPower = powerSupplier.get();
-    double rightPower = powerSupplier.get();
+    double joystickValue = MathUtil.applyDeadband(powerSupplier.get(), 0.05);
 
-    if (armSubsystem.getPiece() == ArmSubsystem.ArmState.GamePiece.CONE) {
-      rightPower *= -1.0;
+    if (joystickValue > 0) {
+      hasBeenIntaking = true;
     }
 
-    if (armSubsystem.getSide() == ArmSubsystem.ArmState.Side.BACK) {
-      leftPower *= -1.0;
-      rightPower *= -1.0;
+    if (joystickValue < 0) {
+      hasBeenIntaking = false;
     }
 
-    intakeSubsystem.setLeftPower(leftPower);
-    intakeSubsystem.setRightPower(rightPower);
+    double power;
+    if (hasBeenIntaking && joystickValue == 0) {
+      power = 0.1;
+    } else {
+      power = joystickValue;
+    }
+ 
+    intakeSubsystem.setPower(power);
   }
 
   // Called once the command ends or is interrupted.

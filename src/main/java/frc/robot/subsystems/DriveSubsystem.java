@@ -133,6 +133,10 @@ public class DriveSubsystem extends SubsystemBase {
         setChassisSpeeds(chassisSpeeds);
     }
 
+    public void setChassisSpeedsAuto(ChassisSpeeds chassisSpeeds) {
+        setChassisSpeeds(new ChassisSpeeds(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond, chassisSpeeds.omegaRadiansPerSecond));
+    }
+
     public void setChassisSpeeds(ChassisSpeeds chassisSpeeds) {
         SwerveModuleState[] swerveModuleStates = kinematics.toSwerveModuleStates(chassisSpeeds);
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.SwerveConstants.maxAttainableSpeedMetersPerSecond);
@@ -147,6 +151,13 @@ public class DriveSubsystem extends SubsystemBase {
 
     public Pose2d getOdometryLocation() {
         return odometry.getPoseMeters();
+    }
+
+    public Pose2d getAdjustedPose() {
+        return new Pose2d(
+            odometry.getPoseMeters().getTranslation(),
+            odometry.getPoseMeters().getRotation().plus(Rotation2d.fromDegrees(180))
+        );
     }
 
     public ChassisSpeeds getChassisSpeeds() {

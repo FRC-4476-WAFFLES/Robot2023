@@ -69,11 +69,11 @@ public class RobotContainer {
   }};
 
   SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
-    driveSubsystem::getOdometryLocation, // Pose2d supplier
+    driveSubsystem::getAdjustedPose, // Pose2d supplier
     driveSubsystem::resetOdometry, // Pose2d consumer, used to reset odometry at the beginning of auto
-    new PIDConstants(2, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
-    new PIDConstants(0.1, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
-    driveSubsystem::setChassisSpeeds, // Module states consumer used to output to the drive subsystem
+    new PIDConstants(0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
+    new PIDConstants(0, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
+    driveSubsystem::setChassisSpeedsAuto, // Module states consumer used to output to the drive subsystem
     eventMap,
     true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
     driveSubsystem // The drive subsystem. Used to properly set the requirements of path following commands
@@ -133,9 +133,9 @@ public class RobotContainer {
     rightStickButton.onTrue(new InstantCommand(armSubsystem::updateSideFront, armSubsystem));
     leftBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCone, armSubsystem));
     rightBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCube, armSubsystem));
-    dpadDown.onTrue(new InstantCommand(armSubsystem::updateAltPickuplTrue, armSubsystem));
-    dpadUp.onTrue(new InstantCommand(() -> {armSubsystem.updateFudgeJoint(true);}, armSubsystem));
-    dpadUp.onFalse(new InstantCommand(() -> {armSubsystem.updateFudgeJoint(false);}, armSubsystem));
+    dpadDown.onTrue(new InstantCommand(armSubsystem::toggleAltPickuplTrue, armSubsystem));
+    dpadUp.onTrue(new InstantCommand(() -> {armSubsystem.updateFudge(false);}, armSubsystem));
+    dpadUp.onFalse(new InstantCommand(() -> {armSubsystem.updateFudge(true);}, armSubsystem));
   }
 
   /**
