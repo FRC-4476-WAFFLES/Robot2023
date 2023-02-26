@@ -50,7 +50,7 @@ public final class Constants {
   // Arm Initialization
   public static final ArmConstants arm1LeftConstants = new ArmConstants(344, arm1Left, (1.0 / 80.0) * (15.0 / 36.0), -72, 38, 40, false);
   public static final ArmConstants arm1RightConstants = new ArmConstants(284, arm1Right, (1.0 / 80.0) * (15.0 / 36.0), 229, 339, 40, true);
-  public static final ArmConstants arm2LeftConstants = new ArmConstants(316, arm2Left, (1.0 / 100.0), -200, 112, 40, false);
+  public static final ArmConstants arm2LeftConstants = new ArmConstants(135, arm2Left, (1.0 / 100.0), -200, 112, 40, false);
   public static final ArmConstants arm2RightConstants = new ArmConstants(-44, arm2Right, (1.0 / 100.0), -200, 112, 40, true);
   public static final ArmConstants intakePivotLeftConstants = new ArmConstants(20, intakePivotLeft, (1.0 / 80.0), -86, 274, 20, false);
   public static final ArmConstants intakePivotRightConstants = new ArmConstants(94, intakePivotRight, (1.0 / 80.0), -86, 274, 20, true);
@@ -119,7 +119,7 @@ public final class Constants {
     public static final double a2 = 1.0;
     public static final double a3 = 0.1;
 
-
+    public static final double stage2ChainRatio = 32.0 / 74.0;
 
     // arm 1 left limit 1 : 39 degrees (at back, decreases going to front), zero at -17
     // arm 1 right limit 1 : 229 degrees (at back, increases going to front), zero at 284

@@ -6,6 +6,7 @@ package frc.robot.commands.arm;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 import static frc.robot.RobotContainer.*;
@@ -32,9 +33,9 @@ public class ArmJoystickControl extends CommandBase {
   @Override
   public void execute() {
     if (armSubsystem.getFudge()) {
-      armSubsystem.fudgeArm1WithAnalogStick(joystickAxis1.get());
-      armSubsystem.fudgeArm2WithAnalogStick(joystickAxis2.get());
-      armSubsystem.fudgeIntakeWithAnalogStick(joystickAxis3.get());
+      armSubsystem.fudgeArm1WithAnalogStick(MathUtil.applyDeadband(joystickAxis1.get(), 0.05));
+      armSubsystem.fudgeArm2WithAnalogStick(MathUtil.applyDeadband(joystickAxis2.get(), 0.05));
+      armSubsystem.fudgeIntakeWithAnalogStick(MathUtil.applyDeadband(joystickAxis3.get(), 0.05));
     } else {
       armSubsystem.setpointsFromStateMachine();
     }

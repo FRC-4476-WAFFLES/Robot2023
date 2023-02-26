@@ -6,8 +6,6 @@ package frc.robot.subsystems;
 
 import java.util.HashMap;
 
-import javax.swing.plaf.basic.BasicComboBoxUI.FocusHandler;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -84,7 +82,7 @@ public class ArmSubsystem extends SubsystemBase {
       int temp= 0;
       temp += side.ordinal();
       temp += height.ordinal()*2;
-      temp += piece.ordinal()*4;
+      temp += piece.ordinal()*8;
       temp += altpickupl ? 16 : 0;
       return temp;
     }
@@ -112,7 +110,7 @@ public class ArmSubsystem extends SubsystemBase {
     put(new ArmState(ArmState.Side.FRONT, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(5, 0, 0));
     put(new ArmState(ArmState.Side.BACK, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(-17000, 41800, -31.2));
     put(new ArmState(ArmState.Side.BACK, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(7, 0, 0));
-    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.LOW, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(28500, -3200, -36.7));
+    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.LOW, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(29000, -27000, -36.0)); // Done
     put(new ArmState(ArmState.Side.FRONT, ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(9, 0, 0));
     put(new ArmState(ArmState.Side.BACK, ArmState.Height.LOW, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(10, 0, 0));
     put(new ArmState(ArmState.Side.BACK, ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(11, 0, 0));
@@ -173,6 +171,7 @@ public class ArmSubsystem extends SubsystemBase {
 
   private double arm1LeftAdjustedCalibration;
   private double arm2AdjustedCalibration;
+  private double intakeAdjustedCalibration;
 
   private final double arm2MaxFeedforward = 0.05;
 
@@ -182,6 +181,7 @@ public class ArmSubsystem extends SubsystemBase {
 
   // arm 1 left limit 1 : 39 degrees (at back, decreases going to front), zero at -17
   // arm 1 right limit 1 : 229 degrees (at back, increases going to front), zero at 284
+  // arm 2 chain ratio: 32:74
 
   /** Creates a new ArmSubsystem. */
   public ArmSubsystem() {
@@ -236,10 +236,10 @@ public class ArmSubsystem extends SubsystemBase {
     arm2Right.enableVoltageCompensation(true);
 
     arm1Left.configForwardSoftLimitThreshold((40.0 / Constants.arm1LeftConstants.ratio / 360.0) * 2048.0);
-    arm2Left.configForwardSoftLimitThreshold((160.0 / Constants.arm2LeftConstants.ratio / 360.0) * 2048.0);
+    arm2Left.configForwardSoftLimitThreshold((135.0 / (Constants.arm2LeftConstants.ratio * Constants.ArmConstants.stage2ChainRatio) / 360.0) * 2048.0);
 
     arm1Left.configReverseSoftLimitThreshold((-40.0 / Constants.arm1LeftConstants.ratio / 360.0) * 2048.0);
-    arm2Left.configReverseSoftLimitThreshold((-160.0 / Constants.arm2LeftConstants.ratio / 360.0) * 2048.0);
+    arm2Left.configReverseSoftLimitThreshold((-135.0 / (Constants.arm2LeftConstants.ratio * Constants.ArmConstants.stage2ChainRatio) / 360.0) * 2048.0);
 
     arm1Left.configForwardSoftLimitEnable(true);
     arm2Left.configForwardSoftLimitEnable(true);
@@ -247,17 +247,19 @@ public class ArmSubsystem extends SubsystemBase {
     arm1Left.configReverseSoftLimitEnable(true);
     arm2Left.configReverseSoftLimitEnable(true);
 
-    arm1Left.config_kP(0, 0.15);
+    arm1Left.config_kP(0, 0.07);
     arm1Left.config_kI(0, 0);
-    arm1Left.config_kD(0, 0);
+    arm1Left.config_kD(0, 0.003);
+    arm1Left.configNeutralDeadband(0.04);
     //arm1Left.configClosedloopRamp(0.25);
 
     arm1Right.follow(arm1Left);
     arm1Right.setInverted(InvertType.OpposeMaster);
 
-    arm2Left.config_kP(0, 0.02); // 0.15
+    arm2Left.config_kP(0, 0.015); // 0.15
     arm2Left.config_kI(0, 0);
-    arm2Left.config_kD(0, 0);
+    arm2Left.config_kD(0, 0.015);
+    arm2Left.configNeutralDeadband(0.06);
     //arm2Left.configClosedloopRamp(1.0);
     
     arm2Right.follow(arm2Left);
@@ -277,6 +279,9 @@ public class ArmSubsystem extends SubsystemBase {
 
     intakePivotLeft.setControlFramePeriodMs(40);
     intakePivotRight.setControlFramePeriodMs(40);
+
+    intakePivotLeft.setSoftLimit(SoftLimitDirection.kReverse, (float) (-135.0 / Constants.intakePivotLeftConstants.ratio / 360.0));
+    intakePivotLeft.setSoftLimit(SoftLimitDirection.kForward, (float) (135.0 / Constants.intakePivotLeftConstants.ratio / 360.0));
 
     intakePivotLeft.setInverted(true);
     intakePivotRight.follow(intakePivotLeft, true);
@@ -318,6 +323,11 @@ public class ArmSubsystem extends SubsystemBase {
       arm2AdjustedCalibration += 360;
     }
 
+    intakeAdjustedCalibration = Constants.intakePivotLeftConstants.calibration - 180;
+    while (intakeAdjustedCalibration < 0) {
+      intakeAdjustedCalibration += 360;
+    }
+
     resetArm1LeftEncoder();
     resetArm2Encoder();
     resetIntakeEncoder();
@@ -353,7 +363,9 @@ public class ArmSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumber("Left 2 absolute encoder", getArm2AbsoluteEncoderPos());
 
-    SmartDashboard.putNumber("Left 2 calculated relative pos", (getArm2LeftCompensatedAbsoluteEncoderPos() / Constants.arm2LeftConstants.ratio / 360.0) * 2048.0);
+    SmartDashboard.putNumber("Left 1 Applied Power", arm1Left.getMotorOutputPercent());
+
+    SmartDashboard.putNumber("Left 2 calculated relative pos", (getArm2LeftCompensatedAbsoluteEncoderPos() / (Constants.arm2LeftConstants.ratio * Constants.ArmConstants.stage2ChainRatio) / 360.0) * 2048.0);
     SmartDashboard.putNumber("Left 2 relative pos", arm2Left.getSelectedSensorPosition());
 
     SmartDashboard.putNumber("Arm 2 calibrated absolute pos", getArm2AbsoluteEncoderPos() - Constants.arm2LeftConstants.calibration);
@@ -362,10 +374,13 @@ public class ArmSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumber("Arm 2 Target Position", arm2TargetPosition);
 
+    SmartDashboard.putNumber("Left 2 Applied Power", arm2Left.getMotorOutputPercent());
+
     SmartDashboard.putNumber("Wrist absolute pos", intakePivotAbsoluteEncoder.getDistance());
     SmartDashboard.putNumber("Wrist relative pos", intakePivotLeftEncoder.getPosition());
-    SmartDashboard.putNumber("Wrist calculated relative pos", -(intakePivotAbsoluteEncoder.getDistance() - Constants.intakePivotLeftConstants.calibration) / Constants.intakePivotLeftConstants.ratio / 360.0);
+    SmartDashboard.putNumber("Wrist calculated relative pos", getIntakeCalibratedAbsoluteEncoderPos() / Constants.intakePivotLeftConstants.ratio / 360.0);
     SmartDashboard.putNumber("Wrist target pos", intakeTargetPosition);
+    SmartDashboard.putNumber("Wrist calibrated absolute pos", getIntakeCalibratedAbsoluteEncoderPos());
 
     SmartDashboard.putBoolean("Arm target setpoint is front", state.side == Side.FRONT);
     SmartDashboard.putBoolean("Arm target setpoint is cube", state.piece == GamePiece.CUBE);
@@ -384,23 +399,23 @@ public class ArmSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Arm 2 feedforward", arm2MaxFeedforward);
     SmartDashboard.putNumber("Arm 2 applied feedforward", sineScalar * arm2MaxFeedforward);
 
-    if (arm1Left.getSelectedSensorVelocity() > 200) {
+    if (Math.abs(arm1Left.getSelectedSensorVelocity()) > 200) {
       arm1TimeLastMoved = timer.get();
     } else if (timer.get() - arm1TimeLastMoved > 1.0) {
       resetArm1LeftEncoder();
       arm1TimeLastMoved = timer.get();
     }
 
-    // if (arm2Left.getSelectedSensorVelocity() > 200) {
-    //   arm2TimeLastMoved = timer.get();
-    // } else if (timer.get() - arm2TimeLastMoved > 1.0) {
-    //   resetArm2Encoder();
-    //   arm2TimeLastMoved = timer.get();
-    // }
+    if (Math.abs(arm2Left.getSelectedSensorVelocity()) > 200) {
+      arm2TimeLastMoved = timer.get();
+    } else if (timer.get() - arm2TimeLastMoved > 1.0) {
+      resetArm2Encoder();
+      arm2TimeLastMoved = timer.get();
+    }
 
-    resetArm2Encoder();
+    // resetArm2Encoder();
     
-    if (intakePivotLeftEncoder.getVelocity() > 10) {
+    if (Math.abs(intakePivotLeftEncoder.getVelocity()) > 10) {
       wristTimeLastMoved = timer.get();
     } else if (timer.get() - wristTimeLastMoved > 1.0) {
       resetIntakeEncoder();
@@ -411,9 +426,9 @@ public class ArmSubsystem extends SubsystemBase {
       intakeTargetPosition = 0;
     }
 
-    // arm1Left.set(ControlMode.Position, arm1TargetPosition);
-    // arm2Left.set(ControlMode.Position, arm2TargetPosition, DemandType.ArbitraryFeedForward, sineScalar * arm2MaxFeedforward);
-    // intakePivotPID.setReference(intakeTargetPosition, ControlType.kPosition);
+    arm1Left.set(ControlMode.Position, arm1TargetPosition);
+    arm2Left.set(ControlMode.Position, arm2TargetPosition, DemandType.ArbitraryFeedForward, sineScalar * arm2MaxFeedforward);
+    intakePivotPID.setReference(intakeTargetPosition, ControlType.kPosition);
 
     // TODO: here we should put the current state into the setPoints map to get the next target. If we are in 
     // fudge mode, we will disregard these and set the speed and direction of the motors directly based on the operator joysticks.
@@ -491,11 +506,13 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   private double getArm2LeftAdjustedAbsoluteEncoderPos() {
-    double adjustedPos = arm2AbsoluteEncoder.getDistance() - 180.0;
-    while (adjustedPos < 0) {
-      adjustedPos += 360.0;
-    }
-    return adjustedPos;
+    // double adjustedPos = arm2AbsoluteEncoder.getDistance() - 180.0;
+    // while (adjustedPos < 0) {
+    //   adjustedPos += 360.0;
+    // }
+    // return adjustedPos;
+
+    return arm2AbsoluteEncoder.getDistance();
   }
 
   private double getArm2AbsoluteEncoderPos() {
@@ -503,7 +520,8 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   private double getArm2LeftCompensatedAbsoluteEncoderPos() {
-    return getArm2LeftAdjustedAbsoluteEncoderPos() - arm2AdjustedCalibration + getArm1AbsoluteEncoderAverage();
+    // return getArm2LeftAdjustedAbsoluteEncoderPos() - arm2AdjustedCalibration + getArm1AbsoluteEncoderAverage() * Constants.ArmConstants.stage2ChainRatio;
+    return getArm2LeftAdjustedAbsoluteEncoderPos() - Constants.arm2LeftConstants.calibration + getArm1AbsoluteEncoderAverage() * Constants.ArmConstants.stage2ChainRatio;
   }
 
   private double getArm1AbsoluteEncoderAverage() {
@@ -516,16 +534,28 @@ public class ArmSubsystem extends SubsystemBase {
     return intakePivotAbsoluteEncoder.getDistance();
   }
 
+  private double getIntakeAdjustedAbsoluteEncoderPos() {
+    double adjustedPos = getIntakeAbsoluteEncoderPos() - 180.0;
+    while (adjustedPos < 0) {
+      adjustedPos += 360.0;
+    }
+    return adjustedPos;
+  }
+
+  private double getIntakeCalibratedAbsoluteEncoderPos() {
+    return -getIntakeAdjustedAbsoluteEncoderPos() + intakeAdjustedCalibration;
+  }
+
   private void resetArm1LeftEncoder() {
     arm1Left.setSelectedSensorPosition((getArm1AbsoluteEncoderAverage() / Constants.arm1LeftConstants.ratio / 360.0) * 2048.0);
   }
 
   private void resetArm2Encoder() {
-    arm2Left.setSelectedSensorPosition((getArm2LeftCompensatedAbsoluteEncoderPos() / Constants.arm2LeftConstants.ratio / 360.0) * 2048.0);
+    arm2Left.setSelectedSensorPosition((getArm2LeftCompensatedAbsoluteEncoderPos() / (Constants.arm2LeftConstants.ratio * Constants.ArmConstants.stage2ChainRatio) / 360.0) * 2048.0);
   }
 
   private void resetIntakeEncoder() {
-    intakePivotLeftEncoder.setPosition(-(getIntakeAbsoluteEncoderPos() - Constants.intakePivotLeftConstants.calibration) / Constants.intakePivotLeftConstants.ratio / 360.0);
+    intakePivotLeftEncoder.setPosition(getIntakeCalibratedAbsoluteEncoderPos() / Constants.intakePivotLeftConstants.ratio / 360.0);
   }
 
   public void updateSideBack() {
