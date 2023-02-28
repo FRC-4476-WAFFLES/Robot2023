@@ -80,6 +80,7 @@ public class DriveSubsystem extends SubsystemBase {
             modulePositions[x] = modules[x].getPosition();
         }
 
+        //HEY YOO WTF IS THIS THING?!?!?!?!?!? \/   --CTRL-f label [jeremyWasHere]
         odometry.update(Rotation2d.fromDegrees(-ahrsIMU.getAngle()), modulePositions);
 
         SmartDashboard.putNumber("X location Is this changing", getOdometryLocation().getX());
@@ -154,10 +155,11 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public Pose2d getAdjustedPose() {
-        return new Pose2d(
-            odometry.getPoseMeters().getTranslation(),
-            odometry.getPoseMeters().getRotation().plus(Rotation2d.fromDegrees(180))
-        );
+        // return new Pose2d(
+        //     odometry.getPoseMeters().getTranslation(),
+        //     odometry.getPoseMeters().getRotation().plus(Rotation2d.fromDegrees(180))
+        // );
+        return getOdometryLocation();
     }
 
     public ChassisSpeeds getChassisSpeeds() {
@@ -166,6 +168,10 @@ public class DriveSubsystem extends SubsystemBase {
             moduleStates[x] = modules[x].getState();
         }
         return kinematics.toChassisSpeeds(moduleStates[0], moduleStates[1], moduleStates[2], moduleStates[3]);
+    }
+
+    public double getPitch() {
+        return ahrsIMU.getPitch();
     }
 
     /** Stop all motors from running. */

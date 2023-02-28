@@ -24,11 +24,14 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.arm.ArmJoystickControl;
 import frc.robot.commands.auto.AutoPlaceGamepiece;
+import frc.robot.commands.drive.DriveAutoBalance;
 import frc.robot.commands.drive.DriveTeleop;
 import frc.robot.commands.intake.IntakeTeleop;
+import frc.robot.commands.lights.UpdateLightsWithRobotState;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LightSubsystem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -41,6 +44,9 @@ public class RobotContainer {
   public static final DriveSubsystem driveSubsystem = new DriveSubsystem();
   public static final ArmSubsystem armSubsystem = new ArmSubsystem();
   public static final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  public static final LightSubsystem lightSubsystem = new LightSubsystem();
+  // public static final Camera frontCamera = new Camera("Front Limelight");
+  // public static final Camera backCamera = new Camera("Back Camera");
   
   public static final Joystick leftJoystick = new Joystick(0);
   public static final Joystick rightJoystick = new Joystick(1);
@@ -49,6 +55,7 @@ public class RobotContainer {
   private final DriveTeleop swerve = new DriveTeleop();
   private final ArmJoystickControl armJoystickControl = new ArmJoystickControl(operate::getLeftX, operate::getLeftY, operate::getRightX);
   private final IntakeTeleop intakeTeleop = new IntakeTeleop(() -> -operate.getLeftTriggerAxis() + operate.getRightTriggerAxis());
+  private final UpdateLightsWithRobotState updateLights = new UpdateLightsWithRobotState();
 
   /** A map of events and their corresponding commands */
   private final HashMap<String, Command> eventMap = new HashMap<>() {{
@@ -90,6 +97,7 @@ public class RobotContainer {
     driveSubsystem.setDefaultCommand(swerve);
     armSubsystem.setDefaultCommand(armJoystickControl);
     intakeSubsystem.setDefaultCommand(intakeTeleop);
+    lightSubsystem.setDefaultCommand(updateLights);
     //CommandScheduler.getInstance().registerSubsystem(intakeSubsystem);
     // Configure the trigger bindings
     configureBindings();
@@ -111,6 +119,7 @@ public class RobotContainer {
    */
   private void configureBindings() {
     final var right1 = new JoystickButton(rightJoystick, 1);
+    final var left1 = new JoystickButton(leftJoystick, 1);
 
     final var aButton = new JoystickButton(operate, XboxController.Button.kA.value);
     final var bButton = new JoystickButton(operate, XboxController.Button.kB.value);
@@ -124,6 +133,7 @@ public class RobotContainer {
     final var dpadUp = new Trigger(() -> operate.getPOV() == 0);
 
     right1.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem).alongWith(new InstantCommand(driveSubsystem::resetGyro)));
+    left1.onTrue(new DriveAutoBalance());
 
     aButton.onTrue(new InstantCommand(armSubsystem::updateHeightLow, armSubsystem));
     bButton.onTrue(new InstantCommand(armSubsystem::updateHeightMedium, armSubsystem));

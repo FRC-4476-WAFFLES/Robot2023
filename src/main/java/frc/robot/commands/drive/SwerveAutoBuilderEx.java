@@ -7,7 +7,6 @@ import java.util.function.Supplier;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.auto.BaseAutoBuilder;
 import com.pathplanner.lib.auto.PIDConstants;
-import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -19,8 +18,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 
 public class SwerveAutoBuilderEx extends BaseAutoBuilder {
     private final SwerveDriveKinematics kinematics;
-    private final PIDConstants xConstants;
-    private final PIDConstants yConstants;
+    private final PIDConstants translationConstants;
     private final PIDConstants rotationConstants;
     private final Consumer<SwerveModuleState[]> outputModuleStates;
     private final Consumer<ChassisSpeeds> outputChassisSpeeds;
@@ -54,7 +52,6 @@ public class SwerveAutoBuilderEx extends BaseAutoBuilder {
         Supplier<Pose2d> poseSupplier,
         Consumer<Pose2d> resetPose,
         PIDConstants xConstants,
-        PIDConstants yConstants,
         PIDConstants rotationConstants,
         Consumer<ChassisSpeeds> outputChassisSpeeds,
         Map<String, Command> eventMap,
@@ -63,7 +60,6 @@ public class SwerveAutoBuilderEx extends BaseAutoBuilder {
           poseSupplier,
           resetPose,
           xConstants,
-          yConstants,
           rotationConstants,
           outputChassisSpeeds,
           eventMap,
@@ -99,7 +95,6 @@ public class SwerveAutoBuilderEx extends BaseAutoBuilder {
         Consumer<Pose2d> resetPose,
         SwerveDriveKinematics kinematics,
         PIDConstants xConstants,
-        PIDConstants yConstants,
         PIDConstants rotationConstants,
         Consumer<SwerveModuleState[]> outputModuleStates,
         Map<String, Command> eventMap,
@@ -109,7 +104,6 @@ public class SwerveAutoBuilderEx extends BaseAutoBuilder {
           resetPose,
           kinematics,
           xConstants,
-          yConstants,
           rotationConstants,
           outputModuleStates,
           eventMap,
@@ -146,7 +140,6 @@ public class SwerveAutoBuilderEx extends BaseAutoBuilder {
         Supplier<Pose2d> poseSupplier,
         Consumer<Pose2d> resetPose,
         PIDConstants xConstants,
-        PIDConstants yConstants,
         PIDConstants rotationConstants,
         Consumer<ChassisSpeeds> outputChassisSpeeds,
         Map<String, Command> eventMap,
@@ -155,8 +148,7 @@ public class SwerveAutoBuilderEx extends BaseAutoBuilder {
       super(poseSupplier, resetPose, eventMap, DrivetrainType.HOLONOMIC, useAllianceColor);
   
       this.kinematics = null;
-      this.xConstants = xConstants;
-      this.yConstants = yConstants;
+      this.translationConstants = xConstants;
       this.rotationConstants = rotationConstants;
       this.outputModuleStates = null;
       this.outputChassisSpeeds = outputChassisSpeeds;
@@ -196,7 +188,6 @@ public class SwerveAutoBuilderEx extends BaseAutoBuilder {
         Consumer<Pose2d> resetPose,
         SwerveDriveKinematics kinematics,
         PIDConstants xConstants,
-        PIDConstants yConstants,
         PIDConstants rotationConstants,
         Consumer<SwerveModuleState[]> outputModuleStates,
         Map<String, Command> eventMap,
@@ -205,8 +196,7 @@ public class SwerveAutoBuilderEx extends BaseAutoBuilder {
       super(poseSupplier, resetPose, eventMap, DrivetrainType.HOLONOMIC, useAllianceColor);
   
       this.kinematics = kinematics;
-      this.xConstants = xConstants;
-      this.yConstants = yConstants;
+      this.translationConstants = xConstants;
       this.rotationConstants = rotationConstants;
       this.outputModuleStates = outputModuleStates;
       this.outputChassisSpeeds = null;
@@ -218,22 +208,22 @@ public class SwerveAutoBuilderEx extends BaseAutoBuilder {
     @Override
     public CommandBase followPath(PathPlannerTrajectory trajectory) {
       if (useKinematics) {
-        return new PPSwerveControllerCommand(
+        return new PPSwerveControllerCommandEx(
             trajectory,
             poseSupplier,
             kinematics,
-            pidControllerFromConstants(xConstants),
-            pidControllerFromConstants(yConstants),
+            pidControllerFromConstants(translationConstants),
+            pidControllerFromConstants(translationConstants),
             pidControllerFromConstants(rotationConstants),
             outputModuleStates,
             useAllianceColor,
             driveRequirements);
       } else {
-        return new PPSwerveControllerCommand(
+        return new PPSwerveControllerCommandEx(
             trajectory,
             poseSupplier,
-            pidControllerFromConstants(xConstants),
-            pidControllerFromConstants(yConstants),
+            pidControllerFromConstants(translationConstants),
+            pidControllerFromConstants(translationConstants),
             pidControllerFromConstants(rotationConstants),
             outputChassisSpeeds,
             useAllianceColor,

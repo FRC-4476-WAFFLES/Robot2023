@@ -47,6 +47,9 @@ public final class Constants {
   public static final int swerveModule3Encoder = 2; // Thriftybot Analog Encoder
   public static final int swerveModule4Encoder = 3; // Thriftybot Analog Encoder
 
+  // PWM outputs
+  public static final int lightsBlinkin = 9; // REV Blinkin
+
   // Arm Initialization
   public static final ArmConstants arm1LeftConstants = new ArmConstants(344, arm1Left, (1.0 / 80.0) * (15.0 / 36.0), -72, 38, 40, false);
   public static final ArmConstants arm1RightConstants = new ArmConstants(284, arm1Right, (1.0 / 80.0) * (15.0 / 36.0), 229, 339, 40, true);
