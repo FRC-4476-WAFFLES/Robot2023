@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.arm.ArmJoystickControl;
+import frc.robot.commands.arm.ArmTeleop;
 import frc.robot.commands.auto.AutoPlaceGamepiece;
 import frc.robot.commands.drive.DriveAutoBalance;
 import frc.robot.commands.drive.DriveTeleop;
@@ -53,7 +53,7 @@ public class RobotContainer {
   public static final XboxController operate = new XboxController(2);
 
   private final DriveTeleop swerve = new DriveTeleop();
-  private final ArmJoystickControl armJoystickControl = new ArmJoystickControl(operate::getLeftX, operate::getLeftY, operate::getRightX);
+  private final ArmTeleop armJoystickControl = new ArmTeleop(operate::getLeftX, operate::getLeftY, operate::getRightX);
   private final IntakeTeleop intakeTeleop = new IntakeTeleop(() -> -operate.getLeftTriggerAxis() + operate.getRightTriggerAxis());
   private final UpdateLightsWithRobotState updateLights = new UpdateLightsWithRobotState();
 
@@ -125,11 +125,11 @@ public class RobotContainer {
     final var bButton = new JoystickButton(operate, XboxController.Button.kB.value);
     final var xButton = new JoystickButton(operate, XboxController.Button.kX.value);
     final var yButton = new JoystickButton(operate, XboxController.Button.kY.value);
-    final var leftStickButton = new JoystickButton(operate, XboxController.Button.kLeftStick.value);
-    final var rightStickButton = new JoystickButton(operate, XboxController.Button.kRightStick.value);
+    // final var leftStickButton = new JoystickButton(operate, XboxController.Button.kLeftStick.value);
+    // final var rightStickButton = new JoystickButton(operate, XboxController.Button.kRightStick.value);
     final var leftBumperButton = new JoystickButton(operate, XboxController.Button.kLeftBumper.value);
     final var rightBumperButton = new JoystickButton(operate, XboxController.Button.kRightBumper.value);
-    final var dpadDown = new Trigger(() -> operate.getPOV() == 180);
+    // final var dpadDown = new Trigger(() -> operate.getPOV() == 180);
     final var dpadUp = new Trigger(() -> operate.getPOV() == 0);
 
     right1.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem).alongWith(new InstantCommand(driveSubsystem::resetGyro)));
@@ -139,13 +139,15 @@ public class RobotContainer {
     bButton.onTrue(new InstantCommand(armSubsystem::updateHeightMedium, armSubsystem));
     yButton.onTrue(new InstantCommand(armSubsystem::updateHeightHigh, armSubsystem));
     xButton.onTrue(new InstantCommand(armSubsystem::updateHeightPickup, armSubsystem));
-    leftStickButton.onTrue(new InstantCommand(armSubsystem::updateSideBack, armSubsystem));
-    rightStickButton.onTrue(new InstantCommand(armSubsystem::updateSideFront, armSubsystem));
+    // leftStickButton.onTrue(new InstantCommand(armSubsystem::updateSideBack, armSubsystem));
+    // rightStickButton.onTrue(new InstantCommand(armSubsystem::updateSideFront, armSubsystem));
     leftBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCone, armSubsystem));
     rightBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCube, armSubsystem));
-    dpadDown.onTrue(new InstantCommand(armSubsystem::toggleAltPickuplTrue, armSubsystem));
-    dpadUp.onTrue(new InstantCommand(() -> {armSubsystem.updateFudge(false);}, armSubsystem));
-    dpadUp.onFalse(new InstantCommand(() -> {armSubsystem.updateFudge(true);}, armSubsystem));
+    // dpadDown.onTrue(new InstantCommand(armSubsystem::toggleAltPickupl, armSubsystem));
+    dpadUp.onTrue(new InstantCommand(armSubsystem::updateFudgeTrue, armSubsystem));
+    dpadUp.onFalse(new InstantCommand(armSubsystem::updateFudgeFalse, armSubsystem));
+
+    aButton.or(bButton).or(xButton).or(yButton).or(armSubsystem::getFudge).onTrue(new InstantCommand(armSubsystem::updateDeployTrue)).onFalse(new InstantCommand(armSubsystem::updateDeployFalse));
   }
 
   /**

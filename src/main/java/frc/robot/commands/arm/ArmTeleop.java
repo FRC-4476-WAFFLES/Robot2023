@@ -8,16 +8,18 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.subsystems.ArmSubsystem.ArmState.Height;
+import frc.robot.subsystems.ArmSubsystem.ArmState.Side;
 
 import static frc.robot.RobotContainer.*;
 
-public class ArmJoystickControl extends CommandBase {
+public class ArmTeleop extends CommandBase {
   private final Supplier<Double> joystickAxis1;
   private final Supplier<Double> joystickAxis2;
   private final Supplier<Double> joystickAxis3;
 
   /** Creates a new Arm1JoystickControl. */
-  public ArmJoystickControl(Supplier<Double> joystickAxis1, Supplier<Double> joystickAxis2, Supplier<Double> joystickAxis3) {
+  public ArmTeleop(Supplier<Double> joystickAxis1, Supplier<Double> joystickAxis2, Supplier<Double> joystickAxis3) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.joystickAxis1 = joystickAxis1;
     this.joystickAxis2 = joystickAxis2;
@@ -38,6 +40,9 @@ public class ArmJoystickControl extends CommandBase {
       armSubsystem.fudgeIntakeWithAnalogStick(MathUtil.applyDeadband(joystickAxis3.get(), 0.05));
     } else {
       armSubsystem.setpointsFromStateMachine();
+      if (intakeSubsystem.getPower() > 0.1 && armSubsystem.getSide() == Side.FRONT && armSubsystem.getHeight() == Height.HPPICKUP) {
+        armSubsystem.fudgeArm2Setpoint(20000);
+      }
     }
   }
 
