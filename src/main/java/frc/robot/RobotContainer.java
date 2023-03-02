@@ -24,6 +24,8 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.arm.ArmTeleop;
 import frc.robot.commands.auto.AutoPlaceGamepiece;
+import frc.robot.commands.auto.OneConeAndBalance;
+import frc.robot.commands.auto.OneCubeAndBalance;
 import frc.robot.commands.drive.DriveAutoBalance;
 import frc.robot.commands.drive.DriveTeleop;
 import frc.robot.commands.intake.IntakeTeleop;
@@ -88,9 +90,12 @@ public class RobotContainer {
 
   private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
 
-  private final Command oneCubeAndClimb = autoBuilder.fullAuto(PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1)));
+  // private final Command oneCubeAndClimb = autoBuilder.fullAuto(PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1)));
   private final Command twoCubeAndClimb = autoBuilder.fullAuto(PathPlanner.loadPath("2 Cube Climb", new PathConstraints(4, 3)));
   private final Command testAuto = autoBuilder.fullAuto(PathPlanner.loadPath("New Path", new PathConstraints(1, 1)));
+  private final Command oneCubeAndClimb = new OneCubeAndBalance();
+  private final Command oneConeAndClimb = new OneConeAndBalance();
+  private final Command autoPlaceGamepiece = new AutoPlaceGamepiece();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -103,8 +108,10 @@ public class RobotContainer {
     configureBindings();
 
     autoChooser.addOption("1 Cube and Climb", oneCubeAndClimb);
+    autoChooser.addOption("1 Cone and Climb", oneConeAndClimb);
     autoChooser.addOption("2 Cube and Climb", twoCubeAndClimb);
     autoChooser.addOption("Test Auto", testAuto);
+    autoChooser.addOption("place piece", autoPlaceGamepiece);
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
@@ -125,22 +132,22 @@ public class RobotContainer {
     final var bButton = new JoystickButton(operate, XboxController.Button.kB.value);
     final var xButton = new JoystickButton(operate, XboxController.Button.kX.value);
     final var yButton = new JoystickButton(operate, XboxController.Button.kY.value);
-    // final var leftStickButton = new JoystickButton(operate, XboxController.Button.kLeftStick.value);
-    // final var rightStickButton = new JoystickButton(operate, XboxController.Button.kRightStick.value);
+    final var leftStickButton = new JoystickButton(operate, XboxController.Button.kLeftStick.value);
+    final var rightStickButton = new JoystickButton(operate, XboxController.Button.kRightStick.value);
     final var leftBumperButton = new JoystickButton(operate, XboxController.Button.kLeftBumper.value);
     final var rightBumperButton = new JoystickButton(operate, XboxController.Button.kRightBumper.value);
     // final var dpadDown = new Trigger(() -> operate.getPOV() == 180);
     final var dpadUp = new Trigger(() -> operate.getPOV() == 0);
 
     right1.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem).alongWith(new InstantCommand(driveSubsystem::resetGyro)));
-    left1.onTrue(new DriveAutoBalance());
+    left1.whileTrue(new DriveAutoBalance());
 
     aButton.onTrue(new InstantCommand(armSubsystem::updateHeightLow, armSubsystem));
     bButton.onTrue(new InstantCommand(armSubsystem::updateHeightMedium, armSubsystem));
     yButton.onTrue(new InstantCommand(armSubsystem::updateHeightHigh, armSubsystem));
     xButton.onTrue(new InstantCommand(armSubsystem::updateHeightPickup, armSubsystem));
-    // leftStickButton.onTrue(new InstantCommand(armSubsystem::updateSideBack, armSubsystem));
-    // rightStickButton.onTrue(new InstantCommand(armSubsystem::updateSideFront, armSubsystem));
+    leftStickButton.onTrue(new InstantCommand(armSubsystem::updateSideBack, armSubsystem));
+    rightStickButton.onTrue(new InstantCommand(armSubsystem::updateSideFront, armSubsystem));
     leftBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCone, armSubsystem));
     rightBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCube, armSubsystem));
     // dpadDown.onTrue(new InstantCommand(armSubsystem::toggleAltPickupl, armSubsystem));

@@ -21,15 +21,15 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class OneCubeAndBalance extends SequentialCommandGroup {
+public class OneConeAndBalance extends SequentialCommandGroup {
   /** Creates a new OnePieceAndBalance. */
-  public OneCubeAndBalance() {
+  public OneConeAndBalance() {
     PathPlannerTrajectory driveToScore = PathPlanner.loadPath("Start to Scoring", new PathConstraints(1, 1));
     PathPlannerTrajectory driveToClimb = PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1));
 
     addCommands(
       new InstantCommand(() -> {
-        armSubsystem.updateGamePieceCube();
+        armSubsystem.updateGamePieceCone();
         armSubsystem.updateHeightHigh();
         armSubsystem.updateSideFront();
         armSubsystem.updateFudgeFalse();

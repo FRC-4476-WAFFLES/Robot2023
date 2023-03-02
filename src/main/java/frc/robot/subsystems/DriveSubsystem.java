@@ -91,6 +91,8 @@ public class DriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Vx", getChassisSpeeds().vxMetersPerSecond);
         SmartDashboard.putNumber("Vy", getChassisSpeeds().vyMetersPerSecond);
         SmartDashboard.putNumber("Vomega", getChassisSpeeds().omegaRadiansPerSecond);
+        SmartDashboard.putNumber("Gyro Pitch", ahrsIMU.getPitch());
+        SmartDashboard.putNumber("Gyro Roll", ahrsIMU.getRoll());
 
         for (int i = 0; i < modules.length; i++) {
             String moduleLabel = "Module " + String.valueOf(i) + " ";
@@ -171,7 +173,8 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public double getPitch() {
-        return ahrsIMU.getPitch();
+        // Because of the orientation of the gyro, the getRoll() function returns the pitch of the robot
+        return ahrsIMU.getRoll();
     }
 
     /** Stop all motors from running. */

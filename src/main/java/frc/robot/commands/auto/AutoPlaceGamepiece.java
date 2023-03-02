@@ -4,9 +4,17 @@
 
 package frc.robot.commands.auto;
 
-import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+
+import static frc.robot.RobotContainer.*;
+
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
@@ -16,10 +24,35 @@ public class AutoPlaceGamepiece extends SequentialCommandGroup {
   public AutoPlaceGamepiece() {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
+    PathPlannerTrajectory path = PathPlanner.loadPath("Start to Scoring", new PathConstraints(1, 1));
+    
     addCommands(
-      new PrintCommand("Placing piece"), 
-      new WaitCommand(2), 
-      new PrintCommand("Piece placed")
+      new InstantCommand(() -> {
+        armSubsystem.updateGamePieceCone();
+        armSubsystem.updateHeightHigh();
+        armSubsystem.updateSideFront();
+        armSubsystem.updateFudgeFalse();
+      }, armSubsystem),
+      new InstantCommand(() -> driveSubsystem.resetOdometry(path.getInitialHolonomicPose()), driveSubsystem),
+      new InstantCommand(armSubsystem::setpointsFromStateMachine, armSubsystem),
+      new InstantCommand(armSubsystem::updateDeployTrue, armSubsystem), 
+      new WaitCommand(1.0).deadlineWith(new InstantCommand(armSubsystem::setpointsFromStateMachine, armSubsystem).repeatedly()), 
+      new InstantCommand(armSubsystem::resetArm2Encoder),
+      new PPSwerveControllerCommand(
+        path,
+        driveSubsystem::getOdometryLocation,
+        driveSubsystem.kinematics,
+        new PIDController(2, 0, 0),
+        new PIDController(2, 0, 0),
+        new PIDController(0, 0, 0),
+        driveSubsystem::setModuleStates,
+        true,
+        driveSubsystem
+      ).deadlineWith(new InstantCommand(armSubsystem::setpointsFromStateMachine, armSubsystem).repeatedly()), 
+      new InstantCommand(() -> intakeSubsystem.setPower(-0.5), intakeSubsystem).deadlineWith(new InstantCommand(armSubsystem::setpointsFromStateMachine, armSubsystem).repeatedly()),
+      new WaitCommand(0.5).deadlineWith(new InstantCommand(armSubsystem::setpointsFromStateMachine, armSubsystem).repeatedly()),
+      new InstantCommand(intakeSubsystem::stop, intakeSubsystem),
+      new InstantCommand(armSubsystem::updateDeployFalse, armSubsystem)
     );
   }
 }
