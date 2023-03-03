@@ -38,7 +38,7 @@ public class OneCubeAndBalance extends SequentialCommandGroup {
       new InstantCommand(armSubsystem::setpointsFromStateMachine, armSubsystem),
       new SequentialCommandGroup(
         new InstantCommand(armSubsystem::updateDeployTrue, armSubsystem), 
-        new WaitCommand(3.0), 
+        new WaitCommand(1.5), 
         // new InstantCommand(() -> {
         //   armSubsystem.resetArm1LeftEncoder();
         //   armSubsystem.resetArm2Encoder();
@@ -52,7 +52,7 @@ public class OneCubeAndBalance extends SequentialCommandGroup {
           new PIDController(2, 0, 0),
           new PIDController(-1, 0, 0),
           driveSubsystem::setModuleStates,
-          true,
+          false,
           driveSubsystem
         ).withTimeout(1), 
         new InstantCommand(() -> intakeSubsystem.setPower(-0.3), intakeSubsystem),
@@ -70,11 +70,11 @@ public class OneCubeAndBalance extends SequentialCommandGroup {
         new PIDController(2, 0, 0),
         new PIDController(-1, 0, 0),
         driveSubsystem::setModuleStates,
-        true,
+        false,
         driveSubsystem
       ).alongWith(
         new WaitCommand(0.5).andThen(new InstantCommand(armSubsystem::updateDeployFalse, armSubsystem))
-      ).until(() -> Math.abs(driveSubsystem.getPitch()) > 10),
+      ).until(() -> Math.abs(driveSubsystem.getPitch()) > 13),
 
       new DriveAutoBalance(),
 

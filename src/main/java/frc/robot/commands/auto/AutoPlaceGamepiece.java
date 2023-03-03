@@ -46,7 +46,7 @@ public class AutoPlaceGamepiece extends SequentialCommandGroup {
         new PIDController(2, 0, 0),
         new PIDController(0, 0, 0),
         driveSubsystem::setModuleStates,
-        true,
+        false,
         driveSubsystem
       ).deadlineWith(new InstantCommand(armSubsystem::setpointsFromStateMachine, armSubsystem).repeatedly()), 
       new InstantCommand(() -> intakeSubsystem.setPower(-0.5), intakeSubsystem).deadlineWith(new InstantCommand(armSubsystem::setpointsFromStateMachine, armSubsystem).repeatedly()),

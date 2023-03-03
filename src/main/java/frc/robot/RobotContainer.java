@@ -6,8 +6,6 @@ package frc.robot;
 
 import java.util.HashMap;
 
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
@@ -91,11 +89,12 @@ public class RobotContainer {
   private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
 
   // private final Command oneCubeAndClimb = autoBuilder.fullAuto(PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1)));
-  private final Command twoCubeAndClimb = autoBuilder.fullAuto(PathPlanner.loadPath("2 Cube Climb", new PathConstraints(4, 3)));
-  private final Command testAuto = autoBuilder.fullAuto(PathPlanner.loadPath("New Path", new PathConstraints(1, 1)));
+  // private final Command twoCubeAndClimb = autoBuilder.fullAuto(PathPlanner.loadPath("2 Cube Climb", new PathConstraints(4, 3)));
+  // private final Command testAuto = autoBuilder.fullAuto(PathPlanner.loadPath("New Path", new PathConstraints(1, 1)));
   private final Command oneCubeAndClimb = new OneCubeAndBalance();
   private final Command oneConeAndClimb = new OneConeAndBalance();
-  private final Command autoPlaceGamepiece = new AutoPlaceGamepiece();
+  // private final Command twoCube = new TwoCube();
+  //private final Command autoPlaceGamepiece = new AutoPlaceGamepiece();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -109,9 +108,10 @@ public class RobotContainer {
 
     autoChooser.addOption("1 Cube and Climb", oneCubeAndClimb);
     autoChooser.addOption("1 Cone and Climb", oneConeAndClimb);
-    autoChooser.addOption("2 Cube and Climb", twoCubeAndClimb);
-    autoChooser.addOption("Test Auto", testAuto);
-    autoChooser.addOption("place piece", autoPlaceGamepiece);
+    // autoChooser.addOption("2 Cube", twoCube);
+    // autoChooser.addOption("2 Cube and Climb", twoCubeAndClimb);
+    //autoChooser.addOption("Test Auto", testAuto);
+    // autoChooser.addOption("place piece", autoPlaceGamepiece);
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 

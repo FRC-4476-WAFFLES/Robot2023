@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import static frc.robot.RobotContainer.*;
 
 public class DriveAutoBalance extends CommandBase {
-  private final PIDController pitchController = new PIDController(1.25, 0, 0.0);
   private final PIDController yawController = new PIDController(-4.0, 0, -0);
 
   private double pitchRate = 0;
@@ -25,10 +24,9 @@ public class DriveAutoBalance extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    pitchController.setSetpoint(0);
     yawController.setSetpoint(0);
 
-    pitchController.setTolerance(0.04); // This is 2.29 degrees, aka legally level. 
+    // pitchController.setTolerance(0.04); // This is 2.29 degrees, aka legally level. 
 
     lastPitch = driveSubsystem.getPitch();
   }
@@ -39,7 +37,7 @@ public class DriveAutoBalance extends CommandBase {
     double currentPitch = driveSubsystem.getPitch();
     pitchRate = (currentPitch - lastPitch) / 0.02;
 
-    double forwardSpeed = pitchController.calculate(Math.toRadians(currentPitch));
+    double forwardSpeed = (currentPitch < 0) ? Math.pow(Math.toRadians(currentPitch), 2) * 16.0 : -Math.pow(Math.toRadians(currentPitch), 2) * 16.0;
     double rotationSpeed = yawController.calculate(driveSubsystem.getOdometryLocation().getRotation().getRadians());
 
     driveSubsystem.robotDrive(forwardSpeed, 0, rotationSpeed, false);
@@ -54,6 +52,6 @@ public class DriveAutoBalance extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return pitchController.atSetpoint() && Math.abs(pitchRate) < 2.0;
+    return Math.abs(driveSubsystem.getPitch()) < 2.2 && Math.abs(pitchRate) < 2.0;
   }
 }

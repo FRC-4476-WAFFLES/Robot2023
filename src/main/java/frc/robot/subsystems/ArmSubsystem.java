@@ -7,7 +7,6 @@ package frc.robot.subsystems;
 import java.util.HashMap;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -165,8 +164,6 @@ public class ArmSubsystem extends SubsystemBase {
   private double arm1LeftAdjustedCalibration;
   private double arm2AdjustedCalibration;
   private double intakeAdjustedCalibration;
-
-  private final double arm2MaxFeedforward = 0.05;
 
   private double arm1TimeLastMoved = 0;
   private double arm2TimeLastMoved = 0;
@@ -393,24 +390,16 @@ public class ArmSubsystem extends SubsystemBase {
     previousLoopTime = timer.get() - previousTime;
     previousTime = timer.get();
 
-    double currentDegrees = arm2Left.getSelectedSensorPosition() * Constants.arm2LeftConstants.ratio * 360.0 / 2048.0;
-    double radians = Math.toRadians(currentDegrees);
-    double sineScalar = Math.sin(radians);
-
-    SmartDashboard.putNumber("Arm 2 Sine Scalar", sineScalar);
-    SmartDashboard.putNumber("Arm 2 feedforward", arm2MaxFeedforward);
-    SmartDashboard.putNumber("Arm 2 applied feedforward", sineScalar * arm2MaxFeedforward);
-
     if (Math.abs(arm1Left.getSelectedSensorVelocity()) > 200) {
       arm1TimeLastMoved = timer.get();
-    } else if (timer.get() - arm1TimeLastMoved > 1.0) {
+    } else if (timer.get() - arm1TimeLastMoved > 0.1) {
       resetArm1LeftEncoder();
       arm1TimeLastMoved = timer.get();
     }
 
     if (Math.abs(arm2Left.getSelectedSensorVelocity()) > 200) {
       arm2TimeLastMoved = timer.get();
-    } else if (timer.get() - arm2TimeLastMoved > 1.0) {
+    } else if (timer.get() - arm2TimeLastMoved > 0.1) {
       resetArm2Encoder();
       arm2TimeLastMoved = timer.get();
     }
@@ -436,12 +425,18 @@ public class ArmSubsystem extends SubsystemBase {
 
     if (Math.abs(getArm1AbsoluteEncoderAverage()) < 20 && Math.abs(getArm2LeftCompensatedAbsoluteEncoderPos()) < 30) {
       intakeTargetPosition = -4;
+    } else if (
+      Math.abs(getArm1AbsoluteEncoderAverage()) < 30 
+      && Math.abs(getArm2LeftCompensatedAbsoluteEncoderPos()) < 40 
+      && Math.abs(arm2Left.getSelectedSensorVelocity() * 10 / 2048.0) > 2000 // Falcon is spinning at 2000 rpm or faster
+    ) {
+      intakeTargetPosition = -4;
     }
 
     intakeTargetPosition = MathUtil.clamp(intakeTargetPosition, -51, 30);
 
     arm1Left.set(ControlMode.Position, arm1TargetPosition);
-    arm2Left.set(ControlMode.Position, arm2TargetPosition, DemandType.ArbitraryFeedForward, sineScalar * arm2MaxFeedforward);
+    arm2Left.set(ControlMode.Position, arm2TargetPosition);
     intakePivotPID.setReference(intakeTargetPosition, ControlType.kPosition);
 
     // TODO: here we should put the current state into the setPoints map to get the next target. If we are in 
