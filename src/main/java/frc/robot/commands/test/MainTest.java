@@ -14,6 +14,8 @@ public class MainTest extends SequentialCommandGroup {
   public MainTest() {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
-    addCommands();
+    addCommands(
+      new DriveTest()
+    );
   }
 }

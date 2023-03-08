@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.drive.DriveTeleop;
+import frc.robot.commands.test.MainTest;
 import frc.robot.subsystems.DriveSubsystem;
 
 /**
@@ -55,5 +56,9 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return null;
+  }
+
+  public Command getTestCommand() {
+    return new MainTest();
   }
 }
