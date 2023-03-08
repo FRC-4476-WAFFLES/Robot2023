@@ -4,14 +4,24 @@
 
 package frc.robot.commands.test;
 
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import static frc.robot.RobotContainer.*;
 
 
 public class DriveTest extends CommandBase {
-  private Timer timer = new Timer();
+  private final Timer timer = new Timer();
+  private final PowerDistribution pdh = new PowerDistribution(1, PowerDistribution.ModuleType.kRev);
+
+  private final DataLog log = DataLogManager.getLog();
+  private final DoubleLogEntry channel1Log = new DoubleLogEntry(log, "Channel 1 current");
+  
   private double maxCurrent = 0.0;
+
   /** Creates a new DriveTest. */
   public DriveTest() {
     addRequirements(driveSubsystem);
@@ -50,6 +60,8 @@ public class DriveTest extends CommandBase {
     } else if(timer.get() < 55) {
       driveSubsystem.robotDrive(0, 0, 0, false);
     }
+
+    channel1Log.append(pdh.getCurrent(1));
   }
 
   // Called once the command ends or is interrupted.
