@@ -21,9 +21,9 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class OneCubeAndBalance extends SequentialCommandGroup {
+public class OneCube extends SequentialCommandGroup {
   /** Creates a new OnePieceAndBalance. */
-  public OneCubeAndBalance() {
+  public OneCube() {
     PathPlannerTrajectory driveToScore = PathPlanner.loadPath("Start to Scoring", new PathConstraints(1, 1));
     PathPlannerTrajectory driveToClimb = PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1));
 
@@ -62,31 +62,31 @@ public class OneCubeAndBalance extends SequentialCommandGroup {
         new InstantCommand(intakeSubsystem::stop, intakeSubsystem),
 
         new InstantCommand(() -> driveSubsystem.resetOdometry(driveToClimb.getInitialHolonomicPose()), driveSubsystem)
-      ).deadlineWith(new InstantCommand(armSubsystem::setpointsFromStateMachine).repeatedly()),
+      ).deadlineWith(new InstantCommand(armSubsystem::setpointsFromStateMachine).repeatedly())
 
-      new PPSwerveControllerCommand(
-        driveToClimb,
-        driveSubsystem::getOdometryLocation,
-        driveSubsystem.kinematics,
-        new PIDController(2, 0, 0),
-        new PIDController(2, 0, 0),
-        new PIDController(-1, 0, 0),
-        driveSubsystem::setModuleStates,
-        false,
-        driveSubsystem
-      ).alongWith(
-        new WaitCommand(0.5).andThen(new InstantCommand(armSubsystem::updateDeployFalse, armSubsystem))
-      ).until(() -> Math.abs(driveSubsystem.getPitch()) > 13),
+      // new PPSwerveControllerCommand(
+      //   driveToClimb,
+      //   driveSubsystem::getOdometryLocation,
+      //   driveSubsystem.kinematics,
+      //   new PIDController(2, 0, 0),
+      //   new PIDController(2, 0, 0),
+      //   new PIDController(-1, 0, 0),
+      //   driveSubsystem::setModuleStates,
+      //   false,
+      //   driveSubsystem
+      // ).alongWith(
+      //   new WaitCommand(0.5).andThen(new InstantCommand(armSubsystem::updateDeployFalse, armSubsystem))
+      // ).until(() -> Math.abs(driveSubsystem.getPitch()) > 13),
 
-      new DriveAutoBalance(),
+      // new DriveAutoBalance(),
 
-      // new InstantCommand(() -> driveSubsystem.lockWheels(), driveSubsystem).repeatedly()
-      new CommandBase() {
-        @Override
-        public final void execute() {
-          driveSubsystem.lockWheels();
-        }
-      }
+      // // new InstantCommand(() -> driveSubsystem.lockWheels(), driveSubsystem).repeatedly()
+      // new CommandBase() {
+      //   @Override
+      //   public final void execute() {
+      //     driveSubsystem.lockWheels();
+      //   }
+      // }
     );
   }
 }

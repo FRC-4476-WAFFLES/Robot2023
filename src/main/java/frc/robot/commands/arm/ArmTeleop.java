@@ -7,6 +7,7 @@ package frc.robot.commands.arm;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ArmSubsystem.ArmState.Height;
 import frc.robot.subsystems.ArmSubsystem.ArmState.Side;
@@ -44,6 +45,21 @@ public class ArmTeleop extends CommandBase {
         armSubsystem.fudgeArm2Setpoint(20000);
       }
     }
+
+    // Pose2d currentPose = driveSubsystem.getOdometryLocation();
+    // if (currentPose.getX() < 8) {
+    //   if (Math.abs(currentPose.getRotation().getDegrees()) < 90) {
+    //     armSubsystem.updateSideFront();
+    //   } else {
+    //     armSubsystem.updateSideBack();
+    //   }
+    // } else {
+    //   if (Math.abs(currentPose.getRotation().getDegrees()) < 90) {
+    //     armSubsystem.updateSideBack();
+    //   } else {
+    //     armSubsystem.updateSideFront();
+    //   }
+    // }
   }
 
   // Called once the command ends or is interrupted.

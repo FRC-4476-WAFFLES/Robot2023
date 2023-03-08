@@ -37,7 +37,8 @@ public class DriveAutoBalance extends CommandBase {
     double currentPitch = driveSubsystem.getPitch();
     pitchRate = (currentPitch - lastPitch) / 0.02;
 
-    double forwardSpeed = (currentPitch < 0) ? Math.pow(Math.toRadians(currentPitch), 2) * 16.0 : -Math.pow(Math.toRadians(currentPitch), 2) * 16.0;
+    double forwardSpeed = (currentPitch < 0) ? Math.pow(Math.toRadians(currentPitch), 2) * 12.0 : -Math.pow(Math.toRadians(currentPitch), 2) * 12.0;
+    // forwardSpeed += pitchRate * 1.0;
     double rotationSpeed = yawController.calculate(driveSubsystem.getOdometryLocation().getRotation().getRadians());
 
     driveSubsystem.robotDrive(forwardSpeed, 0, rotationSpeed, false);

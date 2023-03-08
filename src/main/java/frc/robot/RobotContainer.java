@@ -22,7 +22,10 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.arm.ArmTeleop;
 import frc.robot.commands.auto.AutoPlaceGamepiece;
+import frc.robot.commands.auto.BalanceOnly;
+import frc.robot.commands.auto.DriveBackwards;
 import frc.robot.commands.auto.OneConeAndBalance;
+import frc.robot.commands.auto.OneCube;
 import frc.robot.commands.auto.OneCubeAndBalance;
 import frc.robot.commands.drive.DriveAutoBalance;
 import frc.robot.commands.drive.DriveTeleop;
@@ -93,6 +96,9 @@ public class RobotContainer {
   // private final Command testAuto = autoBuilder.fullAuto(PathPlanner.loadPath("New Path", new PathConstraints(1, 1)));
   private final Command oneCubeAndClimb = new OneCubeAndBalance();
   private final Command oneConeAndClimb = new OneConeAndBalance();
+  private final Command oneCube = new OneCube();
+  private final Command driveBackwards = new DriveBackwards();
+  private final Command balanceOnly = new BalanceOnly();
   // private final Command twoCube = new TwoCube();
   //private final Command autoPlaceGamepiece = new AutoPlaceGamepiece();
 
@@ -108,6 +114,9 @@ public class RobotContainer {
 
     autoChooser.addOption("1 Cube and Climb", oneCubeAndClimb);
     autoChooser.addOption("1 Cone and Climb", oneConeAndClimb);
+    autoChooser.addOption("1 Cube", oneCube);
+    autoChooser.addOption("Drive Backwards", driveBackwards);
+    autoChooser.addOption("Balance Only", balanceOnly);
     // autoChooser.addOption("2 Cube", twoCube);
     // autoChooser.addOption("2 Cube and Climb", twoCubeAndClimb);
     //autoChooser.addOption("Test Auto", testAuto);
@@ -134,7 +143,7 @@ public class RobotContainer {
     final var yButton = new JoystickButton(operate, XboxController.Button.kY.value);
     final var leftStickButton = new JoystickButton(operate, XboxController.Button.kLeftStick.value);
     final var rightStickButton = new JoystickButton(operate, XboxController.Button.kRightStick.value);
-    final var leftBumperButton = new JoystickButton(operate, XboxController.Button.kLeftBumper.value);
+    // final var leftBumperButton = new JoystickButton(operate, XboxController.Button.kLeftBumper.value);
     final var rightBumperButton = new JoystickButton(operate, XboxController.Button.kRightBumper.value);
     // final var dpadDown = new Trigger(() -> operate.getPOV() == 180);
     final var dpadUp = new Trigger(() -> operate.getPOV() == 0);
@@ -148,8 +157,9 @@ public class RobotContainer {
     xButton.onTrue(new InstantCommand(armSubsystem::updateHeightPickup, armSubsystem));
     leftStickButton.onTrue(new InstantCommand(armSubsystem::updateSideBack, armSubsystem));
     rightStickButton.onTrue(new InstantCommand(armSubsystem::updateSideFront, armSubsystem));
-    leftBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCone, armSubsystem));
-    rightBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCube, armSubsystem));
+    // leftBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCone, armSubsystem));
+    // rightBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCube, armSubsystem));
+    rightBumperButton.onTrue(new InstantCommand(armSubsystem::togglePiece, armSubsystem));
     // dpadDown.onTrue(new InstantCommand(armSubsystem::toggleAltPickupl, armSubsystem));
     dpadUp.onTrue(new InstantCommand(armSubsystem::updateFudgeTrue, armSubsystem));
     dpadUp.onFalse(new InstantCommand(armSubsystem::updateFudgeFalse, armSubsystem));

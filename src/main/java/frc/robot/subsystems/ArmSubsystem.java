@@ -27,6 +27,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.subsystems.ArmSubsystem.ArmState.GamePiece;
+import frc.robot.subsystems.ArmSubsystem.ArmState.Side;
 import frc.robot.utils.LazyTalonFX;
 
 public class ArmSubsystem extends SubsystemBase {
@@ -94,13 +96,13 @@ public class ArmSubsystem extends SubsystemBase {
 
   HashMap<Integer, SetPoint> setPoints = new HashMap<Integer, SetPoint>() {{
     put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(12300, -97600, -30)); // Done
-    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HIGH, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(24100, -150000, -51)); // Done
+    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HIGH, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(25500, -162000, 24)); // Done
     put(new ArmState(ArmState.Side.BACK, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(-7600, 101000, 27)); // Done
     put(new ArmState(ArmState.Side.BACK, ArmState.Height.HIGH, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(-24000, 171000, -33)); // Done
     put(new ArmState(ArmState.Side.FRONT, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(2200, -64500, -30)); // Done
-    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(200, -95000, -51)); // Done
+    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(2000, -115000, 27)); // Done
     put(new ArmState(ArmState.Side.BACK, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(-4600, 80000, 27)); // Done
-    put(new ArmState(ArmState.Side.BACK, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(-1000, 125100, -33)); // Done
+    put(new ArmState(ArmState.Side.BACK, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(-13800, 132500, -22)); // Done
     put(new ArmState(ArmState.Side.FRONT, ArmState.Height.LOW, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(38000, -29000, -30.0)); // Done
     put(new ArmState(ArmState.Side.FRONT, ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(38000, -29000, -30.0)); // Done
     put(new ArmState(ArmState.Side.BACK, ArmState.Height.LOW, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(-24500, 37500, 30)); // Done
@@ -130,6 +132,7 @@ public class ArmSubsystem extends SubsystemBase {
 
   private ArmState state = new ArmState(ArmState.Side.FRONT, ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false);
   private boolean deploy = false;
+  private boolean overrideSide = false;
 
   // private Pose2d targetPos = new Pose2d();
 
@@ -155,6 +158,8 @@ public class ArmSubsystem extends SubsystemBase {
   private double arm1TargetPosition = 0;
   private double arm2TargetPosition = 0;
   private double intakeTargetPosition = 0;
+
+  private double armChilloutTimer = 0;
 
   private final Timer timer = new Timer();
 
@@ -322,6 +327,7 @@ public class ArmSubsystem extends SubsystemBase {
     resetArm1LeftEncoder();
     resetArm2Encoder();
     resetIntakeEncoder();
+    // intakePivotLeftEncoder.setPosition(-4);
 
     try {
       Thread.sleep(500);
@@ -412,6 +418,10 @@ public class ArmSubsystem extends SubsystemBase {
     //   resetIntakeEncoder();
     //   wristTimeLastMoved = timer.get();
     // }
+
+    if (timer.get() - armChilloutTimer < 1.5) {
+      deploy = false;
+    }
 
     if (!deploy) {
       setArm1Setpoint(0);
@@ -563,11 +573,19 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public void updateSideBack() {
+    if (state.side != Side.BACK) {
+      deploy = false;
+      armChilloutTimer = timer.get();
+    }
     state.side = ArmState.Side.BACK;
     state.altpickupl = false;
   }
 
   public void updateSideFront() {
+    if (state.side != Side.FRONT) {
+      deploy = false;
+      armChilloutTimer = timer.get();
+    }
     state.side = ArmState.Side.FRONT;
     state.altpickupl = false;
   }
@@ -599,6 +617,15 @@ public class ArmSubsystem extends SubsystemBase {
 
   public void updateGamePieceCone() {
     state.piece = ArmState.GamePiece.CONE;
+    state.altpickupl = false;
+  }
+
+  public void togglePiece() {
+    if (state.piece == GamePiece.CUBE) {
+      state.piece = GamePiece.CONE;
+    } else {
+      state.piece = GamePiece.CUBE;
+    }
     state.altpickupl = false;
   }
 

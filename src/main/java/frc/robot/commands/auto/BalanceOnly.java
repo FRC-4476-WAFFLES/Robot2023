@@ -21,48 +21,13 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class OneCubeAndBalance extends SequentialCommandGroup {
+public class BalanceOnly extends SequentialCommandGroup {
   /** Creates a new OnePieceAndBalance. */
-  public OneCubeAndBalance() {
-    PathPlannerTrajectory driveToScore = PathPlanner.loadPath("Start to Scoring", new PathConstraints(1, 1));
+  public BalanceOnly() {
     PathPlannerTrajectory driveToClimb = PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1));
 
     addCommands(
-      new InstantCommand(() -> {
-        armSubsystem.updateGamePieceCube();
-        armSubsystem.updateHeightHigh();
-        armSubsystem.updateSideFront();
-        armSubsystem.updateFudgeFalse();
-      }, armSubsystem),
-      new InstantCommand(() -> intakeSubsystem.setPower(0.1), intakeSubsystem),
-      
-      new InstantCommand(() -> driveSubsystem.resetOdometry(driveToScore.getInitialHolonomicPose()), driveSubsystem),
-      new InstantCommand(armSubsystem::setpointsFromStateMachine, armSubsystem),
-      new SequentialCommandGroup(
-        new InstantCommand(armSubsystem::updateDeployTrue, armSubsystem), 
-        new WaitCommand(1.5), 
-        // new InstantCommand(() -> {
-        //   armSubsystem.resetArm1LeftEncoder();
-        //   armSubsystem.resetArm2Encoder();
-        //   armSubsystem.resetIntakeEncoder();
-        // }),
-        new PPSwerveControllerCommand(
-          driveToScore,
-          driveSubsystem::getOdometryLocation,
-          driveSubsystem.kinematics,
-          new PIDController(2, 0, 0),
-          new PIDController(2, 0, 0),
-          new PIDController(-1, 0, 0),
-          driveSubsystem::setModuleStates,
-          false,
-          driveSubsystem
-        ).withTimeout(1), 
-        new InstantCommand(() -> intakeSubsystem.setPower(-0.3), intakeSubsystem),
-        new WaitCommand(0.5),
-        new InstantCommand(intakeSubsystem::stop, intakeSubsystem),
-
-        new InstantCommand(() -> driveSubsystem.resetOdometry(driveToClimb.getInitialHolonomicPose()), driveSubsystem)
-      ).deadlineWith(new InstantCommand(armSubsystem::setpointsFromStateMachine).repeatedly()),
+      new InstantCommand(() -> driveSubsystem.resetOdometry(driveToClimb.getInitialHolonomicPose()), driveSubsystem),
 
       new PPSwerveControllerCommand(
         driveToClimb,
@@ -76,7 +41,7 @@ public class OneCubeAndBalance extends SequentialCommandGroup {
         driveSubsystem
       ).alongWith(
         new WaitCommand(0.5).andThen(new InstantCommand(armSubsystem::updateDeployFalse, armSubsystem))
-      ).until(() -> Math.abs(driveSubsystem.getPitch()) > 13),
+      ).until(() -> Math.abs(driveSubsystem.getPitch()) > 10),
 
       new DriveAutoBalance(),
 
