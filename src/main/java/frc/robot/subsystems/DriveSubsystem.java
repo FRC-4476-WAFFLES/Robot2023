@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.kauailabs.navx.frc.AHRS;
 
@@ -32,6 +33,65 @@ public class DriveSubsystem extends SubsystemBase {
     private final SwerveDriveOdometry odometry;
 
     private final AHRS ahrsIMU = new AHRS(SPI.Port.kMXP);
+
+    public final HashMap<DriveState, Pose2d> map = new HashMap<>() {{
+        put(new DriveState(DriveState.GamePiece.CONE, DriveState.Alliance.RED, 0), new Pose2d(14.59, 0.53, new Rotation2d(0.0)));
+        put(new DriveState(DriveState.GamePiece.CUBE, DriveState.Alliance.RED, 0), new Pose2d(14.59, 1.06, new Rotation2d(0.0)));
+        put(new DriveState(DriveState.GamePiece.CONE, DriveState.Alliance.RED, 1), new Pose2d(14.59, 1.61, new Rotation2d(0.0)));
+        put(new DriveState(DriveState.GamePiece.CONE, DriveState.Alliance.RED, 2), new Pose2d(14.59, 2.18, new Rotation2d(0.0)));
+        put(new DriveState(DriveState.GamePiece.CUBE, DriveState.Alliance.RED, 1), new Pose2d(14.59, 2.76, new Rotation2d(0.0)));
+        put(new DriveState(DriveState.GamePiece.CONE, DriveState.Alliance.RED, 3), new Pose2d(14.59, 3.30, new Rotation2d(0.0)));
+        put(new DriveState(DriveState.GamePiece.CONE, DriveState.Alliance.RED, 4), new Pose2d(14.59, 3.86, new Rotation2d(0.0)));
+        put(new DriveState(DriveState.GamePiece.CUBE, DriveState.Alliance.RED, 2), new Pose2d(14.59, 4.42, new Rotation2d(0.0)));
+        put(new DriveState(DriveState.GamePiece.CONE, DriveState.Alliance.RED, 5), new Pose2d(14.59, 4.99, new Rotation2d(0.0)));
+
+        put(new DriveState(DriveState.GamePiece.CONE, DriveState.Alliance.BLUE, 0), new Pose2d(1.98, 0.53, new Rotation2d(0.0)));
+        put(new DriveState(DriveState.GamePiece.CUBE, DriveState.Alliance.BLUE, 0), new Pose2d(1.98, 1.06, new Rotation2d(0.0)));
+        put(new DriveState(DriveState.GamePiece.CONE, DriveState.Alliance.BLUE, 1), new Pose2d(1.98, 1.61, new Rotation2d(0.0)));
+        put(new DriveState(DriveState.GamePiece.CONE, DriveState.Alliance.BLUE, 2), new Pose2d(1.98, 2.18, new Rotation2d(0.0)));
+        put(new DriveState(DriveState.GamePiece.CUBE, DriveState.Alliance.BLUE, 1), new Pose2d(1.98, 2.76, new Rotation2d(0.0)));
+        put(new DriveState(DriveState.GamePiece.CONE, DriveState.Alliance.BLUE, 3), new Pose2d(1.98, 3.30, new Rotation2d(0.0)));
+        put(new DriveState(DriveState.GamePiece.CONE, DriveState.Alliance.BLUE, 4), new Pose2d(1.98, 3.86, new Rotation2d(0.0)));
+        put(new DriveState(DriveState.GamePiece.CUBE, DriveState.Alliance.BLUE, 2), new Pose2d(1.98, 4.42, new Rotation2d(0.0)));
+        put(new DriveState(DriveState.GamePiece.CONE, DriveState.Alliance.BLUE, 5), new Pose2d(1.98, 4.99, new Rotation2d(0.0)));
+    }};
+
+    public static class DriveState {
+        public enum GamePiece {
+            CUBE, 
+            CONE
+        }
+
+        public enum Alliance {
+            RED, 
+            BLUE
+        }
+
+        public int number;
+        public GamePiece gamePiece;
+        public Alliance alliance;
+    
+        public DriveState(GamePiece gamePiece, Alliance alliance, int number) {
+            this.gamePiece = gamePiece;
+            this.alliance = alliance;
+            this.number = number;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+
+            final DriveState driveStateObj = (DriveState) obj;
+            
+            return this.gamePiece.equals(driveStateObj.gamePiece) && this.alliance.equals(driveStateObj.alliance) && this.number == driveStateObj.number;
+        }
+    }
 
     public DriveSubsystem() {
         ArrayList<Translation2d> positions = new ArrayList<Translation2d>();

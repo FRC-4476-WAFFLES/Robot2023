@@ -32,6 +32,7 @@ import frc.robot.commands.drive.DriveTeleop;
 import frc.robot.commands.intake.IntakeTeleop;
 import frc.robot.commands.lights.UpdateLightsWithRobotState;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.Camera;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LightSubsystem;
@@ -48,7 +49,7 @@ public class RobotContainer {
   public static final ArmSubsystem armSubsystem = new ArmSubsystem();
   public static final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   public static final LightSubsystem lightSubsystem = new LightSubsystem();
-  // public static final Camera frontCamera = new Camera("Front Limelight");
+  public static final Camera camera = new Camera("limelight");
   // public static final Camera backCamera = new Camera("Back Camera");
   
   public static final Joystick leftJoystick = new Joystick(0);
