@@ -11,6 +11,7 @@ import static frc.robot.RobotContainer.*;
 
 public class DriveAutoBalance extends CommandBase {
   private final PIDController yawController = new PIDController(-4.0, 0, -0);
+  private final PIDController pitchController = new PIDController(0, 0, 0);
 
   private double pitchRate = 0;
   private double lastPitch = 0;
@@ -37,11 +38,16 @@ public class DriveAutoBalance extends CommandBase {
     double currentPitch = driveSubsystem.getPitch();
     pitchRate = (currentPitch - lastPitch) / 0.02;
 
-    double forwardSpeed = (currentPitch < 0) ? Math.pow(Math.toRadians(currentPitch), 2) * 12.0 : -Math.pow(Math.toRadians(currentPitch), 2) * 12.0;
-    // forwardSpeed += pitchRate * 1.0;
     double rotationSpeed = yawController.calculate(driveSubsystem.getOdometryLocation().getRotation().getRadians());
+    double forwardSpeed = pitchController.calculate(currentPitch);
 
-    driveSubsystem.robotDrive(forwardSpeed, 0, rotationSpeed, false);
+    if (Math.abs(pitchRate) > 1) {
+      driveSubsystem.stop();
+    } else if (Math.abs(currentPitch) < 10.0) {
+      driveSubsystem.robotDrive(forwardSpeed, 0, rotationSpeed, false);
+    } else {
+      driveSubsystem.robotDrive(2.0, 0, rotationSpeed, false);
+    }
   }
 
   // Called once the command ends or is interrupted.
@@ -53,6 +59,6 @@ public class DriveAutoBalance extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(driveSubsystem.getPitch()) < 2.2 && Math.abs(pitchRate) < 2.0;
+    return Math.abs(driveSubsystem.getPitch()) < 2.2 && Math.abs(pitchRate) < 1.0;
   }
 }

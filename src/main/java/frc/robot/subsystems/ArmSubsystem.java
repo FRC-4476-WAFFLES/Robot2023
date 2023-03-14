@@ -28,16 +28,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.ArmSubsystem.ArmState.GamePiece;
-import frc.robot.subsystems.ArmSubsystem.ArmState.Side;
 import frc.robot.utils.LazyTalonFX;
 
 public class ArmSubsystem extends SubsystemBase {
   public static class ArmState {
-    public enum Side{
-      FRONT,
-      BACK,
-    }
-
     public enum Height{
       HIGH,
       MEDIUM,
@@ -50,15 +44,13 @@ public class ArmSubsystem extends SubsystemBase {
       CONE,
     }
 
-    public Side side;
     public Height height;
     public GamePiece piece;
     public boolean altpickupl;
     public boolean fudge;
     // public boolean isFudgeElbow;
 
-    ArmState(Side side, Height height, GamePiece piece, boolean altpickupl, boolean fudge){
-      this.side= side;
+    ArmState(Height height, GamePiece piece, boolean altpickupl, boolean fudge){
       this.height= height;
       this.piece= piece;
       this.altpickupl= altpickupl;
@@ -66,16 +58,25 @@ public class ArmSubsystem extends SubsystemBase {
       // isFudgeElbow = false;
     }
 
-    public boolean equals(ArmState o){
-      return this.side==o.side && this.height==o.height && this.piece==o.piece && this.altpickupl==o.altpickupl;
+    @Override
+    public boolean equals(Object obj){
+      if (obj == null) {
+        return false;
+    }
+    
+    if (getClass() != obj.getClass()) {
+        return false;
+    }
+
+    final ArmState armStateObj = (ArmState) obj;
+      return this.height==armStateObj.height && this.piece==armStateObj.piece && this.altpickupl==armStateObj.altpickupl;
     }
 
     @Override
     public int hashCode(){
       int temp= 0;
-      temp += side.ordinal();
-      temp += height.ordinal()*2;
-      temp += piece.ordinal()*8;
+      temp += height.ordinal();
+      temp += piece.ordinal()*4;
       temp += altpickupl ? 16 : 0;
       return temp;
     }
@@ -94,45 +95,54 @@ public class ArmSubsystem extends SubsystemBase {
     }
   }
 
-  HashMap<Integer, SetPoint> setPoints = new HashMap<Integer, SetPoint>() {{
-    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(12300, -97600, -30)); // Done
-    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HIGH, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(25500, -162000, 24)); // Done
-    put(new ArmState(ArmState.Side.BACK, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(-7600, 101000, 27)); // Done
-    put(new ArmState(ArmState.Side.BACK, ArmState.Height.HIGH, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(-24000, 171000, -33)); // Done
-    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(2200, -64500, -30)); // Done
-    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(2000, -115000, 27)); // Done
-    put(new ArmState(ArmState.Side.BACK, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(-4600, 80000, 27)); // Done
-    put(new ArmState(ArmState.Side.BACK, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(-13800, 132500, -22)); // Done
-    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.LOW, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(38000, -29000, -30.0)); // Done
-    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(38000, -29000, -30.0)); // Done
-    put(new ArmState(ArmState.Side.BACK, ArmState.Height.LOW, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(-24500, 37500, 30)); // Done
-    put(new ArmState(ArmState.Side.BACK, ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(-24500, 37500, 30)); // Done
-    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(-27000, -120000, 30)); // Done
-    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(-17000, -126000, 30)); // Done
-    put(new ArmState(ArmState.Side.BACK, ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(14, 0, 0));
-    put(new ArmState(ArmState.Side.BACK, ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(15, 0, 0));
+  HashMap<ArmState, SetPoint> setPoints = new HashMap<ArmState, SetPoint>() {{
+    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(12300, -97600, -30)); // Done
+    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HIGH, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(25500, -162000, 24)); // Done
+    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(-7600, 101000, 27)); // Done
+    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.HIGH, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(-24000, 171000, -33)); // Done
+    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(2200, -64500, -30)); // Done
+    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(2000, -115000, 27)); // Done
+    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(-4600, 80000, 27)); // Done
+    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(-13800, 132500, -22)); // Done
+    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.LOW, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(38000, -29000, -30.0)); // Done
+    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(38000, -29000, -30.0)); // Done
+    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.LOW, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(-24500, 37500, 30)); // Done
+    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(-24500, 37500, 30)); // Done
+    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(-27000, -120000, 30)); // Done
+    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(-17000, -126000, 30)); // Done
+    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(14, 0, 0));
+    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(15, 0, 0));
 
-    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(16, 0, 0));
-    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HIGH, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(17, 0, 0));
-    put(new ArmState(ArmState.Side.BACK, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(18, 0, 0));
-    put(new ArmState(ArmState.Side.BACK, ArmState.Height.HIGH, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(19, 0, 0));
-    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(20, 0, 0));
-    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(21, 0, 0));
-    put(new ArmState(ArmState.Side.BACK, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(22, 0, 0));
-    put(new ArmState(ArmState.Side.BACK, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(23, 0, 0));
-    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.LOW, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(24, 0, 0));
-    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.LOW, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(25, 0, 0));
-    put(new ArmState(ArmState.Side.BACK, ArmState.Height.LOW, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(26, 0, 0));
-    put(new ArmState(ArmState.Side.BACK, ArmState.Height.LOW, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(27, 0, 0));
-    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(28, 0, 0));
-    put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(29, 0, 0));
-    put(new ArmState(ArmState.Side.BACK, ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(30, 0, 0));
-    put(new ArmState(ArmState.Side.BACK, ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(31, 0, 0));
+    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(16, 0, 0));
+    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HIGH, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(17, 0, 0));
+    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(18, 0, 0));
+    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.HIGH, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(19, 0, 0));
+    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(20, 0, 0));
+    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(21, 0, 0));
+    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(22, 0, 0));
+    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(23, 0, 0));
+    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.LOW, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(24, 0, 0));
+    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.LOW, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(25, 0, 0));
+    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.LOW, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(26, 0, 0));
+    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.LOW, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(27, 0, 0));
+    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(28, 0, 0));
+    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(29, 0, 0));
+    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(30, 0, 0));
+    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(31, 0, 0));
+
+    put(new ArmState(ArmState.Height.HIGH, ArmState.GamePiece.CUBE, false, false), new SetPoint(12300, -97600, 0));
+    put(new ArmState(ArmState.Height.HIGH, ArmState.GamePiece.CONE, false, false), new SetPoint(25500, -175000, 40)); 
+    put(new ArmState(ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, false, false), new SetPoint(2200, -64500, 0)); 
+    put(new ArmState(ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, false, false), new SetPoint(2000, -115000, 30)); 
+    put(new ArmState(ArmState.Height.LOW, ArmState.GamePiece.CUBE, false, false), new SetPoint(38000, -29000, 0)); 
+    put(new ArmState(ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false), new SetPoint(38000, -29000, 0)); 
+    put(new ArmState(ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, false, false), new SetPoint(-17000, -136000, 40)); 
+    put(new ArmState(ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, false, false), new SetPoint(-17000, -136000, 40)); 
   }};
 
-  private ArmState state = new ArmState(ArmState.Side.FRONT, ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false);
+  private ArmState state = new ArmState(ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false);
   private boolean deploy = false;
-  private boolean overrideSide = false;
+  // private boolean overrideSide = false;
 
   // private Pose2d targetPos = new Pose2d();
 
@@ -154,12 +164,14 @@ public class ArmSubsystem extends SubsystemBase {
   private final DutyCycleEncoder intakePivotAbsoluteEncoder;
 
   // private final ThreeJointArmKinematics kinematics;
+  
+  private final double armRetractPosition = 0;
 
   private double arm1TargetPosition = 0;
   private double arm2TargetPosition = 0;
   private double intakeTargetPosition = 0;
 
-  private double armChilloutTimer = 0;
+  // private double armChilloutTimer = 0;
 
   private final Timer timer = new Timer();
 
@@ -170,9 +182,19 @@ public class ArmSubsystem extends SubsystemBase {
   private double arm2AdjustedCalibration;
   private double intakeAdjustedCalibration;
 
-  private double arm1TimeLastMoved = 0;
-  private double arm2TimeLastMoved = 0;
+  // private double arm1TimeLastMoved = 0;
+  // private double arm2TimeLastMoved = 0;
   // private double wristTimeLastMoved = 0;
+
+  private boolean arm1LeftEncoderEnabled = true;
+  private boolean arm1RightEncoderEnabled = true;
+  private boolean arm2EncoderEnabled = true;
+  private boolean intakePivotEncoderEnabled = true;
+
+  private double arm1LeftEncoderPreviousValue = 0;
+  private double arm1RightEncoderPreviousValue = 0;
+  private double arm2EncoderPreviousValue = 0;
+  private double intakePivotEncoderPreviousValue = 0;
 
   // arm 1 left limit 1 : 39 degrees (at back, decreases going to front), zero at -17
   // arm 1 right limit 1 : 229 degrees (at back, increases going to front), zero at 284
@@ -230,10 +252,10 @@ public class ArmSubsystem extends SubsystemBase {
     arm2Left.enableVoltageCompensation(true);
     arm2Right.enableVoltageCompensation(true);
 
-    arm1Left.configForwardSoftLimitThreshold((40.0 / Constants.arm1LeftConstants.ratio / 360.0) * 2048.0);
-    arm2Left.configForwardSoftLimitThreshold((135.0 / (Constants.arm2LeftConstants.ratio * Constants.ArmConstants.stage2ChainRatio) / 360.0) * 2048.0);
+    arm1Left.configForwardSoftLimitThreshold(40000);
+    arm2Left.configForwardSoftLimitThreshold(0);
 
-    arm1Left.configReverseSoftLimitThreshold((-40.0 / Constants.arm1LeftConstants.ratio / 360.0) * 2048.0);
+    arm1Left.configReverseSoftLimitThreshold(-30000);
     arm2Left.configReverseSoftLimitThreshold((-135.0 / (Constants.arm2LeftConstants.ratio * Constants.ArmConstants.stage2ChainRatio) / 360.0) * 2048.0);
 
     arm1Left.configForwardSoftLimitEnable(true);
@@ -245,7 +267,7 @@ public class ArmSubsystem extends SubsystemBase {
     arm1Left.config_kP(0, 0.03);
     arm1Left.config_kI(0, 0);
     arm1Left.config_kD(0, 0.006);
-    arm1Left.configNeutralDeadband(0.04);
+    arm1Left.configNeutralDeadband(0.05);
     //arm1Left.configClosedloopRamp(0.25);
 
     arm1Right.follow(arm1Left);
@@ -275,7 +297,7 @@ public class ArmSubsystem extends SubsystemBase {
     intakePivotLeft.setControlFramePeriodMs(40);
     intakePivotRight.setControlFramePeriodMs(40);
 
-    intakePivotLeft.setSoftLimit(SoftLimitDirection.kReverse, (float) (-135.0 / Constants.intakePivotLeftConstants.ratio / 360.0));
+    intakePivotLeft.setSoftLimit(SoftLimitDirection.kReverse, 0);
     intakePivotLeft.setSoftLimit(SoftLimitDirection.kForward, (float) (135.0 / Constants.intakePivotLeftConstants.ratio / 360.0));
 
     intakePivotLeft.setInverted(true);
@@ -324,11 +346,19 @@ public class ArmSubsystem extends SubsystemBase {
       intakeAdjustedCalibration += 360;
     }
 
+    // There needs to be a chillout time for the intake motor controllers to reset their encoders properly
+    try {
+      Thread.sleep(2000);
+    } catch (Exception e) {
+
+    }
+
     resetArm1LeftEncoder();
     resetArm2Encoder();
     resetIntakeEncoder();
     // intakePivotLeftEncoder.setPosition(-4);
 
+    // There needs to be a chillout time for the intake motor controllers to reset their encoders properly
     try {
       Thread.sleep(500);
     } catch (Exception e) {
@@ -355,8 +385,76 @@ public class ArmSubsystem extends SubsystemBase {
     // SmartDashboard.putNumber("/arm/pose/angle", currentPose.getRotation().getDegrees());
 
     // ThreeJointArmState targetArmState = kinematics.toArmState(targetPos);
+
+    previousLoopTime = timer.get() - previousTime;
+    previousTime = timer.get();
+
+    // Disable absolute encoders if they're value isn't changing (The value constantly fluxuates, so an unchanging value is a red flag)
+    if (arm1LeftEncoderPreviousValue == getArm1LeftAdjustedAbsoluteEncoderPos()) arm1LeftEncoderEnabled = false;
+    if (arm1RightEncoderPreviousValue == getArm1RightAbsoluteEncoderPos()) arm1RightEncoderEnabled = false;
+    if (arm2EncoderPreviousValue == getArm2AbsoluteEncoderPos()) arm2EncoderEnabled = false;
+    if (intakePivotEncoderPreviousValue == getIntakeAbsoluteEncoderPos()) intakePivotEncoderEnabled = false;
+
+    // if (Math.abs(arm1Left.getSelectedSensorVelocity()) > 200) {
+    //   arm1TimeLastMoved = timer.get();
+    // } else if (timer.get() - arm1TimeLastMoved > 0.1) {
+    //   resetArm1LeftEncoder();
+    //   arm1TimeLastMoved = timer.get();
+    // }
+
+    // if (Math.abs(arm2Left.getSelectedSensorVelocity()) > 200) {
+    //   arm2TimeLastMoved = timer.get();
+    // } else if (timer.get() - arm2TimeLastMoved > 0.1) {
+    //   resetArm2Encoder();
+    //   arm2TimeLastMoved = timer.get();
+    // }
+
+    // resetArm2Encoder();
     
-    // SmartDashboard.putNumber("Left 1 absolute encoder", getArm1LeftAdjustedAbsoluteEncoderPos());
+    // if (Math.abs(intakePivotLeftEncoder.getVelocity()) > 10) {
+    //   wristTimeLastMoved = timer.get();
+    // } else if (timer.get() - wristTimeLastMoved > 1.0) {
+    //   resetIntakeEncoder();
+    //   wristTimeLastMoved = timer.get();
+    // }
+
+    // if (timer.get() - armChilloutTimer < 1.5) {
+    //   deploy = false;
+    // }
+
+    if (!deploy) {
+      setArm1Setpoint(-12000);
+      setArm2Setpoint(-7000);
+      setIntakeSetpoint(armRetractPosition);
+    }
+    
+    if (Math.abs(getArm2LeftCompensatedAbsoluteEncoderPos()) < 10) {
+      // arm1TargetPosition = MathUtil.clamp(arm1TargetPosition, -2.0 * Constants.arm1LeftConstants.ratio * 2048.0 / 360.0, 2.0 * Constants.arm1LeftConstants.ratio * 2048.0 / 360.0);
+      arm1TargetPosition = Math.min(arm1TargetPosition, 2.0 * Constants.arm1LeftConstants.ratio * 2048.0 / 360.0);
+    }
+
+    // if (Math.abs(arm2Left.getSelectedSensorPosition() - arm2TargetPosition) > 10000 && deploy) {
+    //   arm1TargetPosition = arm1Left.getSelectedSensorPosition();
+    //   intakeTargetPosition = intakePivotLeftEncoder.getPosition();
+    // }
+
+    if (Math.abs(getArm1AbsoluteEncoderAverage()) < 20 && Math.abs(getArm2LeftCompensatedAbsoluteEncoderPos()) < 30) {
+      intakeTargetPosition = armRetractPosition;
+    } else if (
+      Math.abs(getArm1AbsoluteEncoderAverage()) < 30 
+      && Math.abs(getArm2LeftCompensatedAbsoluteEncoderPos()) < 40 
+      && Math.abs(arm2Left.getSelectedSensorVelocity() * 10 / 2048.0) > 2000 // Falcon is spinning at 2000 rpm or faster
+    ) {
+      intakeTargetPosition = armRetractPosition;
+    }
+
+    intakeTargetPosition = MathUtil.clamp(intakeTargetPosition, 0, 50);
+
+    arm1Left.set(ControlMode.Position, arm1TargetPosition);
+    arm2Left.set(ControlMode.Position, arm2TargetPosition);
+    intakePivotPID.setReference(intakeTargetPosition, ControlType.kPosition);
+    
+    SmartDashboard.putNumber("Left 1 absolute encoder", getArm1LeftAdjustedAbsoluteEncoderPos());
     // SmartDashboard.putNumber("Right 1 absolute encoder", getArm1RightAbsoluteEncoderPos());
     SmartDashboard.putNumber("Arm 1 absolute pos", getArm1AbsoluteEncoderAverage());
 
@@ -385,69 +483,20 @@ public class ArmSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Wrist calculated relative pos", getIntakeCalibratedAbsoluteEncoderPos() / Constants.intakePivotLeftConstants.ratio / 360.0);
     SmartDashboard.putNumber("Wrist target pos", intakeTargetPosition);
     SmartDashboard.putNumber("Wrist calibrated absolute pos", getIntakeCalibratedAbsoluteEncoderPos());
+    SmartDashboard.putNumber("Wrist applied power", intakePivotLeft.get());
 
-    SmartDashboard.putBoolean("Arm target setpoint is front", state.side == ArmState.Side.FRONT);
     SmartDashboard.putBoolean("Arm target setpoint is cube", state.piece == ArmState.GamePiece.CUBE);
     SmartDashboard.putString("Arm target setpoint height", state.height.name());
     SmartDashboard.putBoolean("Arm target setpoint is alt pickup 1", state.altpickupl);
     SmartDashboard.putBoolean("Arm target setpoint is in fudge mod", state.fudge);
     SmartDashboard.putBoolean("Arm should be deployed", deploy);
 
-    previousLoopTime = timer.get() - previousTime;
-    previousTime = timer.get();
+    SmartDashboard.putBoolean("Left 1 Encoder Enabled", arm1LeftEncoderEnabled);
+    SmartDashboard.putBoolean("Right 1 Encoder Enabled", arm1RightEncoderEnabled);
+    SmartDashboard.putBoolean("Arm 2 Encoder Enabled", arm2EncoderEnabled);
+    SmartDashboard.putBoolean("Intake Pivot Encoder Enabled", intakePivotEncoderEnabled);
 
-    if (Math.abs(arm1Left.getSelectedSensorVelocity()) > 200) {
-      arm1TimeLastMoved = timer.get();
-    } else if (timer.get() - arm1TimeLastMoved > 0.1) {
-      resetArm1LeftEncoder();
-      arm1TimeLastMoved = timer.get();
-    }
-
-    if (Math.abs(arm2Left.getSelectedSensorVelocity()) > 200) {
-      arm2TimeLastMoved = timer.get();
-    } else if (timer.get() - arm2TimeLastMoved > 0.1) {
-      resetArm2Encoder();
-      arm2TimeLastMoved = timer.get();
-    }
-
-    // resetArm2Encoder();
-    
-    // if (Math.abs(intakePivotLeftEncoder.getVelocity()) > 10) {
-    //   wristTimeLastMoved = timer.get();
-    // } else if (timer.get() - wristTimeLastMoved > 1.0) {
-    //   resetIntakeEncoder();
-    //   wristTimeLastMoved = timer.get();
-    // }
-
-    if (timer.get() - armChilloutTimer < 1.5) {
-      deploy = false;
-    }
-
-    if (!deploy) {
-      setArm1Setpoint(0);
-      setArm2Setpoint(-4000);
-      setIntakeSetpoint(-4);
-    }
-    
-    if (Math.abs(getArm2LeftCompensatedAbsoluteEncoderPos()) < 15) {
-      arm1TargetPosition = MathUtil.clamp(arm1TargetPosition, -2.0 * Constants.arm1LeftConstants.ratio * 2048.0 / 360.0, 2.0 * Constants.arm1LeftConstants.ratio * 2048.0 / 360.0);
-    }
-
-    if (Math.abs(getArm1AbsoluteEncoderAverage()) < 20 && Math.abs(getArm2LeftCompensatedAbsoluteEncoderPos()) < 30) {
-      intakeTargetPosition = -4;
-    } else if (
-      Math.abs(getArm1AbsoluteEncoderAverage()) < 30 
-      && Math.abs(getArm2LeftCompensatedAbsoluteEncoderPos()) < 40 
-      && Math.abs(arm2Left.getSelectedSensorVelocity() * 10 / 2048.0) > 2000 // Falcon is spinning at 2000 rpm or faster
-    ) {
-      intakeTargetPosition = -4;
-    }
-
-    intakeTargetPosition = MathUtil.clamp(intakeTargetPosition, -51, 30);
-
-    arm1Left.set(ControlMode.Position, arm1TargetPosition);
-    arm2Left.set(ControlMode.Position, arm2TargetPosition);
-    intakePivotPID.setReference(intakeTargetPosition, ControlType.kPosition);
+    SmartDashboard.putString("Hello World", "Is this changing");
 
     // TODO: here we should put the current state into the setPoints map to get the next target. If we are in 
     // fudge mode, we will disregard these and set the speed and direction of the motors directly based on the operator joysticks.
@@ -462,7 +511,7 @@ public class ArmSubsystem extends SubsystemBase {
 
   public void setpointsFromStateMachine() {
     try{
-      SetPoint target = setPoints.get(state.hashCode());
+      SetPoint target = setPoints.get(state);
       setArm1Setpoint(target.arm1Pos);
       setArm2Setpoint(target.arm2Pos);
       setIntakeSetpoint(target.wristPos);
@@ -548,46 +597,31 @@ public class ArmSubsystem extends SubsystemBase {
     return intakePivotAbsoluteEncoder.getDistance();
   }
 
-  private double getIntakeAdjustedAbsoluteEncoderPos() {
-    double adjustedPos = getIntakeAbsoluteEncoderPos() - 180.0;
-    while (adjustedPos < 0) {
-      adjustedPos += 360.0;
-    }
-    return adjustedPos;
-  }
+  // private double getIntakeAdjustedAbsoluteEncoderPos() {
+  //   double adjustedPos = getIntakeAbsoluteEncoderPos() - 180.0;
+  //   while (adjustedPos < 0) {
+  //     adjustedPos += 360.0;
+  //   }
+  //   return adjustedPos;
+  // }
 
   private double getIntakeCalibratedAbsoluteEncoderPos() {
-    return -getIntakeAdjustedAbsoluteEncoderPos() + intakeAdjustedCalibration;
+    // return -getIntakeAdjustedAbsoluteEncoderPos() + intakeAdjustedCalibration;
+    return getIntakeAbsoluteEncoderPos() - Constants.intakePivotLeftConstants.calibration;
   }
 
   public void resetArm1LeftEncoder() {
-    arm1Left.setSelectedSensorPosition((getArm1AbsoluteEncoderAverage() / Constants.arm1LeftConstants.ratio / 360.0) * 2048.0);
+    if (arm1LeftEncoderEnabled && arm1RightEncoderEnabled) arm1Left.setSelectedSensorPosition((getArm1AbsoluteEncoderAverage() / Constants.arm1LeftConstants.ratio / 360.0) * 2048.0);
+    else if (arm1LeftEncoderEnabled && ! arm1RightEncoderEnabled) arm1Left.setSelectedSensorPosition((-(getArm1LeftAdjustedAbsoluteEncoderPos() - arm1LeftAdjustedCalibration) / Constants.arm1LeftConstants.ratio / 360.0) * 2048.0);
+    else if (!arm1LeftEncoderEnabled && arm1RightEncoderEnabled) arm1Left.setSelectedSensorPosition(((getArm1RightAbsoluteEncoderPos() - Constants.arm1RightConstants.calibration) / Constants.arm1LeftConstants.ratio / 360.0) * 2048.0);
   }
 
   public void resetArm2Encoder() {
-    arm2Left.setSelectedSensorPosition((getArm2LeftCompensatedAbsoluteEncoderPos() / (Constants.arm2LeftConstants.ratio * Constants.ArmConstants.stage2ChainRatio) / 360.0) * 2048.0);
+    if (arm2EncoderEnabled) arm2Left.setSelectedSensorPosition((getArm2LeftCompensatedAbsoluteEncoderPos() / (Constants.arm2LeftConstants.ratio * Constants.ArmConstants.stage2ChainRatio) / 360.0) * 2048.0);
   }
 
   public void resetIntakeEncoder() {
-    intakePivotLeftEncoder.setPosition(getIntakeCalibratedAbsoluteEncoderPos() / Constants.intakePivotLeftConstants.ratio / 360.0);
-  }
-
-  public void updateSideBack() {
-    if (state.side != Side.BACK) {
-      deploy = false;
-      armChilloutTimer = timer.get();
-    }
-    state.side = ArmState.Side.BACK;
-    state.altpickupl = false;
-  }
-
-  public void updateSideFront() {
-    if (state.side != Side.FRONT) {
-      deploy = false;
-      armChilloutTimer = timer.get();
-    }
-    state.side = ArmState.Side.FRONT;
-    state.altpickupl = false;
+    if (intakePivotEncoderEnabled) intakePivotLeftEncoder.setPosition(getIntakeCalibratedAbsoluteEncoderPos() / Constants.intakePivotLeftConstants.ratio / 360.0);
   }
 
   public void updateHeightHigh() {
@@ -652,10 +686,6 @@ public class ArmSubsystem extends SubsystemBase {
 
   public void updateDeployFalse() {
     deploy = false;
-  }
-
-  public ArmState.Side getSide() {
-    return state.side;
   }
 
   public ArmState.GamePiece getPiece() {

@@ -5,7 +5,6 @@
 package frc.robot.commands.auto;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -31,7 +30,6 @@ public class OneCubeAndBalance extends SequentialCommandGroup {
       new InstantCommand(() -> {
         armSubsystem.updateGamePieceCube();
         armSubsystem.updateHeightHigh();
-        armSubsystem.updateSideFront();
         armSubsystem.updateFudgeFalse();
       }, armSubsystem),
       new InstantCommand(() -> intakeSubsystem.setPower(0.1), intakeSubsystem),
@@ -40,12 +38,7 @@ public class OneCubeAndBalance extends SequentialCommandGroup {
       new InstantCommand(armSubsystem::setpointsFromStateMachine, armSubsystem),
       new SequentialCommandGroup(
         new InstantCommand(armSubsystem::updateDeployTrue, armSubsystem), 
-        new WaitCommand(1.5), 
-        // new InstantCommand(() -> {
-        //   armSubsystem.resetArm1LeftEncoder();
-        //   armSubsystem.resetArm2Encoder();
-        //   armSubsystem.resetIntakeEncoder();
-        // }),
+        new WaitCommand(1.5),
         new PPSwerveControllerCommand(
           driveToScore,
           driveSubsystem::getOdometryLocation,
@@ -78,15 +71,7 @@ public class OneCubeAndBalance extends SequentialCommandGroup {
         new WaitCommand(0.5).andThen(new InstantCommand(armSubsystem::updateDeployFalse, armSubsystem))
       ).until(() -> Math.abs(driveSubsystem.getPitch()) > 13),
 
-      new DriveAutoBalance(),
-
-      // new InstantCommand(() -> driveSubsystem.lockWheels(), driveSubsystem).repeatedly()
-      new CommandBase() {
-        @Override
-        public final void execute() {
-          driveSubsystem.lockWheels();
-        }
-      }
+      new DriveAutoBalance()
     );
   }
 }

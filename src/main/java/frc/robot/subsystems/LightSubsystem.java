@@ -17,7 +17,7 @@ public class LightSubsystem extends SubsystemBase {
   private double colour2 = LightColours.YELLOW.getPWMSignal();
   private boolean isBlinkColour1 = true;
 
-  private final double blinkRate = 0.1;
+  private double blinkRate = 0.1;
 
   public enum LightColours {
     PINK(0.57),
@@ -51,7 +51,7 @@ public class LightSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
     if (blinkTimer.get() > blinkRate) {
       blinkin.set(isBlinkColour1 ? colour1 : colour2);
-      isBlinkColour1 = isBlinkColour1 ? false : true;
+      isBlinkColour1 = !isBlinkColour1;
       blinkTimer.reset();
     }
   }
@@ -69,5 +69,9 @@ public class LightSubsystem extends SubsystemBase {
   public void blinkBetweenColours(LightColours colour1, LightColours colour2) {
     this.colour1 = colour1.getPWMSignal();
     this.colour2 = colour2.getPWMSignal();
+  }
+
+  public void setBlinkTime(double seconds) {
+    blinkRate = seconds;
   }
 }

@@ -5,6 +5,8 @@
 package frc.robot.commands.auto;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -14,6 +16,7 @@ import static frc.robot.RobotContainer.*;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
@@ -22,17 +25,17 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 public class TwoCube extends SequentialCommandGroup {
   /** Creates a new OnePieceAndBalance. */
   public TwoCube() {
-    PathPlannerTrajectory driveToScore = PathPlanner.loadPath("Start to Scoring", new PathConstraints(1, 1));
+    PathPlannerTrajectory driveToScore1 = PathPlanner.loadPath("Start to Scoring", new PathConstraints(1, 1));
     PathPlannerTrajectory driveToPickup = PathPlanner.loadPath("Scoring to Pickup", new PathConstraints(3, 2));
+    PathPlannerTrajectory driveToScore2 = PathPlanner.loadPath("Pickup to Scoring", new PathConstraints(3, 2));
 
     addCommands(
       new InstantCommand(() -> {
         armSubsystem.updateGamePieceCube();
         armSubsystem.updateHeightHigh();
-        armSubsystem.updateSideFront();
         armSubsystem.updateFudgeFalse();
       }, armSubsystem),
-      new InstantCommand(() -> driveSubsystem.resetOdometry(driveToScore.getInitialHolonomicPose()), driveSubsystem),
+      new InstantCommand(() -> driveSubsystem.resetOdometry(driveToScore1.getInitialHolonomicPose()), driveSubsystem),
       new InstantCommand(armSubsystem::setpointsFromStateMachine, armSubsystem),
       new SequentialCommandGroup(
         new InstantCommand(armSubsystem::updateDeployTrue, armSubsystem), 
@@ -43,7 +46,7 @@ public class TwoCube extends SequentialCommandGroup {
         //   armSubsystem.resetIntakeEncoder();
         // }),
         new PPSwerveControllerCommand(
-          driveToScore,
+          driveToScore1,
           driveSubsystem::getOdometryLocation,
           driveSubsystem.kinematics,
           new PIDController(2, 0, 0),
@@ -57,7 +60,11 @@ public class TwoCube extends SequentialCommandGroup {
         new WaitCommand(0.5),
         new InstantCommand(intakeSubsystem::stop, intakeSubsystem),
 
-        new InstantCommand(() -> driveSubsystem.resetOdometry(driveToPickup.getInitialHolonomicPose()), driveSubsystem),
+        new InstantCommand(() -> {
+          PathPlannerState initialState = driveToPickup.getInitialState();
+          PathPlannerState transformedInitialState = PathPlannerTrajectory.transformStateForAlliance(initialState, DriverStation.getAlliance());
+          driveSubsystem.resetOdometry(new Pose2d(transformedInitialState.poseMeters.getTranslation(), transformedInitialState.holonomicRotation));
+        }, driveSubsystem),
 
         new PPSwerveControllerCommand(
           driveToPickup,
@@ -73,13 +80,25 @@ public class TwoCube extends SequentialCommandGroup {
           new WaitCommand(0.5).andThen(new InstantCommand(() -> {
             armSubsystem.updateGamePieceCube();
             armSubsystem.updateHeightLow();
-            armSubsystem.updateSideBack();
           }, armSubsystem)),
           new InstantCommand(() -> intakeSubsystem.setPower(0.5))
         ),
         new WaitCommand(0.5),
-        new InstantCommand(() -> intakeSubsystem.setPower(0)),
-        new InstantCommand(armSubsystem::updateDeployFalse)
+        new PPSwerveControllerCommand(
+          driveToPickup,
+          driveSubsystem::getOdometryLocation,
+          driveSubsystem.kinematics,
+          new PIDController(2, 0, 0),
+          new PIDController(2, 0, 0),
+          new PIDController(-1, 0, 0),
+          driveSubsystem::setModuleStates,
+          false,
+          driveSubsystem
+        ).alongWith(
+
+          new InstantCommand(() -> intakeSubsystem.setPower(0.1)),
+          new InstantCommand(armSubsystem::updateDeployFalse)
+        )
       ).deadlineWith(new InstantCommand(armSubsystem::setpointsFromStateMachine).repeatedly())
     );
   }

@@ -21,9 +21,9 @@ public final class Constants {
   public static final int arm1Right = 11; // Talon FX
   public static final int arm2Left = 10; // Talon FX
   public static final int arm2Right = 12; // Talon FX
-  public static final int intakePivotLeft = 14; // Spark MAX
-  public static final int intakePivotRight = 13; // Spark MAX
-  public static final int intake = 16; // Spark MAX
+  public static final int intakePivotLeft = 13; // Spark MAX // was 14
+  public static final int intakePivotRight = 16; // Spark MAX // was 13
+  public static final int intake = 14; // Spark MAX // was 16
 
   public static final int swerveModuleBLAngle = 18; // FX Back Left 2
   public static final int swerveModuleBLDrive = 21; // FX Back Left 1
@@ -55,7 +55,7 @@ public final class Constants {
   public static final ArmConstants arm1RightConstants = new ArmConstants(284, arm1Right, (1.0 / 80.0) * (15.0 / 36.0), 229, 339, 40, true);
   public static final ArmConstants arm2LeftConstants = new ArmConstants(250, arm2Left, (1.0 / 100.0), -200, 112, 40, false);
   public static final ArmConstants arm2RightConstants = new ArmConstants(-44, arm2Right, (1.0 / 100.0), -200, 112, 40, true);
-  public static final ArmConstants intakePivotLeftConstants = new ArmConstants(20, intakePivotLeft, (1.0 / 80.0), -86, 274, 20, false);
+  public static final ArmConstants intakePivotLeftConstants = new ArmConstants(70, intakePivotLeft, (1.0 / 80.0), -86, 274, 20, false);
   public static final ArmConstants intakePivotRightConstants = new ArmConstants(94, intakePivotRight, (1.0 / 80.0), -86, 274, 20, true);
 
   public static final class SwerveConstants {
@@ -153,7 +153,7 @@ public final class Constants {
     // Modules are in the order of Back Left, Front Left, Front Right, Back Right, when intake is front of robot
     new SwerveConstants(new Translation2d(-SwerveConstants.wheelbaseLengthM / 2, SwerveConstants.wheelbaseWidthM / 2), 80, swerveModuleBLAngle, swerveModuleBLDrive, swerveModule1Encoder), // 280
     new SwerveConstants(new Translation2d(SwerveConstants.wheelbaseLengthM / 2, SwerveConstants.wheelbaseWidthM / 2), -123, swerveModuleFLAngle, swerveModuleFLDrive, swerveModule2Encoder), // 170
-    new SwerveConstants(new Translation2d(SwerveConstants.wheelbaseLengthM / 2, -SwerveConstants.wheelbaseWidthM / 2), 6, swerveModuleFRAngle, swerveModuleFRDrive, swerveModule3Encoder), // 20
+    new SwerveConstants(new Translation2d(SwerveConstants.wheelbaseLengthM / 2, -SwerveConstants.wheelbaseWidthM / 2), 22, swerveModuleFRAngle, swerveModuleFRDrive, swerveModule3Encoder), // 20
     new SwerveConstants(new Translation2d(-SwerveConstants.wheelbaseLengthM / 2, -SwerveConstants.wheelbaseWidthM / 2), 47, swerveModuleBRAngle, swerveModuleBRDrive, swerveModule4Encoder), // 2
   };
 }

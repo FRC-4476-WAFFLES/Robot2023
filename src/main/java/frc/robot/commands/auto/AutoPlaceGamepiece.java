@@ -30,7 +30,6 @@ public class AutoPlaceGamepiece extends SequentialCommandGroup {
       new InstantCommand(() -> {
         armSubsystem.updateGamePieceCone();
         armSubsystem.updateHeightHigh();
-        armSubsystem.updateSideFront();
         armSubsystem.updateFudgeFalse();
       }, armSubsystem),
       new InstantCommand(() -> driveSubsystem.resetOdometry(path.getInitialHolonomicPose()), driveSubsystem),

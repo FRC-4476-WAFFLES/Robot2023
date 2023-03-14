@@ -12,7 +12,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -45,7 +44,7 @@ public class Camera extends SubsystemBase {
   /**
    * Creates a new CameraSubsystem.
    */
-  public Camera(String limelightName) {
+  public Camera() {
     camera = NetworkTableInstance.getDefault().getTable("limelight");
   }
 
@@ -59,7 +58,7 @@ public class Camera extends SubsystemBase {
     SmartDashboard.putBoolean("Camera has target", getHasTarget());
     SmartDashboard.putNumber("Camera tx", getHorizontal());
     SmartDashboard.putNumber("Camera ty", getVertical());
-    SmartDashboard.putData("Robot pose", (Sendable) getRobotPose2d());
+    SmartDashboard.putString("Robot pose", getRobotPose2d().toString());
   }
 
   public void setLEDMode(CameraLEDMode mode) {
@@ -145,8 +144,8 @@ public class Camera extends SubsystemBase {
   }
 
   public Pose2d getRobotPose2d() {
-    double[] pose = getRawRobotPose();
-    return new Pose2d(pose[0], pose[1], Rotation2d.fromDegrees(pose[5]));
+    double[] poseDoubles = getRawRobotPose();
+    return new Pose2d(poseDoubles[0], poseDoubles[1], Rotation2d.fromDegrees(poseDoubles[5]));
   }
   
   public Pipeline getActivePipeline() {

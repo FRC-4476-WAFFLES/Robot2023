@@ -19,12 +19,27 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class BalanceOnly extends SequentialCommandGroup {
+public class MobilityAndBalance extends SequentialCommandGroup {
   /** Creates a new OnePieceAndBalance. */
-  public BalanceOnly() {
-    PathPlannerTrajectory driveToClimb = PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1));
+  public MobilityAndBalance() {
+    PathPlannerTrajectory driveToMobility = PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1));
+    PathPlannerTrajectory driveToClimb = PathPlanner.loadPath("Mobility to Climb", new PathConstraints(1, 1));
 
     addCommands(
+      new InstantCommand(() -> driveSubsystem.resetOdometry(driveToMobility.getInitialHolonomicPose()), driveSubsystem),
+
+      new PPSwerveControllerCommand(
+        driveToMobility,
+        driveSubsystem::getOdometryLocation,
+        driveSubsystem.kinematics,
+        new PIDController(2, 0, 0),
+        new PIDController(2, 0, 0),
+        new PIDController(-1, 0, 0),
+        driveSubsystem::setModuleStates,
+        false,
+        driveSubsystem
+      ),
+
       new InstantCommand(() -> driveSubsystem.resetOdometry(driveToClimb.getInitialHolonomicPose()), driveSubsystem),
 
       new PPSwerveControllerCommand(
@@ -37,7 +52,7 @@ public class BalanceOnly extends SequentialCommandGroup {
         driveSubsystem::setModuleStates,
         false,
         driveSubsystem
-      ).until(() -> Math.abs(driveSubsystem.getPitch()) > 10),
+      ),
 
       new DriveAutoBalance()
     );

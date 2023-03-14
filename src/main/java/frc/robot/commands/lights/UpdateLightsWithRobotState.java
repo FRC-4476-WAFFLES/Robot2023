@@ -27,9 +27,9 @@ public class UpdateLightsWithRobotState extends CommandBase {
     } else if (DriverStation.isAutonomous() && DriverStation.getAlliance() == Alliance.Blue) {
       lightSubsystem.setLightColour(LightColours.BLUE);
     } else if (armSubsystem.getPiece() == GamePiece.CUBE) {
-      lightSubsystem.setLightColour(LightColours.VIOLET);
+      lightSubsystem.blinkBetweenColours(LightColours.VIOLET, LightColours.BLACK);
     } else {
-      lightSubsystem.setLightColour(LightColours.YELLOW);
+      lightSubsystem.blinkBetweenColours(LightColours.YELLOW, LightColours.BLACK);
     }
   }
 }

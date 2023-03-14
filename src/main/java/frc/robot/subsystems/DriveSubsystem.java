@@ -34,7 +34,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     private final AHRS ahrsIMU = new AHRS(SPI.Port.kMXP);
 
-    public final HashMap<DriveState, Pose2d> map = new HashMap<>() {{
+    public final HashMap<DriveState, Pose2d> scoringLocations = new HashMap<>() {{
         put(new DriveState(DriveState.GamePiece.CONE, DriveState.Alliance.RED, 0), new Pose2d(14.59, 0.53, new Rotation2d(0.0)));
         put(new DriveState(DriveState.GamePiece.CUBE, DriveState.Alliance.RED, 0), new Pose2d(14.59, 1.06, new Rotation2d(0.0)));
         put(new DriveState(DriveState.GamePiece.CONE, DriveState.Alliance.RED, 1), new Pose2d(14.59, 1.61, new Rotation2d(0.0)));
@@ -89,7 +89,16 @@ public class DriveSubsystem extends SubsystemBase {
 
             final DriveState driveStateObj = (DriveState) obj;
             
-            return this.gamePiece.equals(driveStateObj.gamePiece) && this.alliance.equals(driveStateObj.alliance) && this.number == driveStateObj.number;
+            return this.gamePiece == driveStateObj.gamePiece && this.alliance == driveStateObj.alliance && this.number == driveStateObj.number;
+        }
+
+        @Override
+        public int hashCode() {
+            int temp = 0;
+            temp += gamePiece.ordinal();
+            temp += alliance.ordinal() * 2;
+            temp += number * 4;
+            return temp;
         }
     }
 

@@ -5,11 +5,9 @@
 package frc.robot.commands.auto;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.commands.drive.DriveAutoBalance;
 
 import static frc.robot.RobotContainer.*;
 
@@ -31,7 +29,6 @@ public class OneCube extends SequentialCommandGroup {
       new InstantCommand(() -> {
         armSubsystem.updateGamePieceCube();
         armSubsystem.updateHeightHigh();
-        armSubsystem.updateSideFront();
         armSubsystem.updateFudgeFalse();
       }, armSubsystem),
       new InstantCommand(() -> intakeSubsystem.setPower(0.1), intakeSubsystem),

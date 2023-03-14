@@ -24,11 +24,13 @@ import frc.robot.commands.arm.ArmTeleop;
 import frc.robot.commands.auto.AutoPlaceGamepiece;
 import frc.robot.commands.auto.BalanceOnly;
 import frc.robot.commands.auto.DriveBackwards;
+import frc.robot.commands.auto.MobilityAndBalance;
 import frc.robot.commands.auto.OneConeAndBalance;
 import frc.robot.commands.auto.OneCube;
 import frc.robot.commands.auto.OneCubeAndBalance;
-import frc.robot.commands.drive.DriveAutoBalance;
+import frc.robot.commands.auto.OneCubeAndMobilityAndBalance;
 import frc.robot.commands.drive.DriveTeleop;
+import frc.robot.commands.drive.DriveToScoreLimelight;
 import frc.robot.commands.intake.IntakeTeleop;
 import frc.robot.commands.lights.UpdateLightsWithRobotState;
 import frc.robot.subsystems.ArmSubsystem;
@@ -49,7 +51,7 @@ public class RobotContainer {
   public static final ArmSubsystem armSubsystem = new ArmSubsystem();
   public static final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   public static final LightSubsystem lightSubsystem = new LightSubsystem();
-  public static final Camera camera = new Camera("limelight");
+  public static final Camera camera = new Camera();
   // public static final Camera backCamera = new Camera("Back Camera");
   
   public static final Joystick leftJoystick = new Joystick(0);
@@ -64,8 +66,6 @@ public class RobotContainer {
   /** A map of events and their corresponding commands */
   private final HashMap<String, Command> eventMap = new HashMap<>() {{
     put("intakeRun", new IntakeTeleop(() -> 0.5));
-    put("updateArmSideFront", new InstantCommand(armSubsystem::updateSideFront, armSubsystem));
-    put("updateArmSideBack", new InstantCommand(armSubsystem::updateSideBack, armSubsystem));
     put("updateArmPieceCube", new InstantCommand(armSubsystem::updateGamePieceCube, armSubsystem));
     put("updateArmPieceCone", new InstantCommand(armSubsystem::updateGamePieceCone, armSubsystem));
     put("updateArmHeightLow", new InstantCommand(armSubsystem::updateHeightLow, armSubsystem));
@@ -100,6 +100,8 @@ public class RobotContainer {
   private final Command oneCube = new OneCube();
   private final Command driveBackwards = new DriveBackwards();
   private final Command balanceOnly = new BalanceOnly();
+  private final Command mobilityAndBalance = new MobilityAndBalance();
+  private final Command oneCubeAndMobilityAndBalance = new OneCubeAndMobilityAndBalance();
   // private final Command twoCube = new TwoCube();
   //private final Command autoPlaceGamepiece = new AutoPlaceGamepiece();
 
@@ -118,9 +120,11 @@ public class RobotContainer {
     autoChooser.addOption("1 Cube", oneCube);
     autoChooser.addOption("Drive Backwards", driveBackwards);
     autoChooser.addOption("Balance Only", balanceOnly);
+    autoChooser.addOption("Mobility and Balance", mobilityAndBalance);
+    autoChooser.addOption("1 Cube and Mobility and Balance", oneCubeAndMobilityAndBalance);
     // autoChooser.addOption("2 Cube", twoCube);
     // autoChooser.addOption("2 Cube and Climb", twoCubeAndClimb);
-    //autoChooser.addOption("Test Auto", testAuto);
+    // autoChooser.addOption("Test Auto", testAuto);
     // autoChooser.addOption("place piece", autoPlaceGamepiece);
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
@@ -142,22 +146,22 @@ public class RobotContainer {
     final var bButton = new JoystickButton(operate, XboxController.Button.kB.value);
     final var xButton = new JoystickButton(operate, XboxController.Button.kX.value);
     final var yButton = new JoystickButton(operate, XboxController.Button.kY.value);
-    final var leftStickButton = new JoystickButton(operate, XboxController.Button.kLeftStick.value);
-    final var rightStickButton = new JoystickButton(operate, XboxController.Button.kRightStick.value);
+    // final var leftStickButton = new JoystickButton(operate, XboxController.Button.kLeftStick.value);
+    // final var rightStickButton = new JoystickButton(operate, XboxController.Button.kRightStick.value);
     // final var leftBumperButton = new JoystickButton(operate, XboxController.Button.kLeftBumper.value);
     final var rightBumperButton = new JoystickButton(operate, XboxController.Button.kRightBumper.value);
     // final var dpadDown = new Trigger(() -> operate.getPOV() == 180);
     final var dpadUp = new Trigger(() -> operate.getPOV() == 0);
 
     right1.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem).alongWith(new InstantCommand(driveSubsystem::resetGyro)));
-    left1.whileTrue(new DriveAutoBalance());
+    left1.whileTrue(new DriveToScoreLimelight());
 
     aButton.onTrue(new InstantCommand(armSubsystem::updateHeightLow, armSubsystem));
     bButton.onTrue(new InstantCommand(armSubsystem::updateHeightMedium, armSubsystem));
     yButton.onTrue(new InstantCommand(armSubsystem::updateHeightHigh, armSubsystem));
     xButton.onTrue(new InstantCommand(armSubsystem::updateHeightPickup, armSubsystem));
-    leftStickButton.onTrue(new InstantCommand(armSubsystem::updateSideBack, armSubsystem));
-    rightStickButton.onTrue(new InstantCommand(armSubsystem::updateSideFront, armSubsystem));
+    // leftStickButton.onTrue(new InstantCommand(armSubsystem::updateSideBack, armSubsystem));
+    // rightStickButton.onTrue(new InstantCommand(armSubsystem::updateSideFront, armSubsystem));
     // leftBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCone, armSubsystem));
     // rightBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCube, armSubsystem));
     rightBumperButton.onTrue(new InstantCommand(armSubsystem::togglePiece, armSubsystem));

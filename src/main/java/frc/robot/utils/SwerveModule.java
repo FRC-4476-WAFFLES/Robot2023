@@ -69,7 +69,7 @@ public class SwerveModule {
         driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
         angleMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
 
-        angleMotor.config_kP(0, 0.07);
+        angleMotor.config_kP(0, 0.05);
         angleMotor.config_kI(0, 0);
         angleMotor.config_kD(0, 0.2);
         angleMotor.configNeutralDeadband(0.02);
