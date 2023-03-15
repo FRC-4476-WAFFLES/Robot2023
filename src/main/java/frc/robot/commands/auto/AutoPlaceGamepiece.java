@@ -36,7 +36,7 @@ public class AutoPlaceGamepiece extends SequentialCommandGroup {
       new InstantCommand(armSubsystem::setpointsFromStateMachine, armSubsystem),
       new InstantCommand(armSubsystem::updateDeployTrue, armSubsystem), 
       new WaitCommand(1.0).deadlineWith(new InstantCommand(armSubsystem::setpointsFromStateMachine, armSubsystem).repeatedly()), 
-      new InstantCommand(armSubsystem::resetArm2Encoder),
+      // new InstantCommand(armSubsystem::resetArm2Encoder),
       new PPSwerveControllerCommand(
         path,
         driveSubsystem::getOdometryLocation,

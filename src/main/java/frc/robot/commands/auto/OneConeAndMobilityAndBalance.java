@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.drive.DriveAutoBalance;
+import frc.robot.commands.drive.DriveLockWheels;
 
 import static frc.robot.RobotContainer.*;
 
@@ -20,15 +21,16 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class OneCubeAndBalance extends SequentialCommandGroup {
+public class OneConeAndMobilityAndBalance extends SequentialCommandGroup {
   /** Creates a new OnePieceAndBalance. */
-  public OneCubeAndBalance() {
+  public OneConeAndMobilityAndBalance() {
     PathPlannerTrajectory driveToScore = PathPlanner.loadPath("Start to Scoring", new PathConstraints(1, 1));
-    PathPlannerTrajectory driveToClimb = PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1));
+    PathPlannerTrajectory driveToMobility = PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1));
+    PathPlannerTrajectory driveToClimb = PathPlanner.loadPath("Mobility to Climb", new PathConstraints(1, 1));
 
     addCommands(
       new InstantCommand(() -> {
-        armSubsystem.updateGamePieceCube();
+        armSubsystem.updateGamePieceCone();
         armSubsystem.updateHeightHigh();
         armSubsystem.updateFudgeFalse();
       }, armSubsystem),
@@ -38,7 +40,12 @@ public class OneCubeAndBalance extends SequentialCommandGroup {
       new InstantCommand(armSubsystem::setpointsFromStateMachine, armSubsystem),
       new SequentialCommandGroup(
         new InstantCommand(armSubsystem::updateDeployTrue, armSubsystem), 
-        new WaitCommand(1.5),
+        new WaitCommand(1.5), 
+        // new InstantCommand(() -> {
+        //   armSubsystem.resetArm1LeftEncoder();
+        //   armSubsystem.resetArm2Encoder();
+        //   armSubsystem.resetIntakeEncoder();
+        // }),
         new PPSwerveControllerCommand(
           driveToScore,
           driveSubsystem::getOdometryLocation,
@@ -54,11 +61,11 @@ public class OneCubeAndBalance extends SequentialCommandGroup {
         new WaitCommand(0.5),
         new InstantCommand(intakeSubsystem::stop),
 
-        new InstantCommand(() -> driveSubsystem.resetOdometry(driveToClimb.getInitialHolonomicPose()), driveSubsystem)
+        new InstantCommand(() -> driveSubsystem.resetOdometry(driveToMobility.getInitialHolonomicPose()), driveSubsystem)
       ).deadlineWith(new InstantCommand(armSubsystem::setpointsFromStateMachine).repeatedly()),
 
       new PPSwerveControllerCommand(
-        driveToClimb,
+        driveToMobility,
         driveSubsystem::getOdometryLocation,
         driveSubsystem.kinematics,
         new PIDController(2, 0, 0),
@@ -69,9 +76,24 @@ public class OneCubeAndBalance extends SequentialCommandGroup {
         driveSubsystem
       ).alongWith(
         new WaitCommand(0.5).andThen(new InstantCommand(armSubsystem::updateDeployFalse, armSubsystem))
-      ).until(() -> Math.abs(driveSubsystem.getPitch()) > 13),
+      ),
 
-      new DriveAutoBalance()
+      new InstantCommand(() -> driveSubsystem.resetOdometry(driveToClimb.getInitialHolonomicPose()), driveSubsystem),
+      
+      new PPSwerveControllerCommand(
+        driveToClimb,
+        driveSubsystem::getOdometryLocation,
+        driveSubsystem.kinematics,
+        new PIDController(2, 0, 0),
+        new PIDController(2, 0, 0),
+        new PIDController(-1, 0, 0),
+        driveSubsystem::setModuleStates,
+        false,
+        driveSubsystem
+      ).until(() -> Math.abs(driveSubsystem.getPitch()) > 13),
+      
+      new DriveAutoBalance(),
+      new DriveLockWheels()
     );
     addRequirements(intakeSubsystem);
   }

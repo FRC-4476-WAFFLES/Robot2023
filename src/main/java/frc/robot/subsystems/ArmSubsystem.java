@@ -134,8 +134,8 @@ public class ArmSubsystem extends SubsystemBase {
     put(new ArmState(ArmState.Height.HIGH, ArmState.GamePiece.CONE, false, false), new SetPoint(25500, -175000, 40)); 
     put(new ArmState(ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, false, false), new SetPoint(2200, -64500, 0)); 
     put(new ArmState(ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, false, false), new SetPoint(2000, -115000, 30)); 
-    put(new ArmState(ArmState.Height.LOW, ArmState.GamePiece.CUBE, false, false), new SetPoint(38000, -29000, 0)); 
-    put(new ArmState(ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false), new SetPoint(38000, -29000, 0)); 
+    put(new ArmState(ArmState.Height.LOW, ArmState.GamePiece.CUBE, false, false), new SetPoint(33000, -27000, 0)); 
+    put(new ArmState(ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false), new SetPoint(33000, -27000, 0)); 
     put(new ArmState(ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, false, false), new SetPoint(-17000, -136000, 40)); 
     put(new ArmState(ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, false, false), new SetPoint(-17000, -136000, 40)); 
   }};
@@ -353,10 +353,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     }
 
-    resetArm1LeftEncoder();
-    resetArm2Encoder();
-    resetIntakeEncoder();
-    // intakePivotLeftEncoder.setPosition(-4);
+    resetEncoders();
 
     // There needs to be a chillout time for the intake motor controllers to reset their encoders properly
     try {
@@ -497,10 +494,6 @@ public class ArmSubsystem extends SubsystemBase {
     SmartDashboard.putBoolean("Intake Pivot Encoder Enabled", intakePivotEncoderEnabled);
 
     SmartDashboard.putString("Hello World", "Is this changing");
-
-    // TODO: here we should put the current state into the setPoints map to get the next target. If we are in 
-    // fudge mode, we will disregard these and set the speed and direction of the motors directly based on the operator joysticks.
-    // the state also has a variable to track the elbow vs wrist movement.
   }
 
   public void stop() {
@@ -554,6 +547,12 @@ public class ArmSubsystem extends SubsystemBase {
 
   public void fudgeIntakeWithAnalogStick(double analogStickValue) {
     fudgeIntakeSetpoint(analogStickValue * previousLoopTime * 16.0);
+  }
+
+  public void resetEncoders() {
+    resetArm1LeftEncoder();
+    resetArm2Encoder();
+    resetIntakeEncoder();
   }
 
   private double getArm1LeftAdjustedAbsoluteEncoderPos() {
@@ -610,17 +609,17 @@ public class ArmSubsystem extends SubsystemBase {
     return getIntakeAbsoluteEncoderPos() - Constants.intakePivotLeftConstants.calibration;
   }
 
-  public void resetArm1LeftEncoder() {
+  private void resetArm1LeftEncoder() {
     if (arm1LeftEncoderEnabled && arm1RightEncoderEnabled) arm1Left.setSelectedSensorPosition((getArm1AbsoluteEncoderAverage() / Constants.arm1LeftConstants.ratio / 360.0) * 2048.0);
     else if (arm1LeftEncoderEnabled && ! arm1RightEncoderEnabled) arm1Left.setSelectedSensorPosition((-(getArm1LeftAdjustedAbsoluteEncoderPos() - arm1LeftAdjustedCalibration) / Constants.arm1LeftConstants.ratio / 360.0) * 2048.0);
     else if (!arm1LeftEncoderEnabled && arm1RightEncoderEnabled) arm1Left.setSelectedSensorPosition(((getArm1RightAbsoluteEncoderPos() - Constants.arm1RightConstants.calibration) / Constants.arm1LeftConstants.ratio / 360.0) * 2048.0);
   }
 
-  public void resetArm2Encoder() {
+  private void resetArm2Encoder() {
     if (arm2EncoderEnabled) arm2Left.setSelectedSensorPosition((getArm2LeftCompensatedAbsoluteEncoderPos() / (Constants.arm2LeftConstants.ratio * Constants.ArmConstants.stage2ChainRatio) / 360.0) * 2048.0);
   }
 
-  public void resetIntakeEncoder() {
+  private void resetIntakeEncoder() {
     if (intakePivotEncoderEnabled) intakePivotLeftEncoder.setPosition(getIntakeCalibratedAbsoluteEncoderPos() / Constants.intakePivotLeftConstants.ratio / 360.0);
   }
 

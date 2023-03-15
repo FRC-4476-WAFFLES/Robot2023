@@ -19,9 +19,9 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class BalanceOnly extends SequentialCommandGroup {
+public class Balance extends SequentialCommandGroup {
   /** Creates a new OnePieceAndBalance. */
-  public BalanceOnly() {
+  public Balance() {
     PathPlannerTrajectory driveToClimb = PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1));
 
     addCommands(

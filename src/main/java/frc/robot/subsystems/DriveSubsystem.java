@@ -34,6 +34,9 @@ public class DriveSubsystem extends SubsystemBase {
 
     private final AHRS ahrsIMU = new AHRS(SPI.Port.kMXP);
 
+    private double previousPitch = 0;
+    private double pitchRate = 0;
+
     public final HashMap<DriveState, Pose2d> scoringLocations = new HashMap<>() {{
         put(new DriveState(DriveState.GamePiece.CONE, DriveState.Alliance.RED, 0), new Pose2d(14.59, 0.53, new Rotation2d(0.0)));
         put(new DriveState(DriveState.GamePiece.CUBE, DriveState.Alliance.RED, 0), new Pose2d(14.59, 1.06, new Rotation2d(0.0)));
@@ -152,6 +155,10 @@ public class DriveSubsystem extends SubsystemBase {
         //HEY YOO WTF IS THIS THING?!?!?!?!?!? \/   --CTRL-f label [jeremyWasHere]
         odometry.update(Rotation2d.fromDegrees(-ahrsIMU.getAngle()), modulePositions);
 
+        double currentPitch = getPitch();
+        pitchRate = (currentPitch - previousPitch) / 0.02;
+        previousPitch = currentPitch;
+
         SmartDashboard.putNumber("X location Is this changing", getOdometryLocation().getX());
         SmartDashboard.putNumber("Y location", getOdometryLocation().getY());
         SmartDashboard.putNumber("Odometry Heading", odometry.getPoseMeters().getRotation().getDegrees());
@@ -162,6 +169,7 @@ public class DriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Vomega", getChassisSpeeds().omegaRadiansPerSecond);
         SmartDashboard.putNumber("Gyro Pitch", ahrsIMU.getPitch());
         SmartDashboard.putNumber("Gyro Roll", ahrsIMU.getRoll());
+        SmartDashboard.putNumber("Pitch Rate", pitchRate);
 
         for (int i = 0; i < modules.length; i++) {
             String moduleLabel = "Module " + String.valueOf(i) + " ";
@@ -244,6 +252,10 @@ public class DriveSubsystem extends SubsystemBase {
     public double getPitch() {
         // Because of the orientation of the gyro, the getRoll() function returns the pitch of the robot
         return ahrsIMU.getRoll();
+    }
+
+    public double getPitchRate() {
+        return pitchRate;
     }
 
     /** Stop all motors from running. */

@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import frc.robot.commands.drive.DriveAutoBalance;
 
 import static frc.robot.RobotContainer.*;
 
@@ -23,28 +22,27 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class OneCubeAndPickupAndBalance extends SequentialCommandGroup {
+public class TwoCubeAndPickup extends SequentialCommandGroup {
   /** Creates a new OnePieceAndBalance. */
-  public OneCubeAndPickupAndBalance() {
-    PathPlannerTrajectory driveToScore = PathPlanner.loadPath("Start to Scoring", new PathConstraints(1, 1));
-    PathPlannerTrajectory driveToPickup = PathPlanner.loadPath("Scoring to Pickup", new PathConstraints(3, 2));
-    PathPlannerTrajectory driveToClimb = PathPlanner.loadPath("Pickup to Climb", new PathConstraints(3, 2));
+  public TwoCubeAndPickup() {
+    PathPlannerTrajectory driveToScore1 = PathPlanner.loadPath("Start to Scoring", new PathConstraints(1, 1));
+    PathPlannerTrajectory driveToPickup1 = PathPlanner.loadPath("Scoring to Pickup", new PathConstraints(3, 2));
+    PathPlannerTrajectory driveToScore2 = PathPlanner.loadPath("Pickup to Scoring Medium", new PathConstraints(3, 2));
+    PathPlannerTrajectory driveToPickup2 = PathPlanner.loadPath("Scoring to Pickup 2", new PathConstraints(3, 2));
 
     addCommands(
       new InstantCommand(() -> {
         armSubsystem.updateGamePieceCube();
         armSubsystem.updateHeightHigh();
         armSubsystem.updateFudgeFalse();
-      }, armSubsystem),
-      new InstantCommand(() -> intakeSubsystem.setPower(0.1)),
-      
-      new InstantCommand(() -> driveSubsystem.resetOdometry(driveToScore.getInitialHolonomicPose()), driveSubsystem),
-      new InstantCommand(armSubsystem::setpointsFromStateMachine, armSubsystem),
+        armSubsystem.updateDeployTrue();
+        driveSubsystem.resetOdometry(driveToScore1.getInitialHolonomicPose());
+        intakeSubsystem.setPower(0.1);
+      }, armSubsystem, driveSubsystem),
       new SequentialCommandGroup(
-        new InstantCommand(armSubsystem::updateDeployTrue, armSubsystem), 
         new WaitCommand(1.5), 
         new PPSwerveControllerCommand(
-          driveToScore,
+          driveToScore1,
           driveSubsystem::getOdometryLocation,
           driveSubsystem.kinematics,
           new PIDController(2, 0, 0),
@@ -59,13 +57,13 @@ public class OneCubeAndPickupAndBalance extends SequentialCommandGroup {
         new InstantCommand(intakeSubsystem::stop),
 
         new InstantCommand(() -> {
-          PathPlannerState initialState = driveToPickup.getInitialState();
+          PathPlannerState initialState = driveToPickup1.getInitialState();
           PathPlannerState transformedInitialState = PathPlannerTrajectory.transformStateForAlliance(initialState, DriverStation.getAlliance());
           driveSubsystem.resetOdometry(new Pose2d(transformedInitialState.poseMeters.getTranslation(), transformedInitialState.holonomicRotation));
         }, driveSubsystem),
 
         new PPSwerveControllerCommand(
-          driveToPickup,
+          driveToPickup1,
           driveSubsystem::getOdometryLocation,
           driveSubsystem.kinematics,
           new PIDController(2, 0, 0),
@@ -93,7 +91,7 @@ public class OneCubeAndPickupAndBalance extends SequentialCommandGroup {
         new InstantCommand(armSubsystem::updateDeployFalse),
 
         new PPSwerveControllerCommand(
-          driveToClimb,
+          driveToScore2,
           driveSubsystem::getOdometryLocation,
           driveSubsystem.kinematics,
           new PIDController(2, 0, 0),
@@ -102,10 +100,45 @@ public class OneCubeAndPickupAndBalance extends SequentialCommandGroup {
           driveSubsystem::setModuleStates,
           true,
           driveSubsystem
-        )
-      ).deadlineWith(new InstantCommand(armSubsystem::setpointsFromStateMachine).repeatedly()),
+        ).alongWith(
+          new WaitCommand(2.0).andThen(new InstantCommand(() -> {
+            armSubsystem.updateGamePieceCube();
+            armSubsystem.updateHeightMedium();
+            armSubsystem.updateDeployTrue();
+          }, armSubsystem))
+        ),
+        new InstantCommand(() -> intakeSubsystem.setPower(-0.3)),
+        new WaitCommand(0.5),
+        new InstantCommand(() -> intakeSubsystem.setPower(0)),
 
-      new DriveAutoBalance()
+        new PPSwerveControllerCommand(
+          driveToPickup2,
+          driveSubsystem::getOdometryLocation,
+          driveSubsystem.kinematics,
+          new PIDController(2, 0, 0),
+          new PIDController(2, 0, 0),
+          new PIDController(-1, 0, 0),
+          driveSubsystem::setModuleStates,
+          true,
+          driveSubsystem
+        ).alongWith(
+          new SequentialCommandGroup(
+            new WaitCommand(0.5),
+            new InstantCommand(armSubsystem::updateDeployFalse, armSubsystem),
+            new WaitCommand(1.0),
+            new InstantCommand(() -> {
+              armSubsystem.updateGamePieceCube();
+              armSubsystem.updateHeightLow();
+              armSubsystem.updateDeployTrue();
+            }, armSubsystem),
+            new InstantCommand(() -> intakeSubsystem.setPower(0.5))
+          )
+        ),
+
+        new WaitCommand(0.5),
+        new InstantCommand(() -> intakeSubsystem.setPower(0.1)),
+        new InstantCommand(armSubsystem::updateDeployFalse)
+      ).deadlineWith(new InstantCommand(armSubsystem::setpointsFromStateMachine).repeatedly())
     );
     addRequirements(intakeSubsystem);
   }

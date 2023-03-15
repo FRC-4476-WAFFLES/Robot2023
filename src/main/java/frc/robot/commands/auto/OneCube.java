@@ -31,7 +31,7 @@ public class OneCube extends SequentialCommandGroup {
         armSubsystem.updateHeightHigh();
         armSubsystem.updateFudgeFalse();
       }, armSubsystem),
-      new InstantCommand(() -> intakeSubsystem.setPower(0.1), intakeSubsystem),
+      new InstantCommand(() -> intakeSubsystem.setPower(0.1)),
       
       new InstantCommand(() -> driveSubsystem.resetOdometry(driveToScore.getInitialHolonomicPose()), driveSubsystem),
       new InstantCommand(armSubsystem::setpointsFromStateMachine, armSubsystem),
@@ -54,9 +54,9 @@ public class OneCube extends SequentialCommandGroup {
           false,
           driveSubsystem
         ).withTimeout(1), 
-        new InstantCommand(() -> intakeSubsystem.setPower(-0.3), intakeSubsystem),
+        new InstantCommand(() -> intakeSubsystem.setPower(-0.3)),
         new WaitCommand(0.5),
-        new InstantCommand(intakeSubsystem::stop, intakeSubsystem),
+        new InstantCommand(intakeSubsystem::stop),
 
         new InstantCommand(() -> driveSubsystem.resetOdometry(driveToClimb.getInitialHolonomicPose()), driveSubsystem)
       ).deadlineWith(new InstantCommand(armSubsystem::setpointsFromStateMachine).repeatedly())
@@ -85,5 +85,6 @@ public class OneCube extends SequentialCommandGroup {
       //   }
       // }
     );
+    addRequirements(intakeSubsystem);
   }
 }

@@ -28,7 +28,7 @@ public class TwoCubeAndBalance extends SequentialCommandGroup {
   public TwoCubeAndBalance() {
     PathPlannerTrajectory driveToScore1 = PathPlanner.loadPath("Start to Scoring", new PathConstraints(1, 1));
     PathPlannerTrajectory driveToPickup = PathPlanner.loadPath("Scoring to Pickup", new PathConstraints(3, 2));
-    PathPlannerTrajectory driveToScore2 = PathPlanner.loadPath("Pickup to Scoring", new PathConstraints(3, 2));
+    PathPlannerTrajectory driveToScore2 = PathPlanner.loadPath("Pickup to Scoring High", new PathConstraints(3, 2));
     PathPlannerTrajectory driveToClimb = PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1));
 
     addCommands(
@@ -36,9 +36,10 @@ public class TwoCubeAndBalance extends SequentialCommandGroup {
         armSubsystem.updateGamePieceCube();
         armSubsystem.updateHeightHigh();
         armSubsystem.updateFudgeFalse();
-      }, armSubsystem),
-      new InstantCommand(() -> driveSubsystem.resetOdometry(driveToScore1.getInitialHolonomicPose()), driveSubsystem),
-      new InstantCommand(armSubsystem::updateDeployTrue, armSubsystem), 
+        armSubsystem.updateDeployTrue();
+        driveSubsystem.resetOdometry(driveToScore1.getInitialHolonomicPose());
+        intakeSubsystem.setPower(0.1);
+      }, armSubsystem, driveSubsystem),
 
       new SequentialCommandGroup(
         new WaitCommand(1.5), 
@@ -55,9 +56,9 @@ public class TwoCubeAndBalance extends SequentialCommandGroup {
           driveSubsystem
         ).withTimeout(1), 
 
-        new InstantCommand(() -> intakeSubsystem.setPower(-0.3), intakeSubsystem),
+        new InstantCommand(() -> intakeSubsystem.setPower(-0.3)),
         new WaitCommand(0.5),
-        new InstantCommand(intakeSubsystem::stop, intakeSubsystem),
+        new InstantCommand(intakeSubsystem::stop),
 
         new InstantCommand(() -> {
           PathPlannerState initialState = driveToPickup.getInitialState();
@@ -105,9 +106,9 @@ public class TwoCubeAndBalance extends SequentialCommandGroup {
           }, armSubsystem))
         ),
         
-        new InstantCommand(() -> intakeSubsystem.setPower(-0.3), intakeSubsystem),
+        new InstantCommand(() -> intakeSubsystem.setPower(-0.3)),
         new WaitCommand(0.5),
-        new InstantCommand(intakeSubsystem::stop, intakeSubsystem),
+        new InstantCommand(intakeSubsystem::stop),
 
         new InstantCommand(() -> driveSubsystem.resetOdometry(driveToClimb.getInitialHolonomicPose()), driveSubsystem)
       ).deadlineWith(new InstantCommand(armSubsystem::setpointsFromStateMachine).repeatedly()),
@@ -120,7 +121,7 @@ public class TwoCubeAndBalance extends SequentialCommandGroup {
         new PIDController(2, 0, 0),
         new PIDController(-1, 0, 0),
         driveSubsystem::setModuleStates,
-        false,
+        true,
         driveSubsystem
       ).alongWith(
         new WaitCommand(0.5).andThen(new InstantCommand(armSubsystem::updateDeployFalse, armSubsystem))
@@ -128,5 +129,6 @@ public class TwoCubeAndBalance extends SequentialCommandGroup {
 
       new DriveAutoBalance()
     );
+    addRequirements(intakeSubsystem);
   }
 }

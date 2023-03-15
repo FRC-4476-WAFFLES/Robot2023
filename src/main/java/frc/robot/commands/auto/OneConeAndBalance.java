@@ -5,7 +5,6 @@
 package frc.robot.commands.auto;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -32,6 +31,7 @@ public class OneConeAndBalance extends SequentialCommandGroup {
         armSubsystem.updateGamePieceCone();
         armSubsystem.updateHeightHigh();
         armSubsystem.updateFudgeFalse();
+        armSubsystem.resetEncoders();
       }, armSubsystem),
       new InstantCommand(() -> driveSubsystem.resetOdometry(driveToScore.getInitialHolonomicPose()), driveSubsystem),
       new InstantCommand(armSubsystem::setpointsFromStateMachine, armSubsystem),
@@ -54,9 +54,9 @@ public class OneConeAndBalance extends SequentialCommandGroup {
           false,
           driveSubsystem
         ).withTimeout(1), 
-        new InstantCommand(() -> intakeSubsystem.setPower(-0.3), intakeSubsystem),
+        new InstantCommand(() -> intakeSubsystem.setPower(-0.3)),
         new WaitCommand(0.5),
-        new InstantCommand(intakeSubsystem::stop, intakeSubsystem),
+        new InstantCommand(intakeSubsystem::stop),
 
         new InstantCommand(() -> driveSubsystem.resetOdometry(driveToClimb.getInitialHolonomicPose()), driveSubsystem)
       ).deadlineWith(new InstantCommand(armSubsystem::setpointsFromStateMachine).repeatedly()),
@@ -75,15 +75,8 @@ public class OneConeAndBalance extends SequentialCommandGroup {
         new WaitCommand(0.5).andThen(new InstantCommand(armSubsystem::updateDeployFalse, armSubsystem))
       ).until(() -> Math.abs(driveSubsystem.getPitch()) > 10),
 
-      new DriveAutoBalance(),
-
-      // new InstantCommand(() -> driveSubsystem.lockWheels(), driveSubsystem).repeatedly()
-      new CommandBase() {
-        @Override
-        public final void execute() {
-          driveSubsystem.lockWheels();
-        }
-      }
+      new DriveAutoBalance()
     );
+    addRequirements(intakeSubsystem);
   }
 }

@@ -27,16 +27,17 @@ public class TwoCube extends SequentialCommandGroup {
   public TwoCube() {
     PathPlannerTrajectory driveToScore1 = PathPlanner.loadPath("Start to Scoring", new PathConstraints(1, 1));
     PathPlannerTrajectory driveToPickup = PathPlanner.loadPath("Scoring to Pickup", new PathConstraints(3, 2));
-    PathPlannerTrajectory driveToScore2 = PathPlanner.loadPath("Pickup to Scoring", new PathConstraints(3, 2));
+    PathPlannerTrajectory driveToScore2 = PathPlanner.loadPath("Pickup to Scoring Medium", new PathConstraints(3, 2));
 
     addCommands(
       new InstantCommand(() -> {
         armSubsystem.updateGamePieceCube();
         armSubsystem.updateHeightHigh();
         armSubsystem.updateFudgeFalse();
-      }, armSubsystem),
-      new InstantCommand(() -> driveSubsystem.resetOdometry(driveToScore1.getInitialHolonomicPose()), driveSubsystem),
-      new InstantCommand(armSubsystem::updateDeployTrue, armSubsystem), 
+        armSubsystem.updateDeployTrue();
+        driveSubsystem.resetOdometry(driveToScore1.getInitialHolonomicPose());
+        intakeSubsystem.setPower(0.1);
+      }, armSubsystem, driveSubsystem),
       new SequentialCommandGroup(
         new WaitCommand(1.5), 
         new PPSwerveControllerCommand(
@@ -50,9 +51,9 @@ public class TwoCube extends SequentialCommandGroup {
           false,
           driveSubsystem
         ).withTimeout(1), 
-        new InstantCommand(() -> intakeSubsystem.setPower(-0.3), intakeSubsystem),
+        new InstantCommand(() -> intakeSubsystem.setPower(-0.3)),
         new WaitCommand(0.5),
-        new InstantCommand(intakeSubsystem::stop, intakeSubsystem),
+        new InstantCommand(intakeSubsystem::stop),
 
         new InstantCommand(() -> {
           PathPlannerState initialState = driveToPickup.getInitialState();
@@ -71,11 +72,17 @@ public class TwoCube extends SequentialCommandGroup {
           true,
           driveSubsystem
         ).alongWith(
-          new WaitCommand(0.5).andThen(new InstantCommand(() -> {
-            armSubsystem.updateGamePieceCube();
-            armSubsystem.updateHeightLow();
-          }, armSubsystem)),
-          new InstantCommand(() -> intakeSubsystem.setPower(0.5))
+          new SequentialCommandGroup(
+            new WaitCommand(0.5),
+            new InstantCommand(armSubsystem::updateDeployFalse, armSubsystem),
+            new WaitCommand(1.0),
+            new InstantCommand(() -> {
+              armSubsystem.updateGamePieceCube();
+              armSubsystem.updateHeightLow();
+              armSubsystem.updateDeployTrue();
+            }, armSubsystem),
+            new InstantCommand(() -> intakeSubsystem.setPower(0.5))
+          )
         ),
 
         new WaitCommand(0.5),
@@ -93,13 +100,17 @@ public class TwoCube extends SequentialCommandGroup {
           true,
           driveSubsystem
         ).alongWith(
-          new WaitCommand(1.7).andThen(new InstantCommand(() -> {
+          new WaitCommand(2.0).andThen(new InstantCommand(() -> {
             armSubsystem.updateGamePieceCube();
-            armSubsystem.updateHeightHigh();
+            armSubsystem.updateHeightMedium();
             armSubsystem.updateDeployTrue();
           }, armSubsystem))
-        )
+        ),
+        new InstantCommand(() -> intakeSubsystem.setPower(-0.3)),
+        new WaitCommand(0.5),
+        new InstantCommand(() -> intakeSubsystem.setPower(0))
       ).deadlineWith(new InstantCommand(armSubsystem::setpointsFromStateMachine).repeatedly())
     );
+    addRequirements(intakeSubsystem);
   }
 }

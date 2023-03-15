@@ -5,16 +5,13 @@
 package frc.robot.commands.drive;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 import static frc.robot.RobotContainer.*;
 
 public class DriveAutoBalance extends CommandBase {
   private final PIDController yawController = new PIDController(-4.0, 0, -0);
-  private final PIDController pitchController = new PIDController(0, 0, 0);
-
-  private double pitchRate = 0;
-  private double lastPitch = 0;
 
   /** Creates a new DriveAutoBalance. */
   public DriveAutoBalance() {
@@ -26,27 +23,21 @@ public class DriveAutoBalance extends CommandBase {
   @Override
   public void initialize() {
     yawController.setSetpoint(0);
-
-    // pitchController.setTolerance(0.04); // This is 2.29 degrees, aka legally level. 
-
-    lastPitch = driveSubsystem.getPitch();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     double currentPitch = driveSubsystem.getPitch();
-    pitchRate = (currentPitch - lastPitch) / 0.02;
 
     double rotationSpeed = yawController.calculate(driveSubsystem.getOdometryLocation().getRotation().getRadians());
-    double forwardSpeed = pitchController.calculate(currentPitch);
 
-    if (Math.abs(pitchRate) > 1) {
-      driveSubsystem.stop();
-    } else if (Math.abs(currentPitch) < 10.0) {
-      driveSubsystem.robotDrive(forwardSpeed, 0, rotationSpeed, false);
+    if (Math.abs(currentPitch) > 5) {
+      driveSubsystem.robotDrive(0, 0, 0, false);
+    } else if (currentPitch < -10.0) {
+      driveSubsystem.robotDrive(1, 0, rotationSpeed, false);
     } else {
-      driveSubsystem.robotDrive(2.0, 0, rotationSpeed, false);
+      driveSubsystem.robotDrive(-1, 0, rotationSpeed, false);
     }
   }
 
@@ -59,6 +50,6 @@ public class DriveAutoBalance extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(driveSubsystem.getPitch()) < 2.2 && Math.abs(pitchRate) < 1.0;
+    return Math.abs(driveSubsystem.getPitch()) < 2.2 && Math.abs(driveSubsystem.getPitchRate()) < 1.0;
   }
 }

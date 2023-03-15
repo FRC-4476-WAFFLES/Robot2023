@@ -22,13 +22,19 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.arm.ArmTeleop;
 import frc.robot.commands.auto.AutoPlaceGamepiece;
-import frc.robot.commands.auto.BalanceOnly;
-import frc.robot.commands.auto.DriveBackwards;
+import frc.robot.commands.auto.Balance;
+import frc.robot.commands.auto.Mobility;
 import frc.robot.commands.auto.MobilityAndBalance;
 import frc.robot.commands.auto.OneConeAndBalance;
+import frc.robot.commands.auto.OneConeAndMobilityAndBalance;
 import frc.robot.commands.auto.OneCube;
 import frc.robot.commands.auto.OneCubeAndBalance;
 import frc.robot.commands.auto.OneCubeAndMobilityAndBalance;
+import frc.robot.commands.auto.OneCubeAndPickupAndBalance;
+import frc.robot.commands.auto.TwoCube;
+import frc.robot.commands.auto.TwoCubeAndBalance;
+import frc.robot.commands.auto.TwoCubeAndPickup;
+import frc.robot.commands.drive.DriveAutoBalance;
 import frc.robot.commands.drive.DriveTeleop;
 import frc.robot.commands.drive.DriveToScoreLimelight;
 import frc.robot.commands.intake.IntakeTeleop;
@@ -95,15 +101,18 @@ public class RobotContainer {
   // private final Command oneCubeAndClimb = autoBuilder.fullAuto(PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1)));
   // private final Command twoCubeAndClimb = autoBuilder.fullAuto(PathPlanner.loadPath("2 Cube Climb", new PathConstraints(4, 3)));
   // private final Command testAuto = autoBuilder.fullAuto(PathPlanner.loadPath("New Path", new PathConstraints(1, 1)));
-  private final Command oneCubeAndClimb = new OneCubeAndBalance();
-  private final Command oneConeAndClimb = new OneConeAndBalance();
-  private final Command oneCube = new OneCube();
-  private final Command driveBackwards = new DriveBackwards();
-  private final Command balanceOnly = new BalanceOnly();
+  private final Command mobility = new Mobility();
+  private final Command balance = new Balance();
   private final Command mobilityAndBalance = new MobilityAndBalance();
+  private final Command oneCube = new OneCube();
+  private final Command oneCubeAndBalance = new OneCubeAndBalance();
+  private final Command oneConeAndBalance = new OneConeAndBalance();
   private final Command oneCubeAndMobilityAndBalance = new OneCubeAndMobilityAndBalance();
-  // private final Command twoCube = new TwoCube();
-  //private final Command autoPlaceGamepiece = new AutoPlaceGamepiece();
+  private final Command oneConeAndMobilityAndBalance = new OneConeAndMobilityAndBalance();
+  private final Command oneCubeAndPickupAndBalance = new OneCubeAndPickupAndBalance();
+  private final Command twoCube = new TwoCube();
+  private final Command twoCubeAndBalance = new TwoCubeAndBalance();
+  private final Command twoCubeAndPickup = new TwoCubeAndPickup();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -115,17 +124,18 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
 
-    autoChooser.addOption("1 Cube and Climb", oneCubeAndClimb);
-    autoChooser.addOption("1 Cone and Climb", oneConeAndClimb);
-    autoChooser.addOption("1 Cube", oneCube);
-    autoChooser.addOption("Drive Backwards", driveBackwards);
-    autoChooser.addOption("Balance Only", balanceOnly);
+    autoChooser.addOption("Mobility", mobility);
+    autoChooser.addOption("Balance", balance);
     autoChooser.addOption("Mobility and Balance", mobilityAndBalance);
+    autoChooser.addOption("1 Cube", oneCube);
+    autoChooser.addOption("1 Cube and Balance", oneCubeAndBalance);
+    autoChooser.addOption("1 Cone and Balance", oneConeAndBalance);
     autoChooser.addOption("1 Cube and Mobility and Balance", oneCubeAndMobilityAndBalance);
-    // autoChooser.addOption("2 Cube", twoCube);
-    // autoChooser.addOption("2 Cube and Climb", twoCubeAndClimb);
-    // autoChooser.addOption("Test Auto", testAuto);
-    // autoChooser.addOption("place piece", autoPlaceGamepiece);
+    autoChooser.addOption("1 Cone and Mobility and Balance", oneConeAndMobilityAndBalance);
+    autoChooser.addOption("1 Cube and Pickup and Balance", oneCubeAndPickupAndBalance);
+    autoChooser.addOption("2 Cube", twoCube);
+    autoChooser.addOption("2 Cube and Balance", twoCubeAndBalance);
+    autoChooser.addOption("2 Cube and Pickup", twoCubeAndPickup);
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
@@ -150,11 +160,14 @@ public class RobotContainer {
     // final var rightStickButton = new JoystickButton(operate, XboxController.Button.kRightStick.value);
     // final var leftBumperButton = new JoystickButton(operate, XboxController.Button.kLeftBumper.value);
     final var rightBumperButton = new JoystickButton(operate, XboxController.Button.kRightBumper.value);
+    // final var backButton = new JoystickButton(operate, XboxController.Button.kBack.value);
+    // final var startButton = new JoystickButton(operate, XboxController.Button.kStart.value);
     // final var dpadDown = new Trigger(() -> operate.getPOV() == 180);
     final var dpadUp = new Trigger(() -> operate.getPOV() == 0);
 
     right1.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem).alongWith(new InstantCommand(driveSubsystem::resetGyro)));
-    left1.whileTrue(new DriveToScoreLimelight());
+    // left1.whileTrue(new DriveToScoreLimelight());
+    left1.whileTrue(new DriveAutoBalance());
 
     aButton.onTrue(new InstantCommand(armSubsystem::updateHeightLow, armSubsystem));
     bButton.onTrue(new InstantCommand(armSubsystem::updateHeightMedium, armSubsystem));
@@ -170,6 +183,8 @@ public class RobotContainer {
     dpadUp.onFalse(new InstantCommand(armSubsystem::updateFudgeFalse, armSubsystem));
 
     aButton.or(bButton).or(xButton).or(yButton).or(armSubsystem::getFudge).onTrue(new InstantCommand(armSubsystem::updateDeployTrue)).onFalse(new InstantCommand(armSubsystem::updateDeployFalse));
+
+    SmartDashboard.putData("Reset Arm Encoders", new InstantCommand(armSubsystem::resetEncoders, armSubsystem));
   }
 
   /**

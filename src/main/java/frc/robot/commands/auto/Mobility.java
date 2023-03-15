@@ -18,9 +18,9 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class DriveBackwards extends SequentialCommandGroup {
+public class Mobility extends SequentialCommandGroup {
   /** Creates a new DriveBackwards. */
-  public DriveBackwards() {
+  public Mobility() {
     PathPlannerTrajectory driveToClimb = PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1));
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
