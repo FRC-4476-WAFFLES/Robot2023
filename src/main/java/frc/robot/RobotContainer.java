@@ -39,6 +39,7 @@ import frc.robot.commands.drive.DriveTeleop;
 import frc.robot.commands.drive.DriveToScoreLimelight;
 import frc.robot.commands.intake.IntakeTeleop;
 import frc.robot.commands.lights.UpdateLightsWithRobotState;
+import frc.robot.commands.test.MainTest;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.Camera;
 import frc.robot.subsystems.DriveSubsystem;
@@ -194,5 +195,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
+  }
+
+  public Command getTestCommand() {
+    return new MainTest();
   }
 }

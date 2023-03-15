@@ -8,6 +8,7 @@ import com.pathplanner.lib.server.PathPlannerServer;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -22,6 +23,7 @@ import static frc.robot.RobotContainer.*;
  */
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
+  private Command m_testCommand;
 
   private RobotContainer m_robotContainer;
 
@@ -34,8 +36,11 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-    DataLogManager.start();
-    PathPlannerServer.startServer(5811); // TODO: remove this when at competitions to save bandwidth
+
+    // If not connected to FMS, (so not in a match), start the PathPlanner server
+    if (!DriverStation.isFMSAttached()) {
+      PathPlannerServer.startServer(5811);
+    }
   }
 
   /**
@@ -52,7 +57,11 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
-    PathPlannerServer.sendPathFollowingData(new Pose2d(), driveSubsystem.getOdometryLocation());
+
+    // If not connected to FMS, (so not in a match), send the current robot pose to the PathPlanner server
+    if (!DriverStation.isFMSAttached()) {
+      PathPlannerServer.sendPathFollowingData(new Pose2d(), driveSubsystem.getOdometryLocation());
+    }
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -66,6 +75,11 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+
+    // Make sure the test command is not running
+    if (m_testCommand != null) {
+      m_testCommand.cancel();
+    }
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -86,6 +100,11 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+
+    // Make sure the test command is not running
+    if (m_testCommand != null) {
+      m_testCommand.cancel();
+    }
   }
 
   /** This function is called periodically during operator control. */
@@ -94,8 +113,16 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
+    DataLogManager.start();
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
+
+    m_testCommand = m_robotContainer.getTestCommand();
+
+    // schedule the autonomous command (example)
+    if (m_testCommand != null) {
+      m_testCommand.schedule();
+    }
   }
 
   /** This function is called periodically during test mode. */

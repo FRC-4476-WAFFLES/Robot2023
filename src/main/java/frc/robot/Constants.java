@@ -50,6 +50,23 @@ public final class Constants {
   // PWM outputs
   public static final int lightsBlinkin = 9; // REV Blinkin
 
+  // PDH channels
+  public static final int module0AnglePower = 0; // FX Front Left 2
+  public static final int module0DrivePower = 1; // FX Front Left 1
+  public static final int module1AnglePower = 19; // FX Back Left 2
+  public static final int module1DrivePower = 18; // FX Back Left 1
+  public static final int module2AnglePower = 11; // FX Back Right 1
+  public static final int module2DrivePower = 10; // FX Back Right 2
+  public static final int module3AnglePower = 9; // FX Front Right 1
+  public static final int module3DrivePower = 8; // FX Front Right 2
+  public static final int arm1LeftPower = 2; // TODO: set actual pdh port
+  public static final int arm1RightPower = 3; // TODO: set actual pdh port
+  public static final int arm2LeftPower = 4; // TODO: set actual pdh port
+  public static final int arm2RightPower = 5; // TODO: set actual pdh port
+  public static final int intakePivotLeftPower = 6; // TODO: set actual pdh port
+  public static final int intakePivotRightPower = 7; // TODO: set actual pdh port
+  public static final int intakePower = 12; // TODO: set actual pdh port
+
   // Arm Initialization
   public static final ArmConstants arm1LeftConstants = new ArmConstants(344, arm1Left, (1.0 / 80.0) * (15.0 / 36.0), -72, 38, 40, false);
   public static final ArmConstants arm1RightConstants = new ArmConstants(284, arm1Right, (1.0 / 80.0) * (15.0 / 36.0), 229, 339, 40, true);
