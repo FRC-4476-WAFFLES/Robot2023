@@ -12,6 +12,8 @@ import static frc.robot.RobotContainer.*;
 public class DriveAutoBalance extends CommandBase {
   private final PIDController yawController = new PIDController(-4.0, 0, -0);
 
+  private int loopCount = 0;
+
   /** Creates a new DriveAutoBalance. */
   public DriveAutoBalance() {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -31,13 +33,20 @@ public class DriveAutoBalance extends CommandBase {
 
     double rotationSpeed = yawController.calculate(driveSubsystem.getOdometryLocation().getRotation().getRadians());
 
-    if (Math.abs(currentPitch) > 5) {
+    if (Math.abs(currentPitch) < 5) {
       driveSubsystem.robotDrive(0, 0, 0, false);
+      loopCount += 1;
     } else if (currentPitch < -10.0) {
-      driveSubsystem.robotDrive(1, 0, rotationSpeed, false);
-    } else {
-      driveSubsystem.robotDrive(-1, 0, rotationSpeed, false);
-    }
+      driveSubsystem.robotDrive(0.25, 0, rotationSpeed, false);
+      loopCount = 0;
+    } else if (currentPitch < -8.0) {
+      driveSubsystem.robotDrive(0.1, 0, rotationSpeed, false);
+    } else if (currentPitch > 8.0) {
+      driveSubsystem.robotDrive(-0.1, 0, rotationSpeed, false);
+    }else if (currentPitch > 10.0) {
+      driveSubsystem.robotDrive(-0.25, 0, rotationSpeed, false);
+      loopCount = 0;
+    } 
   }
 
   // Called once the command ends or is interrupted.
@@ -49,6 +58,6 @@ public class DriveAutoBalance extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(driveSubsystem.getPitch()) < 2.2 && Math.abs(driveSubsystem.getPitchRate()) < 1.0;
+    return Math.abs(driveSubsystem.getPitch()) < 2.2 && loopCount > 20;
   }
 }

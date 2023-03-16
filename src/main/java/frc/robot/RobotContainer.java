@@ -29,6 +29,7 @@ import frc.robot.commands.auto.OneConeAndMobilityAndBalance;
 import frc.robot.commands.auto.OneCube;
 import frc.robot.commands.auto.OneCubeAndBalance;
 import frc.robot.commands.auto.OneCubeAndMobilityAndBalance;
+import frc.robot.commands.auto.OneCubeAndPickup;
 import frc.robot.commands.auto.OneCubeAndPickupAndBalance;
 import frc.robot.commands.auto.TwoCube;
 import frc.robot.commands.auto.TwoCubeAndBalance;
@@ -103,6 +104,7 @@ public class RobotContainer {
   private final Command oneConeAndBalance = new OneConeAndBalance();
   private final Command oneCubeAndMobilityAndBalance = new OneCubeAndMobilityAndBalance();
   private final Command oneConeAndMobilityAndBalance = new OneConeAndMobilityAndBalance();
+  private final Command oneCubeAndPickup = new OneCubeAndPickup();
   private final Command oneCubeAndPickupAndBalance = new OneCubeAndPickupAndBalance();
   private final Command twoCube = new TwoCube();
   private final Command twoCubeAndBalance = new TwoCubeAndBalance();
@@ -125,6 +127,7 @@ public class RobotContainer {
     autoChooser.addOption("1 Cone and Balance", oneConeAndBalance);
     autoChooser.addOption("1 Cube and Mobility and Balance", oneCubeAndMobilityAndBalance);
     autoChooser.addOption("1 Cone and Mobility and Balance", oneConeAndMobilityAndBalance);
+    autoChooser.addOption("1 Cube and Pickup", oneCubeAndPickup);
     autoChooser.addOption("1 Cube and Pickup and Balance", oneCubeAndPickupAndBalance);
     autoChooser.addOption("2 Cube", twoCube);
     autoChooser.addOption("2 Cube and Balance", twoCubeAndBalance);
