@@ -23,7 +23,7 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class TwoCubeAndPickup extends SequentialCommandGroup {
-  /** Creates a new OnePieceAndBalance. */
+  /** Creates a new TwoCubeAndPickup. */
   public TwoCubeAndPickup() {
     PathPlannerTrajectory driveToScore1 = PathPlanner.loadPath("Start to Scoring", new PathConstraints(1, 1));
     PathPlannerTrajectory driveToPickup1 = PathPlanner.loadPath("Scoring to Pickup", new PathConstraints(3, 2));

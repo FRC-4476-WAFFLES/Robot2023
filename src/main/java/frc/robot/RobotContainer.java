@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.arm.ArmTeleop;
-import frc.robot.commands.auto.AutoPlaceGamepiece;
 import frc.robot.commands.auto.Balance;
 import frc.robot.commands.auto.Mobility;
 import frc.robot.commands.auto.MobilityAndBalance;
@@ -36,7 +35,6 @@ import frc.robot.commands.auto.TwoCubeAndBalance;
 import frc.robot.commands.auto.TwoCubeAndPickup;
 import frc.robot.commands.drive.DriveAutoBalance;
 import frc.robot.commands.drive.DriveTeleop;
-import frc.robot.commands.drive.DriveToScoreLimelight;
 import frc.robot.commands.intake.IntakeTeleop;
 import frc.robot.commands.lights.UpdateLightsWithRobotState;
 import frc.robot.commands.test.MainTest;
@@ -59,7 +57,6 @@ public class RobotContainer {
   public static final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   public static final LightSubsystem lightSubsystem = new LightSubsystem();
   public static final Camera camera = new Camera();
-  // public static final Camera backCamera = new Camera("Back Camera");
   
   public static final Joystick leftJoystick = new Joystick(0);
   public static final Joystick rightJoystick = new Joystick(1);
@@ -79,7 +76,6 @@ public class RobotContainer {
     put("updateArmHeightMedium", new InstantCommand(armSubsystem::updateHeightMedium, armSubsystem));
     put("updateArmHeightHigh", new InstantCommand(armSubsystem::updateHeightHigh, armSubsystem));
     put("updateArmHeightPickup", new InstantCommand(armSubsystem::updateHeightPickup, armSubsystem));
-    put("extendArmAndPlace", new AutoPlaceGamepiece());
     put("retractArm", new PrintCommand("Arm Retracted"));
     put("lockWheels", new InstantCommand(driveSubsystem::lockWheels, driveSubsystem));
     put("wait 1 sec", new WaitCommand(1));
@@ -99,9 +95,6 @@ public class RobotContainer {
 
   private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
 
-  // private final Command oneCubeAndClimb = autoBuilder.fullAuto(PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1)));
-  // private final Command twoCubeAndClimb = autoBuilder.fullAuto(PathPlanner.loadPath("2 Cube Climb", new PathConstraints(4, 3)));
-  // private final Command testAuto = autoBuilder.fullAuto(PathPlanner.loadPath("New Path", new PathConstraints(1, 1)));
   private final Command mobility = new Mobility();
   private final Command balance = new Balance();
   private final Command mobilityAndBalance = new MobilityAndBalance();
@@ -121,7 +114,6 @@ public class RobotContainer {
     armSubsystem.setDefaultCommand(armJoystickControl);
     intakeSubsystem.setDefaultCommand(intakeTeleop);
     lightSubsystem.setDefaultCommand(updateLights);
-    //CommandScheduler.getInstance().registerSubsystem(intakeSubsystem);
     // Configure the trigger bindings
     configureBindings();
 
@@ -174,12 +166,7 @@ public class RobotContainer {
     bButton.onTrue(new InstantCommand(armSubsystem::updateHeightMedium, armSubsystem));
     yButton.onTrue(new InstantCommand(armSubsystem::updateHeightHigh, armSubsystem));
     xButton.onTrue(new InstantCommand(armSubsystem::updateHeightPickup, armSubsystem));
-    // leftStickButton.onTrue(new InstantCommand(armSubsystem::updateSideBack, armSubsystem));
-    // rightStickButton.onTrue(new InstantCommand(armSubsystem::updateSideFront, armSubsystem));
-    // leftBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCone, armSubsystem));
-    // rightBumperButton.onTrue(new InstantCommand(armSubsystem::updateGamePieceCube, armSubsystem));
     rightBumperButton.onTrue(new InstantCommand(armSubsystem::togglePiece, armSubsystem));
-    // dpadDown.onTrue(new InstantCommand(armSubsystem::toggleAltPickupl, armSubsystem));
     dpadUp.onTrue(new InstantCommand(armSubsystem::updateFudgeTrue, armSubsystem));
     dpadUp.onFalse(new InstantCommand(armSubsystem::updateFudgeFalse, armSubsystem));
 

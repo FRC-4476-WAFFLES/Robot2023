@@ -21,7 +21,7 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class OneCubeAndBalance extends SequentialCommandGroup {
-  /** Creates a new OnePieceAndBalance. */
+  /** Creates a new OneCubeAndBalance. */
   public OneCubeAndBalance() {
     PathPlannerTrajectory driveToScore = PathPlanner.loadPath("Start to Scoring", new PathConstraints(1, 1));
     PathPlannerTrajectory driveToClimb = PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1));

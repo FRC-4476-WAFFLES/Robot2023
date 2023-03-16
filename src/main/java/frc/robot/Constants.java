@@ -21,9 +21,9 @@ public final class Constants {
   public static final int arm1Right = 11; // Talon FX
   public static final int arm2Left = 10; // Talon FX
   public static final int arm2Right = 12; // Talon FX
-  public static final int intakePivotLeft = 13; // Spark MAX // was 14
-  public static final int intakePivotRight = 16; // Spark MAX // was 13
-  public static final int intake = 14; // Spark MAX // was 16
+  public static final int intakePivotLeft = 13; // Spark MAX
+  public static final int intakePivotRight = 16; // Spark MAX
+  public static final int intake = 14; // Spark MAX
 
   public static final int swerveModuleBLAngle = 18; // FX Back Left 2
   public static final int swerveModuleBLDrive = 21; // FX Back Left 1
@@ -140,12 +140,6 @@ public final class Constants {
     public static final double a3 = 0.1;
 
     public static final double stage2ChainRatio = 32.0 / 74.0;
-
-    // arm 1 left limit 1 : 39 degrees (at back, decreases going to front), zero at -17
-    // arm 1 right limit 1 : 229 degrees (at back, increases going to front), zero at 284
-    // zero secodn pivot at -44
-
-    // intake 0 94
 
     public final double calibration;
     public final int motorID;

@@ -184,10 +184,6 @@ public class DriveSubsystem extends SubsystemBase {
             SmartDashboard.putNumber(moduleLabel + "Builtin encoder pos", modules[i].getAngleMotorPosition());
             SmartDashboard.putNumber(moduleLabel + "Calculated encoder pos", modules[i].getCalculatedEncoderPos());
         }
-
-        //field.setRobotPose(this.getOdometryLocation());
-
-        //SmartDashboard.putNumber("Drive Target Heading (Degrees)", Math.toDegrees(Math.atan2(-getOdometryLocation().getY(), getOdometryLocation().getX())));
     }
 
     public void robotDrive(double forward, double right, double rotation, boolean fieldCentric){
@@ -234,10 +230,6 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public Pose2d getAdjustedPose() {
-        // return new Pose2d(
-        //     odometry.getPoseMeters().getTranslation(),
-        //     odometry.getPoseMeters().getRotation().plus(Rotation2d.fromDegrees(180))
-        // );
         return getOdometryLocation();
     }
 

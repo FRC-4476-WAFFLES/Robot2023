@@ -37,7 +37,6 @@ public class Camera extends SubsystemBase {
   private final LinearFilter txFilter = LinearFilter.movingAverage(10);
   private final LinearFilter tyFilter = LinearFilter.movingAverage(20);
 
-  private double taFiltered = 0;
   private double txFiltered = 0;
   private double tyFiltered = 0;
 
@@ -53,8 +52,6 @@ public class Camera extends SubsystemBase {
     super.periodic();
     txFiltered = txFilter.calculate(getHorizontal());
     tyFiltered = tyFilter.calculate(getVertical());
-    // camera.getEntry("ledMode").setNumber(ledMode.ordinal());
-    // camera.getEntry("camMode").setNumber(1);
     SmartDashboard.putBoolean("Camera has target", getHasTarget());
     SmartDashboard.putNumber("Camera tx", getHorizontal());
     SmartDashboard.putNumber("Camera ty", getVertical());
@@ -102,10 +99,6 @@ public class Camera extends SubsystemBase {
   public double getArea() {
     // ta: Target Area (0% of image to 100% of image)
     return camera.getEntry("ta").getDouble(0);
-  }
-
-  public double getFilteredArea() {
-    return taFiltered;
   }
 
   public double getSkew() {

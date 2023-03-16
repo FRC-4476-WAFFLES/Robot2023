@@ -43,21 +43,6 @@ public class ArmTeleop extends CommandBase {
         armSubsystem.fudgeArm2Setpoint(20000);
       }
     }
-
-    // Pose2d currentPose = driveSubsystem.getOdometryLocation();
-    // if (currentPose.getX() < 8) {
-    //   if (Math.abs(currentPose.getRotation().getDegrees()) < 90) {
-    //     armSubsystem.updateSideFront();
-    //   } else {
-    //     armSubsystem.updateSideBack();
-    //   }
-    // } else {
-    //   if (Math.abs(currentPose.getRotation().getDegrees()) < 90) {
-    //     armSubsystem.updateSideBack();
-    //   } else {
-    //     armSubsystem.updateSideFront();
-    //   }
-    // }
   }
 
   // Called once the command ends or is interrupted.

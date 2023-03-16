@@ -20,7 +20,7 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class Balance extends SequentialCommandGroup {
-  /** Creates a new OnePieceAndBalance. */
+  /** Creates a new Balance. */
   public Balance() {
     PathPlannerTrajectory driveToClimb = PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1));
 

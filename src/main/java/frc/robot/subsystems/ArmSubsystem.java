@@ -48,14 +48,12 @@ public class ArmSubsystem extends SubsystemBase {
     public GamePiece piece;
     public boolean altpickupl;
     public boolean fudge;
-    // public boolean isFudgeElbow;
 
     ArmState(Height height, GamePiece piece, boolean altpickupl, boolean fudge){
       this.height= height;
       this.piece= piece;
       this.altpickupl= altpickupl;
       this.fudge=fudge;
-      // isFudgeElbow = false;
     }
 
     @Override
@@ -96,40 +94,6 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   HashMap<ArmState, SetPoint> setPoints = new HashMap<ArmState, SetPoint>() {{
-    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(12300, -97600, -30)); // Done
-    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HIGH, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(25500, -162000, 24)); // Done
-    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(-7600, 101000, 27)); // Done
-    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.HIGH, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(-24000, 171000, -33)); // Done
-    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(2200, -64500, -30)); // Done
-    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(2000, -115000, 27)); // Done
-    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(-4600, 80000, 27)); // Done
-    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(-13800, 132500, -22)); // Done
-    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.LOW, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(38000, -29000, -30.0)); // Done
-    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(38000, -29000, -30.0)); // Done
-    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.LOW, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(-24500, 37500, 30)); // Done
-    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(-24500, 37500, 30)); // Done
-    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(-27000, -120000, 30)); // Done
-    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(-17000, -126000, 30)); // Done
-    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, false, false).hashCode(), new SetPoint(14, 0, 0));
-    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, false, false).hashCode(), new SetPoint(15, 0, 0));
-
-    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(16, 0, 0));
-    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HIGH, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(17, 0, 0));
-    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.HIGH, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(18, 0, 0));
-    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.HIGH, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(19, 0, 0));
-    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(20, 0, 0));
-    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(21, 0, 0));
-    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(22, 0, 0));
-    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(23, 0, 0));
-    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.LOW, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(24, 0, 0));
-    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.LOW, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(25, 0, 0));
-    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.LOW, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(26, 0, 0));
-    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.LOW, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(27, 0, 0));
-    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(28, 0, 0));
-    // put(new ArmState(ArmState.Side.FRONT, ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(29, 0, 0));
-    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, true, false).hashCode(), new SetPoint(30, 0, 0));
-    // put(new ArmState(ArmState.Side.BACK, ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, true, false).hashCode(), new SetPoint(31, 0, 0));
-
     put(new ArmState(ArmState.Height.HIGH, ArmState.GamePiece.CUBE, false, false), new SetPoint(12300, -97600, 0));
     put(new ArmState(ArmState.Height.HIGH, ArmState.GamePiece.CONE, false, false), new SetPoint(25500, -175000, 40)); 
     put(new ArmState(ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, false, false), new SetPoint(2200, -64500, 0)); 
@@ -142,9 +106,6 @@ public class ArmSubsystem extends SubsystemBase {
 
   private ArmState state = new ArmState(ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false);
   private boolean deploy = false;
-  // private boolean overrideSide = false;
-
-  // private Pose2d targetPos = new Pose2d();
 
   private final CANSparkMax intakePivotLeft;
   private final CANSparkMax intakePivotRight;
@@ -163,15 +124,11 @@ public class ArmSubsystem extends SubsystemBase {
   private final DutyCycleEncoder arm2AbsoluteEncoder;
   private final DutyCycleEncoder intakePivotAbsoluteEncoder;
 
-  // private final ThreeJointArmKinematics kinematics;
-  
   private final double armRetractPosition = 0;
 
   private double arm1TargetPosition = 0;
   private double arm2TargetPosition = 0;
   private double intakeTargetPosition = 0;
-
-  // private double armChilloutTimer = 0;
 
   private final Timer timer = new Timer();
 
@@ -182,10 +139,6 @@ public class ArmSubsystem extends SubsystemBase {
   private double arm2AdjustedCalibration;
   private double intakeAdjustedCalibration;
 
-  // private double arm1TimeLastMoved = 0;
-  // private double arm2TimeLastMoved = 0;
-  // private double wristTimeLastMoved = 0;
-
   private boolean arm1LeftEncoderEnabled = true;
   private boolean arm1RightEncoderEnabled = true;
   private boolean arm2EncoderEnabled = true;
@@ -195,10 +148,6 @@ public class ArmSubsystem extends SubsystemBase {
   private double arm1RightEncoderPreviousValue = 0;
   private double arm2EncoderPreviousValue = 0;
   private double intakePivotEncoderPreviousValue = 0;
-
-  // arm 1 left limit 1 : 39 degrees (at back, decreases going to front), zero at -17
-  // arm 1 right limit 1 : 229 degrees (at back, increases going to front), zero at 284
-  // arm 2 chain ratio: 32:74
 
   /** Creates a new ArmSubsystem. */
   public ArmSubsystem() {
@@ -268,7 +217,6 @@ public class ArmSubsystem extends SubsystemBase {
     arm1Left.config_kI(0, 0);
     arm1Left.config_kD(0, 0.006);
     arm1Left.configNeutralDeadband(0.05);
-    //arm1Left.configClosedloopRamp(0.25);
 
     arm1Right.follow(arm1Left);
     arm1Right.setInverted(InvertType.OpposeMaster);
@@ -277,7 +225,6 @@ public class ArmSubsystem extends SubsystemBase {
     arm2Left.config_kI(0, 0);
     arm2Left.config_kD(0, 0.015);
     arm2Left.configNeutralDeadband(0.06);
-    //arm2Left.configClosedloopRamp(1.0);
     
     arm2Right.follow(arm2Left);
     arm2Right.setInverted(InvertType.OpposeMaster);
@@ -320,16 +267,6 @@ public class ArmSubsystem extends SubsystemBase {
     arm1RightAbsoluteEncoder.setDistancePerRotation(360);
     arm2AbsoluteEncoder.setDistancePerRotation(360);
     intakePivotAbsoluteEncoder.setDistancePerRotation(360);
-
-    // kinematics = new ThreeJointArmKinematics(Constants.ArmConstants.a1, Constants.ArmConstants.a2, Constants.ArmConstants.a3);
-    // kinematics.addConstraint(
-    //   new CircleConstraint(
-    //     (rotation) -> Constants.ArmConstants.a3 * rotation.getCos(), 
-    //     (rotation) -> Constants.ArmConstants.a3 * rotation.getSin(), 
-    //     Constants.ArmConstants.a1 + Constants.ArmConstants.a2, 
-    //     true
-    //   )
-    // );
   
     arm1LeftAdjustedCalibration = Constants.arm1LeftConstants.calibration - 180;
     while (arm1LeftAdjustedCalibration < 0) {
@@ -372,17 +309,6 @@ public class ArmSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    // Rotation2d currentQ1 = Rotation2d.fromDegrees(arm1LeftRelativeEncoder.getPosition() * 360 * Constants.arm1LeftConstants.ratio);
-    // Rotation2d currentQ2 = Rotation2d.fromDegrees(arm2LeftRelativeEncoder.getPosition() * 360 * Constants.arm2LeftConstants.ratio);
-    // Rotation2d currentQ3 = Rotation2d.fromDegrees(intakePivotLeftEncoder.getPosition() * 360 * Constants.intakePivotLeftConstants.ratio).plus(currentQ2).plus(currentQ1);
-
-    // Pose2d currentPose = kinematics.toPose2d(new ThreeJointArmState(currentQ1, currentQ2, currentQ3));
-    // SmartDashboard.putNumber("/arm/pose/x", currentPose.getX());
-    // SmartDashboard.putNumber("/arm/pose/y", currentPose.getY());
-    // SmartDashboard.putNumber("/arm/pose/angle", currentPose.getRotation().getDegrees());
-
-    // ThreeJointArmState targetArmState = kinematics.toArmState(targetPos);
-
     previousLoopTime = timer.get() - previousTime;
     previousTime = timer.get();
 
@@ -392,33 +318,6 @@ public class ArmSubsystem extends SubsystemBase {
     if (arm2EncoderPreviousValue == getArm2AbsoluteEncoderPos()) arm2EncoderEnabled = false;
     if (intakePivotEncoderPreviousValue == getIntakeAbsoluteEncoderPos()) intakePivotEncoderEnabled = false;
 
-    // if (Math.abs(arm1Left.getSelectedSensorVelocity()) > 200) {
-    //   arm1TimeLastMoved = timer.get();
-    // } else if (timer.get() - arm1TimeLastMoved > 0.1) {
-    //   resetArm1LeftEncoder();
-    //   arm1TimeLastMoved = timer.get();
-    // }
-
-    // if (Math.abs(arm2Left.getSelectedSensorVelocity()) > 200) {
-    //   arm2TimeLastMoved = timer.get();
-    // } else if (timer.get() - arm2TimeLastMoved > 0.1) {
-    //   resetArm2Encoder();
-    //   arm2TimeLastMoved = timer.get();
-    // }
-
-    // resetArm2Encoder();
-    
-    // if (Math.abs(intakePivotLeftEncoder.getVelocity()) > 10) {
-    //   wristTimeLastMoved = timer.get();
-    // } else if (timer.get() - wristTimeLastMoved > 1.0) {
-    //   resetIntakeEncoder();
-    //   wristTimeLastMoved = timer.get();
-    // }
-
-    // if (timer.get() - armChilloutTimer < 1.5) {
-    //   deploy = false;
-    // }
-
     if (!deploy) {
       setArm1Setpoint(-12000);
       setArm2Setpoint(-7000);
@@ -426,14 +325,8 @@ public class ArmSubsystem extends SubsystemBase {
     }
     
     if (Math.abs(getArm2LeftCompensatedAbsoluteEncoderPos()) < 10) {
-      // arm1TargetPosition = MathUtil.clamp(arm1TargetPosition, -2.0 * Constants.arm1LeftConstants.ratio * 2048.0 / 360.0, 2.0 * Constants.arm1LeftConstants.ratio * 2048.0 / 360.0);
       arm1TargetPosition = Math.min(arm1TargetPosition, 2.0 * Constants.arm1LeftConstants.ratio * 2048.0 / 360.0);
     }
-
-    // if (Math.abs(arm2Left.getSelectedSensorPosition() - arm2TargetPosition) > 10000 && deploy) {
-    //   arm1TargetPosition = arm1Left.getSelectedSensorPosition();
-    //   intakeTargetPosition = intakePivotLeftEncoder.getPosition();
-    // }
 
     if (Math.abs(getArm1AbsoluteEncoderAverage()) < 20 && Math.abs(getArm2LeftCompensatedAbsoluteEncoderPos()) < 30) {
       intakeTargetPosition = armRetractPosition;
@@ -568,12 +461,6 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   private double getArm2LeftAdjustedAbsoluteEncoderPos() {
-    // double adjustedPos = arm2AbsoluteEncoder.getDistance() - 180.0;
-    // while (adjustedPos < 0) {
-    //   adjustedPos += 360.0;
-    // }
-    // return adjustedPos;
-
     return arm2AbsoluteEncoder.getDistance();
   }
 
@@ -582,7 +469,6 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   private double getArm2LeftCompensatedAbsoluteEncoderPos() {
-    // return getArm2LeftAdjustedAbsoluteEncoderPos() - arm2AdjustedCalibration + getArm1AbsoluteEncoderAverage() * Constants.ArmConstants.stage2ChainRatio;
     return getArm2LeftAdjustedAbsoluteEncoderPos() - Constants.arm2LeftConstants.calibration + getArm1AbsoluteEncoderAverage() * Constants.ArmConstants.stage2ChainRatio;
   }
 
@@ -596,16 +482,7 @@ public class ArmSubsystem extends SubsystemBase {
     return intakePivotAbsoluteEncoder.getDistance();
   }
 
-  // private double getIntakeAdjustedAbsoluteEncoderPos() {
-  //   double adjustedPos = getIntakeAbsoluteEncoderPos() - 180.0;
-  //   while (adjustedPos < 0) {
-  //     adjustedPos += 360.0;
-  //   }
-  //   return adjustedPos;
-  // }
-
   private double getIntakeCalibratedAbsoluteEncoderPos() {
-    // return -getIntakeAdjustedAbsoluteEncoderPos() + intakeAdjustedCalibration;
     return getIntakeAbsoluteEncoderPos() - Constants.intakePivotLeftConstants.calibration;
   }
 

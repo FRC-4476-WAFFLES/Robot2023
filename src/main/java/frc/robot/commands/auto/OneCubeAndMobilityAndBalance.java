@@ -22,7 +22,7 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class OneCubeAndMobilityAndBalance extends SequentialCommandGroup {
-  /** Creates a new OnePieceAndBalance. */
+  /** Creates a new OneCubeAndMobilityAndBalance. */
   public OneCubeAndMobilityAndBalance() {
     PathPlannerTrajectory driveToScore = PathPlanner.loadPath("Start to Scoring", new PathConstraints(1, 1));
     PathPlannerTrajectory driveToMobility = PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1));
@@ -41,11 +41,6 @@ public class OneCubeAndMobilityAndBalance extends SequentialCommandGroup {
       new SequentialCommandGroup(
         new InstantCommand(armSubsystem::updateDeployTrue, armSubsystem), 
         new WaitCommand(1.5), 
-        // new InstantCommand(() -> {
-        //   armSubsystem.resetArm1LeftEncoder();
-        //   armSubsystem.resetArm2Encoder();
-        //   armSubsystem.resetIntakeEncoder();
-        // }),
         new PPSwerveControllerCommand(
           driveToScore,
           driveSubsystem::getOdometryLocation,

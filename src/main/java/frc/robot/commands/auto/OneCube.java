@@ -20,7 +20,7 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class OneCube extends SequentialCommandGroup {
-  /** Creates a new OnePieceAndBalance. */
+  /** Creates a new OneCube. */
   public OneCube() {
     PathPlannerTrajectory driveToScore = PathPlanner.loadPath("Start to Scoring", new PathConstraints(1, 1));
     PathPlannerTrajectory driveToClimb = PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1));
@@ -38,11 +38,6 @@ public class OneCube extends SequentialCommandGroup {
       new SequentialCommandGroup(
         new InstantCommand(armSubsystem::updateDeployTrue, armSubsystem), 
         new WaitCommand(1.5), 
-        // new InstantCommand(() -> {
-        //   armSubsystem.resetArm1LeftEncoder();
-        //   armSubsystem.resetArm2Encoder();
-        //   armSubsystem.resetIntakeEncoder();
-        // }),
         new PPSwerveControllerCommand(
           driveToScore,
           driveSubsystem::getOdometryLocation,
@@ -60,30 +55,6 @@ public class OneCube extends SequentialCommandGroup {
 
         new InstantCommand(() -> driveSubsystem.resetOdometry(driveToClimb.getInitialHolonomicPose()), driveSubsystem)
       ).deadlineWith(new InstantCommand(armSubsystem::setpointsFromStateMachine).repeatedly())
-
-      // new PPSwerveControllerCommand(
-      //   driveToClimb,
-      //   driveSubsystem::getOdometryLocation,
-      //   driveSubsystem.kinematics,
-      //   new PIDController(2, 0, 0),
-      //   new PIDController(2, 0, 0),
-      //   new PIDController(-1, 0, 0),
-      //   driveSubsystem::setModuleStates,
-      //   false,
-      //   driveSubsystem
-      // ).alongWith(
-      //   new WaitCommand(0.5).andThen(new InstantCommand(armSubsystem::updateDeployFalse, armSubsystem))
-      // ).until(() -> Math.abs(driveSubsystem.getPitch()) > 13),
-
-      // new DriveAutoBalance(),
-
-      // // new InstantCommand(() -> driveSubsystem.lockWheels(), driveSubsystem).repeatedly()
-      // new CommandBase() {
-      //   @Override
-      //   public final void execute() {
-      //     driveSubsystem.lockWheels();
-      //   }
-      // }
     );
     addRequirements(intakeSubsystem);
   }
