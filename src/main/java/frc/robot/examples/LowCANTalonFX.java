@@ -7,7 +7,6 @@ import frc.robot.utils.LazyTalonFX;
 
 /*
  * This is an example class to demonstrate how to reduce the CAN usage of a TalonFX controller. 
- * Also see the corresponding example for a SparkMax. 
  */
 public class LowCANTalonFX {
     private final LazyTalonFX talonFX;

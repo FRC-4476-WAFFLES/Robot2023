@@ -15,12 +15,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.AnalogEncoder;
-import edu.wpi.first.wpilibj.AnalogInput;
-import frc.robot.Constants.SwerveConstants;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.DriveConstants.SwerveModuleConstants;;
 
 public class SwerveModule {
     /** Holds constants like the angle calibration. */
-    private final SwerveConstants constants;
+    private final SwerveModuleConstants constants;
 
     /** The motor controlling the angle of the swerve module. */
     private final LazyTalonFX angleMotor;
@@ -29,17 +29,14 @@ public class SwerveModule {
     private final LazyTalonFX driveMotor;
 
     private final AnalogEncoder angleEncoder;
-    private AnalogInput analogInput;
     
     //private double lastAngle;
 
-    public SwerveModule(SwerveConstants constants) {
+    public SwerveModule(SwerveModuleConstants constants) {
         this.angleMotor = new LazyTalonFX(constants.angleMotor);
         this.driveMotor = new LazyTalonFX(constants.driveMotor);
-        this.analogInput = new AnalogInput(constants.angleEncoder);
-        this.angleEncoder = new AnalogEncoder(analogInput);
+        this.angleEncoder = new AnalogEncoder(constants.angleEncoder);
         this.constants = constants;
-
 
         driveMotor.configFactoryDefault();
         angleMotor.configFactoryDefault();
@@ -64,7 +61,6 @@ public class SwerveModule {
 
         driveMotor.setNeutralMode(NeutralMode.Brake);
         angleMotor.setNeutralMode(NeutralMode.Brake);
-        //angleMotor.setNeutralMode(NeutralMode.Coast);
 
         driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
         angleMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
@@ -88,7 +84,7 @@ public class SwerveModule {
      * @param desired Desired state of the swerve module
      */
     public void drive(SwerveModuleState desired) {
-        double currentAngleRaw = angleMotor.getSelectedSensorPosition() / constants.ticksPerSteeringDegree;
+        double currentAngleRaw = angleMotor.getSelectedSensorPosition() / DriveConstants.ticksPerSteeringDegree;
         double currentAngleVelocityRaw = angleMotor.getSelectedSensorVelocity();
 
         double currentAngle = currentAngleRaw % 360;
@@ -98,7 +94,7 @@ public class SwerveModule {
             currentAngle -= 360;
         }
 
-        double velocityOffset = currentAngleVelocityRaw * constants.steeringToDriveRatio;
+        double velocityOffset = currentAngleVelocityRaw * DriveConstants.steeringToDriveRatio;
 
         SwerveModuleState optimizedState = SwerveModuleState.optimize(desired, Rotation2d.fromDegrees(currentAngle));
         
@@ -110,13 +106,13 @@ public class SwerveModule {
         
         // lastAngle = angle;
 
-        angleMotor.set(ControlMode.Position, targetAngle * constants.ticksPerSteeringDegree);
-        driveMotor.set(ControlMode.Velocity, optimizedState.speedMetersPerSecond * constants.metersPerSecondToTicksPer100ms - velocityOffset);
+        angleMotor.set(ControlMode.Position, targetAngle * DriveConstants.ticksPerSteeringDegree);
+        driveMotor.set(ControlMode.Velocity, optimizedState.speedMetersPerSecond * DriveConstants.metersPerSecondToTicksPer100ms - velocityOffset);
         //driveMotor.set(ControlMode.Velocity, -velocityOffset);
     }
 
     public void resetSteerEncoder() {
-        angleMotor.setSelectedSensorPosition((getAbsolutePosition() - constants.calibration) * constants.ticksPerSteeringDegree);
+        angleMotor.setSelectedSensorPosition((getAbsolutePosition() - constants.calibration) * DriveConstants.ticksPerSteeringDegree);
     }
 
     /**
@@ -125,10 +121,10 @@ public class SwerveModule {
      */
     
     public SwerveModuleState getState(){
-        double currentVelocity = driveMotor.getSelectedSensorVelocity() / constants.metersPerSecondToTicksPer100ms;
+        double currentVelocity = driveMotor.getSelectedSensorVelocity() / DriveConstants.metersPerSecondToTicksPer100ms;
         //currentVelocity += angleMotor.getSelectedSensorVelocity() * constants.steeringToDriveRatio;
 
-        double currentAngle = (angleMotor.getSelectedSensorPosition() / constants.ticksPerSteeringDegree) % 360;
+        double currentAngle = (angleMotor.getSelectedSensorPosition() / DriveConstants.ticksPerSteeringDegree) % 360;
         if (currentAngle < -180) {
             currentAngle += 360;
         } else if (currentAngle > 180) {
@@ -139,7 +135,7 @@ public class SwerveModule {
     }
 
     public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(driveMotor.getSelectedSensorPosition() / constants.metersToTicks, getState().angle);
+        return new SwerveModulePosition(driveMotor.getSelectedSensorPosition() / DriveConstants.metersToTicks, getState().angle);
     }
 
     public double getAbsoluteEncoderPosition() {
@@ -151,7 +147,7 @@ public class SwerveModule {
     }
 
     public double getCalculatedEncoderPos() {
-        return (getAbsolutePosition() - constants.calibration) * constants.ticksPerSteeringDegree;
+        return (getAbsolutePosition() - constants.calibration) * DriveConstants.ticksPerSteeringDegree;
     }
 
     /** Stops all motors from running. */

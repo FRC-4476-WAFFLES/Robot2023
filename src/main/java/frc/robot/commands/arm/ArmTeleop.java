@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.ArmSubsystem.ArmState.Height;
+import frc.robot.Constants.Height;
 
 import static frc.robot.RobotContainer.*;
 
@@ -17,7 +17,7 @@ public class ArmTeleop extends CommandBase {
   private final Supplier<Double> joystickAxis2;
   private final Supplier<Double> joystickAxis3;
 
-  /** Creates a new Arm1JoystickControl. */
+  /** Creates a new ArmTeleop. */
   public ArmTeleop(Supplier<Double> joystickAxis1, Supplier<Double> joystickAxis2, Supplier<Double> joystickAxis3) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.joystickAxis1 = joystickAxis1;
@@ -34,13 +34,13 @@ public class ArmTeleop extends CommandBase {
   @Override
   public void execute() {
     if (armSubsystem.getFudge()) {
-      armSubsystem.fudgeArm1WithAnalogStick(MathUtil.applyDeadband(joystickAxis1.get(), 0.05));
-      armSubsystem.fudgeArm2WithAnalogStick(MathUtil.applyDeadband(joystickAxis2.get(), 0.05));
-      armSubsystem.fudgeIntakeWithAnalogStick(MathUtil.applyDeadband(joystickAxis3.get(), 0.05));
+      armSubsystem.fudgeShoulderWithAnalogStick(MathUtil.applyDeadband(joystickAxis1.get(), 0.05));
+      armSubsystem.fudgeElbowWithAnalogStick(MathUtil.applyDeadband(joystickAxis2.get(), 0.05));
+      armSubsystem.fudgeWristWithAnalogStick(MathUtil.applyDeadband(joystickAxis3.get(), 0.05));
     } else {
       armSubsystem.setpointsFromStateMachine();
       if (intakeSubsystem.getPower() > 0.1 && armSubsystem.getHeight() == Height.HPPICKUP) {
-        armSubsystem.fudgeArm2Setpoint(40000);
+        armSubsystem.fudgeElbowSetpoint(40000);
       }
     }
   }

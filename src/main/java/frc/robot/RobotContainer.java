@@ -65,8 +65,8 @@ public class RobotContainer {
   public static final Joystick rightJoystick = new Joystick(1);
   public static final XboxController operate = new XboxController(2);
 
-  private final DriveTeleop swerve = new DriveTeleop();
-  private final ArmTeleop armJoystickControl = new ArmTeleop(operate::getLeftX, operate::getLeftY, operate::getRightX);
+  private final DriveTeleop driveTeleop = new DriveTeleop(leftJoystick::getY, leftJoystick::getX, rightJoystick::getX);
+  private final ArmTeleop armTeleop = new ArmTeleop(operate::getLeftX, operate::getLeftY, operate::getRightX);
   private final IntakeTeleop intakeTeleop = new IntakeTeleop(() -> -operate.getLeftTriggerAxis() + operate.getRightTriggerAxis());
   private final UpdateLightsWithRobotState updateLights = new UpdateLightsWithRobotState();
 
@@ -117,8 +117,8 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    driveSubsystem.setDefaultCommand(swerve);
-    armSubsystem.setDefaultCommand(armJoystickControl);
+    driveSubsystem.setDefaultCommand(driveTeleop);
+    armSubsystem.setDefaultCommand(armTeleop);
     intakeSubsystem.setDefaultCommand(intakeTeleop);
     lightSubsystem.setDefaultCommand(updateLights);
     // Configure the trigger bindings

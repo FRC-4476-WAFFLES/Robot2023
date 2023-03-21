@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems;
 
-import java.util.HashMap;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.InvertType;
@@ -27,264 +25,193 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.subsystems.ArmSubsystem.ArmState.GamePiece;
-import frc.robot.subsystems.ArmSubsystem.ArmState.Height;
+import frc.robot.Constants.ArmConstants.ArmState;
+import frc.robot.Constants.ArmConstants.SetPoint;
+import frc.robot.Constants.GamePiece;
+import frc.robot.Constants.Height;
 import frc.robot.utils.LazyTalonFX;
 
 public class ArmSubsystem extends SubsystemBase {
-  public static class ArmState {
-    public enum Height{
-      HIGH,
-      MEDIUM,
-      LOW, 
-      HPPICKUP,
-    }
-
-    public enum GamePiece{
-      CUBE,
-      CONE,
-    }
-
-    public Height height;
-    public GamePiece piece;
-    public boolean altpickupl;
-    public boolean fudge;
-
-    ArmState(Height height, GamePiece piece, boolean altpickupl, boolean fudge){
-      this.height= height;
-      this.piece= piece;
-      this.altpickupl= altpickupl;
-      this.fudge=fudge;
-    }
-
-    @Override
-    public boolean equals(Object obj){
-      if (obj == null) {
-        return false;
-    }
-    
-    if (getClass() != obj.getClass()) {
-        return false;
-    }
-
-    final ArmState armStateObj = (ArmState) obj;
-      return this.height==armStateObj.height && this.piece==armStateObj.piece && this.altpickupl==armStateObj.altpickupl;
-    }
-
-    @Override
-    public int hashCode(){
-      int temp= 0;
-      temp += height.ordinal();
-      temp += piece.ordinal()*4;
-      temp += altpickupl ? 16 : 0;
-      return temp;
-    }
-  }
-
-  private static class SetPoint{
-    // TODO: setpointNumber is for testing purposes. Replace this with the actual values when applicable
-    private final int arm1Pos;
-    private final int arm2Pos;
-    private final double wristPos;
-
-    private SetPoint(int arm1Pos, int arm2Pos, double wristPos) {
-      this.arm1Pos = arm1Pos;
-      this.arm2Pos = arm2Pos;
-      this.wristPos = wristPos;
-    }
-  }
-
-  HashMap<ArmState, SetPoint> setPoints = new HashMap<ArmState, SetPoint>() {{
-    put(new ArmState(ArmState.Height.HIGH, ArmState.GamePiece.CUBE, false, false), new SetPoint(7000, -110000, 10));
-    put(new ArmState(ArmState.Height.HIGH, ArmState.GamePiece.CONE, false, false), new SetPoint(20000, -168000, 38)); 
-    put(new ArmState(ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, false, false), new SetPoint(0, -88000, 6));     
-    put(new ArmState(ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, false, false), new SetPoint(0, -124000, 30)); 
-    put(new ArmState(ArmState.Height.LOW, ArmState.GamePiece.CUBE, false, false), new SetPoint(33000, -27000, 0)); 
-    put(new ArmState(ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false), new SetPoint(33000, -27000, 0)); 
-    put(new ArmState(ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, false, false), new SetPoint(-17000, -136000, 40)); 
-    put(new ArmState(ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, false, false), new SetPoint(-17000, -142000, 40)); 
-  }};
-
-  private ArmState state = new ArmState(ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false);
+  private ArmState state = new ArmState(Height.LOW, GamePiece.CONE, false, false);
   private boolean deploy = false;
 
-  private final CANSparkMax intakePivotLeft;
-  private final CANSparkMax intakePivotRight;
+  private final CANSparkMax wristLeft;
+  private final CANSparkMax wristRight;
 
-  private final LazyTalonFX arm1Left;
-  private final LazyTalonFX arm1Right;
-  private final LazyTalonFX arm2Left;
-  private final LazyTalonFX arm2Right;
+  private final LazyTalonFX shoulderLeft;
+  private final LazyTalonFX shoulderRight;
+  private final LazyTalonFX elbowLeft;
+  private final LazyTalonFX elbowRight;
 
-  private final SparkMaxPIDController intakePivotPID;
+  private final SparkMaxPIDController wristPID;
 
-  private final RelativeEncoder intakePivotLeftEncoder;
+  private final RelativeEncoder wristLeftEncoder;
 
-  private final DutyCycleEncoder arm1LeftAbsoluteEncoder;
-  private final DutyCycleEncoder arm1RightAbsoluteEncoder; 
-  private final DutyCycleEncoder arm2AbsoluteEncoder;
-  private final DutyCycleEncoder intakePivotAbsoluteEncoder;
+  private final DutyCycleEncoder shoulderLeftAbsoluteEncoder;
+  private final DutyCycleEncoder shoulderRightAbsoluteEncoder; 
+  private final DutyCycleEncoder elbowAbsoluteEncoder;
+  private final DutyCycleEncoder wristAbsoluteEncoder;
 
   private final double armRetractPosition = 0;
 
-  private double arm1TargetPosition = 0;
-  private double arm2TargetPosition = 0;
-  private double intakeTargetPosition = 0;
+  private double shoulderTargetPosition = 0;
+  private double elbowTargetPosition = 0;
+  private double wristTargetPosition = 0;
 
   private final Timer timer = new Timer();
 
   private double previousTime = 0;
   private double previousLoopTime = 0;
 
-  private double arm1LeftAdjustedCalibration;
-  private double arm2AdjustedCalibration;
-  private double intakeAdjustedCalibration;
+  private double shoulderLeftAdjustedCalibration;
+  private double elbowAdjustedCalibration;
+  private double wristAdjustedCalibration;
 
-  private boolean arm1LeftEncoderEnabled = true;
-  private boolean arm1RightEncoderEnabled = true;
-  private boolean arm2EncoderEnabled = true;
-  private boolean intakePivotEncoderEnabled = true;
+  private boolean shoulderLeftEncoderEnabled = true;
+  private boolean shoulderRightEncoderEnabled = true;
+  private boolean elbowEncoderEnabled = true;
+  private boolean wristEncoderEnabled = true;
 
-  private double arm1LeftEncoderPreviousValue = 0;
-  private double arm1RightEncoderPreviousValue = 0;
-  private double arm2EncoderPreviousValue = 0;
-  private double intakePivotEncoderPreviousValue = 0;
+  private double shoulderLeftEncoderPreviousValue = 0;
+  private double shoulderRightEncoderPreviousValue = 0;
+  private double elbowEncoderPreviousValue = 0;
+  private double wristEncoderPreviousValue = 0;
 
   /** Creates a new ArmSubsystem. */
   public ArmSubsystem() {
-    arm1Left = new LazyTalonFX(Constants.arm1Left);
-    arm1Right = new LazyTalonFX(Constants.arm1Right);
-    arm2Left = new LazyTalonFX(Constants.arm2Left);
-    arm2Right = new LazyTalonFX(Constants.arm2Right);
+    shoulderLeft = new LazyTalonFX(Constants.shoulderLeft);
+    shoulderRight = new LazyTalonFX(Constants.shoulderRight);
+    elbowLeft = new LazyTalonFX(Constants.elbowLeft);
+    elbowRight = new LazyTalonFX(Constants.elbowRight);
 
-    arm1Left.configFactoryDefault();
-    arm1Right.configFactoryDefault();
-    arm2Left.configFactoryDefault();
-    arm2Right.configFactoryDefault();
+    shoulderLeft.configFactoryDefault();
+    shoulderRight.configFactoryDefault();
+    elbowLeft.configFactoryDefault();
+    elbowRight.configFactoryDefault();
 
-    arm1Left.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 40, 40, 0.03));
-    arm1Right.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 40, 40, 0.03));
-    arm2Left.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 50, 50, 0.03));
-    arm2Right.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 50, 50, 0.03));
+    shoulderLeft.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 40, 40, 0.03));
+    shoulderRight.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 40, 40, 0.03));
+    elbowLeft.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 50, 50, 0.03));
+    elbowRight.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 50, 50, 0.03));
 
-    arm1Left.setNeutralMode(NeutralMode.Brake);
-    arm1Right.setNeutralMode(NeutralMode.Brake);
-    arm2Left.setNeutralMode(NeutralMode.Brake);
-    arm2Right.setNeutralMode(NeutralMode.Brake);
+    shoulderLeft.setNeutralMode(NeutralMode.Brake);
+    shoulderRight.setNeutralMode(NeutralMode.Brake);
+    elbowLeft.setNeutralMode(NeutralMode.Brake);
+    elbowRight.setNeutralMode(NeutralMode.Brake);
 
-    arm1Left.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
-    arm1Right.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
-    arm2Left.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
-    arm2Right.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
+    shoulderLeft.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
+    shoulderRight.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
+    elbowLeft.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
+    elbowRight.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
 
-    arm1Left.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
-    arm1Right.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
-    arm2Left.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
-    arm2Right.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
+    shoulderLeft.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
+    shoulderRight.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
+    elbowLeft.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
+    elbowRight.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
 
-    arm1Left.configVelocityMeasurementPeriod(SensorVelocityMeasPeriod.Period_50Ms);
-    arm1Right.configVelocityMeasurementPeriod(SensorVelocityMeasPeriod.Period_50Ms);
-    arm2Left.configVelocityMeasurementPeriod(SensorVelocityMeasPeriod.Period_50Ms);
-    arm2Right.configVelocityMeasurementPeriod(SensorVelocityMeasPeriod.Period_50Ms);
+    shoulderLeft.configVelocityMeasurementPeriod(SensorVelocityMeasPeriod.Period_50Ms);
+    shoulderRight.configVelocityMeasurementPeriod(SensorVelocityMeasPeriod.Period_50Ms);
+    elbowLeft.configVelocityMeasurementPeriod(SensorVelocityMeasPeriod.Period_50Ms);
+    elbowRight.configVelocityMeasurementPeriod(SensorVelocityMeasPeriod.Period_50Ms);
 
-    arm1Left.configVelocityMeasurementWindow(4);
-    arm1Right.configVelocityMeasurementWindow(4);
-    arm2Left.configVelocityMeasurementWindow(4);
-    arm2Right.configVelocityMeasurementWindow(4);
+    shoulderLeft.configVelocityMeasurementWindow(4);
+    shoulderRight.configVelocityMeasurementWindow(4);
+    elbowLeft.configVelocityMeasurementWindow(4);
+    elbowRight.configVelocityMeasurementWindow(4);
 
-    arm1Left.configVoltageCompSaturation(12);
-    arm1Right.configVoltageCompSaturation(12);
-    arm2Left.configVoltageCompSaturation(12);
-    arm2Right.configVoltageCompSaturation(12);
+    shoulderLeft.configVoltageCompSaturation(12);
+    shoulderRight.configVoltageCompSaturation(12);
+    elbowLeft.configVoltageCompSaturation(12);
+    elbowRight.configVoltageCompSaturation(12);
 
-    arm1Left.enableVoltageCompensation(true);
-    arm1Right.enableVoltageCompensation(true);
-    arm2Left.enableVoltageCompensation(true);
-    arm2Right.enableVoltageCompensation(true);
+    shoulderLeft.enableVoltageCompensation(true);
+    shoulderRight.enableVoltageCompensation(true);
+    elbowLeft.enableVoltageCompensation(true);
+    elbowRight.enableVoltageCompensation(true);
 
-    arm1Left.configForwardSoftLimitThreshold(40000);
-    arm2Left.configForwardSoftLimitThreshold(0);
+    shoulderLeft.configForwardSoftLimitThreshold(40000);
+    elbowLeft.configForwardSoftLimitThreshold(0);
 
-    arm1Left.configReverseSoftLimitThreshold(-30000);
-    arm2Left.configReverseSoftLimitThreshold((-135.0 / (Constants.arm2LeftConstants.ratio * Constants.ArmConstants.stage2ChainRatio) / 360.0) * 2048.0);
+    shoulderLeft.configReverseSoftLimitThreshold(-30000);
+    elbowLeft.configReverseSoftLimitThreshold((-135.0 / (Constants.ArmConstants.elbowBaseRatio * Constants.ArmConstants.elbowChainRunRatio) / 360.0) * 2048.0);
 
-    arm1Left.configForwardSoftLimitEnable(true);
-    arm2Left.configForwardSoftLimitEnable(true);
+    shoulderLeft.configForwardSoftLimitEnable(true);
+    elbowLeft.configForwardSoftLimitEnable(true);
     
-    arm1Left.configReverseSoftLimitEnable(true);
-    arm2Left.configReverseSoftLimitEnable(true);
+    shoulderLeft.configReverseSoftLimitEnable(true);
+    elbowLeft.configReverseSoftLimitEnable(true);
 
-    arm1Left.config_kP(0, 0.03);
-    arm1Left.config_kI(0, 0);
-    arm1Left.config_kD(0, 0.006);
-    arm1Left.configNeutralDeadband(0.05);
+    shoulderLeft.config_kP(0, 0.03);
+    shoulderLeft.config_kI(0, 0);
+    shoulderLeft.config_kD(0, 0.006);
+    shoulderLeft.configNeutralDeadband(0.05);
 
-    arm1Right.follow(arm1Left);
-    arm1Right.setInverted(InvertType.OpposeMaster);
+    shoulderRight.follow(shoulderLeft);
+    shoulderRight.setInverted(InvertType.OpposeMaster);
 
-    arm2Left.config_kP(0, 0.015); // 0.15
-    arm2Left.config_kI(0, 0);
-    arm2Left.config_kD(0, 0.015);
-    arm2Left.configNeutralDeadband(0.06);
+    elbowLeft.config_kP(0, 0.015); // 0.15
+    elbowLeft.config_kI(0, 0);
+    elbowLeft.config_kD(0, 0.015);
+    elbowLeft.configNeutralDeadband(0.06);
     
-    arm2Right.follow(arm2Left);
-    arm2Right.setInverted(InvertType.OpposeMaster);
+    elbowRight.follow(elbowLeft);
+    elbowRight.setInverted(InvertType.OpposeMaster);
 
-    intakePivotLeft = new CANSparkMax(Constants.intakePivotLeft, MotorType.kBrushless);
-    intakePivotRight = new CANSparkMax(Constants.intakePivotRight, MotorType.kBrushless);
+    wristLeft = new CANSparkMax(Constants.wristLeft, MotorType.kBrushless);
+    wristRight = new CANSparkMax(Constants.wristRight, MotorType.kBrushless);
 
-    intakePivotLeft.restoreFactoryDefaults();
-    intakePivotRight.restoreFactoryDefaults();
+    wristLeft.restoreFactoryDefaults();
+    wristRight.restoreFactoryDefaults();
 
-    intakePivotLeft.setSmartCurrentLimit(20);
-    intakePivotRight.setSmartCurrentLimit(20);
+    wristLeft.setSmartCurrentLimit(20);
+    wristRight.setSmartCurrentLimit(20);
 
-    intakePivotLeft.setIdleMode(IdleMode.kBrake);
-    intakePivotRight.setIdleMode(IdleMode.kBrake);
+    wristLeft.setIdleMode(IdleMode.kBrake);
+    wristRight.setIdleMode(IdleMode.kBrake);
 
-    intakePivotLeft.setControlFramePeriodMs(40);
-    intakePivotRight.setControlFramePeriodMs(40);
+    wristLeft.setControlFramePeriodMs(40);
+    wristRight.setControlFramePeriodMs(40);
 
-    intakePivotLeft.setSoftLimit(SoftLimitDirection.kReverse, 0);
-    intakePivotLeft.setSoftLimit(SoftLimitDirection.kForward, (float) (135.0 / Constants.intakePivotLeftConstants.ratio / 360.0));
+    wristLeft.setSoftLimit(SoftLimitDirection.kReverse, 0);
+    wristLeft.setSoftLimit(SoftLimitDirection.kForward, (float) (135.0 / Constants.ArmConstants.wristRatio / 360.0));
 
-    intakePivotLeft.setInverted(true);
-    intakePivotRight.follow(intakePivotLeft, true);
+    wristLeft.setInverted(true);
+    wristRight.follow(wristLeft, true);
 
-    intakePivotPID = intakePivotLeft.getPIDController();
+    wristPID = wristLeft.getPIDController();
 
-    intakePivotPID.setP(0.075);
-    intakePivotPID.setD(0.0);
-    intakePivotPID.setOutputRange(-0.5, 0.5);
+    wristPID.setP(0.075);
+    wristPID.setD(0.0);
+    wristPID.setOutputRange(-0.5, 0.5);
 
-    intakePivotLeftEncoder = intakePivotLeft.getEncoder();
+    wristLeftEncoder = wristLeft.getEncoder();
 
-    arm1LeftAbsoluteEncoder = new DutyCycleEncoder(Constants.arm1LeftEncoder);
-    arm1RightAbsoluteEncoder = new DutyCycleEncoder(Constants.arm1RightEncoder);
-    arm2AbsoluteEncoder = new DutyCycleEncoder(Constants.arm2LeftEncoder);
-    intakePivotAbsoluteEncoder = new DutyCycleEncoder(Constants.intakePivotEncoder);
+    shoulderLeftAbsoluteEncoder = new DutyCycleEncoder(Constants.shoulderLeftEncoder);
+    shoulderRightAbsoluteEncoder = new DutyCycleEncoder(Constants.shoulderRightEncoder);
+    elbowAbsoluteEncoder = new DutyCycleEncoder(Constants.elbowLeftEncoder);
+    wristAbsoluteEncoder = new DutyCycleEncoder(Constants.wristEncoder);
 
-    arm1LeftAbsoluteEncoder.setDistancePerRotation(360);
-    arm1RightAbsoluteEncoder.setDistancePerRotation(360);
-    arm2AbsoluteEncoder.setDistancePerRotation(360);
-    intakePivotAbsoluteEncoder.setDistancePerRotation(360);
+    shoulderLeftAbsoluteEncoder.setDistancePerRotation(360);
+    shoulderRightAbsoluteEncoder.setDistancePerRotation(360);
+    elbowAbsoluteEncoder.setDistancePerRotation(360);
+    wristAbsoluteEncoder.setDistancePerRotation(360);
   
-    arm1LeftAdjustedCalibration = Constants.arm1LeftConstants.calibration - 180;
-    while (arm1LeftAdjustedCalibration < 0) {
-      arm1LeftAdjustedCalibration += 360;
+    shoulderLeftAdjustedCalibration = Constants.ArmConstants.shoulderLeftCalibration - 180;
+    while (shoulderLeftAdjustedCalibration < 0) {
+      shoulderLeftAdjustedCalibration += 360;
     }
 
-    arm2AdjustedCalibration = Constants.arm2LeftConstants.calibration - 180;
-    while (arm2AdjustedCalibration < 0) {
-      arm2AdjustedCalibration += 360;
+    elbowAdjustedCalibration = Constants.ArmConstants.elbowCalibration - 180;
+    while (elbowAdjustedCalibration < 0) {
+      elbowAdjustedCalibration += 360;
     }
 
-    intakeAdjustedCalibration = Constants.intakePivotLeftConstants.calibration - 180;
-    while (intakeAdjustedCalibration < 0) {
-      intakeAdjustedCalibration += 360;
+    wristAdjustedCalibration = Constants.ArmConstants.wristCalibration - 180;
+    while (wristAdjustedCalibration < 0) {
+      wristAdjustedCalibration += 360;
     }
 
-    // There needs to be a chillout time for the intake motor controllers to reset their encoders properly
+    // There needs to be a chillout time for the wrist motor controllers to reset their encoders properly
     try {
       Thread.sleep(2000);
     } catch (Exception e) {
@@ -293,16 +220,16 @@ public class ArmSubsystem extends SubsystemBase {
 
     resetEncoders();
 
-    // There needs to be a chillout time for the intake motor controllers to reset their encoders properly
+    // There needs to be a chillout time for the wrist motor controllers to reset their encoders properly
     try {
       Thread.sleep(500);
     } catch (Exception e) {
 
     }
 
-    setArm1Setpoint(arm1Left.getSelectedSensorPosition());
-    setArm2Setpoint(arm2Left.getSelectedSensorPosition());
-    setIntakeSetpoint(intakePivotLeftEncoder.getPosition());
+    setShoulderSetpoint(shoulderLeft.getSelectedSensorPosition());
+    setElbowSetpoint(elbowLeft.getSelectedSensorPosition());
+    setWristSetpoint(wristLeftEncoder.getPosition());
 
     timer.start();
   }
@@ -314,224 +241,222 @@ public class ArmSubsystem extends SubsystemBase {
     previousTime = timer.get();
 
     // Disable absolute encoders if they're value isn't changing (The value constantly fluxuates, so an unchanging value is a red flag)
-    if (arm1LeftEncoderPreviousValue == getArm1LeftAdjustedAbsoluteEncoderPos()) arm1LeftEncoderEnabled = false;
-    if (arm1RightEncoderPreviousValue == getArm1RightAbsoluteEncoderPos()) arm1RightEncoderEnabled = false;
-    if (arm2EncoderPreviousValue == getArm2AbsoluteEncoderPos()) arm2EncoderEnabled = false;
-    if (intakePivotEncoderPreviousValue == getIntakeAbsoluteEncoderPos()) intakePivotEncoderEnabled = false;
+    if (shoulderLeftEncoderPreviousValue == getShoulderLeftAdjustedAbsoluteEncoderPos()) shoulderLeftEncoderEnabled = false;
+    if (shoulderRightEncoderPreviousValue == getShoulderRightAbsoluteEncoderPos()) shoulderRightEncoderEnabled = false;
+    if (elbowEncoderPreviousValue == getElbowAbsoluteEncoderPos()) elbowEncoderEnabled = false;
+    if (wristEncoderPreviousValue == getWristAbsoluteEncoderPos()) wristEncoderEnabled = false;
 
-    if (state.piece == ArmState.GamePiece.CONE && state.height == Height.HIGH && Math.abs(arm2TargetPosition - arm2Left.getSelectedSensorPosition()) > 50000) {
-      arm1TargetPosition = arm1Left.getSelectedSensorPosition();
+    if (state.piece == GamePiece.CONE && state.height == Height.HIGH && Math.abs(elbowTargetPosition - elbowLeft.getSelectedSensorPosition()) > 50000) {
+      shoulderTargetPosition = shoulderLeft.getSelectedSensorPosition();
     }
 
     if (!deploy) {
-      setArm1Setpoint(-12000);
-      setArm2Setpoint(-7000);
-      setIntakeSetpoint(armRetractPosition);
+      setShoulderSetpoint(-12000);
+      setElbowSetpoint(-7000);
+      setWristSetpoint(armRetractPosition);
     }
     
-    if (Math.abs(getArm2LeftCompensatedAbsoluteEncoderPos()) < 10) {
-      arm1TargetPosition = Math.min(arm1TargetPosition, 2.0 * Constants.arm1LeftConstants.ratio * 2048.0 / 360.0);
+    if (Math.abs(getElbowCompensatedAbsoluteEncoderPos()) < 10) {
+      shoulderTargetPosition = Math.min(shoulderTargetPosition, 2.0 * Constants.ArmConstants.shoulderRatio * 2048.0 / 360.0);
     }
 
-    if (Math.abs(getArm1AbsoluteEncoderAverage()) < 20 && Math.abs(getArm2LeftCompensatedAbsoluteEncoderPos()) < 30) {
-      intakeTargetPosition = armRetractPosition;
+    if (Math.abs(getShoulderAbsoluteEncoderAverage()) < 20 && Math.abs(getElbowCompensatedAbsoluteEncoderPos()) < 30) {
+      wristTargetPosition = armRetractPosition;
     } else if (
-      Math.abs(getArm1AbsoluteEncoderAverage()) < 30 
-      && Math.abs(getArm2LeftCompensatedAbsoluteEncoderPos()) < 40 
-      && Math.abs(arm2Left.getSelectedSensorVelocity() * 10 / 2048.0) > 2000 // Falcon is spinning at 2000 rpm or faster
+      Math.abs(getShoulderAbsoluteEncoderAverage()) < 30 
+      && Math.abs(getElbowCompensatedAbsoluteEncoderPos()) < 40 
+      && Math.abs(elbowLeft.getSelectedSensorVelocity() * 10 / 2048.0) > 2000 // Falcon is spinning at 2000 rpm or faster
     ) {
-      intakeTargetPosition = armRetractPosition;
+      wristTargetPosition = armRetractPosition;
     }
 
-    intakeTargetPosition = MathUtil.clamp(intakeTargetPosition, 0, 50);
+    wristTargetPosition = MathUtil.clamp(wristTargetPosition, 0, 50);
 
-    arm1Left.set(ControlMode.Position, arm1TargetPosition);
-    arm2Left.set(ControlMode.Position, arm2TargetPosition);
-    intakePivotPID.setReference(intakeTargetPosition, ControlType.kPosition);
+    shoulderLeft.set(ControlMode.Position, shoulderTargetPosition);
+    elbowLeft.set(ControlMode.Position, elbowTargetPosition);
+    wristPID.setReference(wristTargetPosition, ControlType.kPosition);
     
-    SmartDashboard.putNumber("Left 1 absolute encoder", getArm1LeftAdjustedAbsoluteEncoderPos());
-    // SmartDashboard.putNumber("Right 1 absolute encoder", getArm1RightAbsoluteEncoderPos());
-    SmartDashboard.putNumber("Arm 1 absolute pos", getArm1AbsoluteEncoderAverage());
+    SmartDashboard.putNumber("Shoulder left absolute encoder", getShoulderLeftAdjustedAbsoluteEncoderPos());
+    SmartDashboard.putNumber("Shoulder right absolute encoder", getShoulderRightAbsoluteEncoderPos());
+    SmartDashboard.putNumber("Shoulder absolute pos", getShoulderAbsoluteEncoderAverage());
 
-    SmartDashboard.putNumber("Left 1 calculated relative pos", (-(getArm1LeftAdjustedAbsoluteEncoderPos() - arm1LeftAdjustedCalibration) / Constants.arm1LeftConstants.ratio / 360.0) * 2048.0);
+    SmartDashboard.putNumber("Shoulder calculated relative pos", (-(getShoulderLeftAdjustedAbsoluteEncoderPos() - shoulderLeftAdjustedCalibration) / Constants.ArmConstants.shoulderRatio / 360.0) * 2048.0);
 
-    SmartDashboard.putNumber("Left 1 relative pos", arm1Left.getSelectedSensorPosition());
-    SmartDashboard.putNumber("Arm 1 Target Position", arm1TargetPosition);
+    SmartDashboard.putNumber("Shoulder relative pos", shoulderLeft.getSelectedSensorPosition());
+    SmartDashboard.putNumber("Shoulder target position", shoulderTargetPosition);
 
-    SmartDashboard.putNumber("Left 2 absolute encoder", getArm2AbsoluteEncoderPos());
+    SmartDashboard.putNumber("Elbow absolute encoder", getElbowAbsoluteEncoderPos());
 
-    SmartDashboard.putNumber("Left 1 Applied Power", arm1Left.getMotorOutputPercent());
+    SmartDashboard.putNumber("Shoulder applied power", shoulderLeft.getMotorOutputPercent());
 
-    SmartDashboard.putNumber("Left 2 calculated relative pos", (getArm2LeftCompensatedAbsoluteEncoderPos() / (Constants.arm2LeftConstants.ratio * Constants.ArmConstants.stage2ChainRatio) / 360.0) * 2048.0);
-    SmartDashboard.putNumber("Left 2 relative pos", arm2Left.getSelectedSensorPosition());
+    SmartDashboard.putNumber("Elbow calculated relative pos", (getElbowCompensatedAbsoluteEncoderPos() / (Constants.ArmConstants.elbowBaseRatio * Constants.ArmConstants.elbowChainRunRatio) / 360.0) * 2048.0);
+    SmartDashboard.putNumber("Elbow relative pos", elbowLeft.getSelectedSensorPosition());
 
-    SmartDashboard.putNumber("Arm 2 calibrated absolute pos", getArm2AbsoluteEncoderPos() - Constants.arm2LeftConstants.calibration);
-    SmartDashboard.putNumber("Arm 2 compensated angle", getArm2LeftCompensatedAbsoluteEncoderPos());
-    SmartDashboard.putNumber("Arm 2 absolute pos", arm2AbsoluteEncoder.getDistance());
+    SmartDashboard.putNumber("Elbow calibrated absolute pos", getElbowAbsoluteEncoderPos() - Constants.ArmConstants.elbowCalibration);
+    SmartDashboard.putNumber("Elbow compensated angle", getElbowCompensatedAbsoluteEncoderPos());
+    SmartDashboard.putNumber("Elbow absolute pos", elbowAbsoluteEncoder.getDistance());
 
-    SmartDashboard.putNumber("Arm 2 Target Position", arm2TargetPosition);
+    SmartDashboard.putNumber("Elbow target position", elbowTargetPosition);
 
-    SmartDashboard.putNumber("Left 2 Applied Power", arm2Left.getMotorOutputPercent());
+    SmartDashboard.putNumber("Elbow applied power", elbowLeft.getMotorOutputPercent());
 
-    SmartDashboard.putNumber("Wrist absolute pos", intakePivotAbsoluteEncoder.getDistance());
-    SmartDashboard.putNumber("Wrist relative pos", intakePivotLeftEncoder.getPosition());
-    SmartDashboard.putNumber("Wrist calculated relative pos", getIntakeCalibratedAbsoluteEncoderPos() / Constants.intakePivotLeftConstants.ratio / 360.0);
-    SmartDashboard.putNumber("Wrist target pos", intakeTargetPosition);
-    SmartDashboard.putNumber("Wrist calibrated absolute pos", getIntakeCalibratedAbsoluteEncoderPos());
-    SmartDashboard.putNumber("Wrist applied power", intakePivotLeft.get());
+    SmartDashboard.putNumber("Wrist absolute pos", wristAbsoluteEncoder.getDistance());
+    SmartDashboard.putNumber("Wrist relative pos", wristLeftEncoder.getPosition());
+    SmartDashboard.putNumber("Wrist calculated relative pos", getWristCalibratedAbsoluteEncoderPos() / Constants.ArmConstants.wristRatio / 360.0);
+    SmartDashboard.putNumber("Wrist target pos", wristTargetPosition);
+    SmartDashboard.putNumber("Wrist calibrated absolute pos", getWristCalibratedAbsoluteEncoderPos());
+    SmartDashboard.putNumber("Wrist applied power", wristLeft.get());
 
-    SmartDashboard.putBoolean("Arm target setpoint is cube", state.piece == ArmState.GamePiece.CUBE);
+    SmartDashboard.putBoolean("Arm target setpoint is cube", state.piece == GamePiece.CUBE);
     SmartDashboard.putString("Arm target setpoint height", state.height.name());
     SmartDashboard.putBoolean("Arm target setpoint is alt pickup 1", state.altpickupl);
     SmartDashboard.putBoolean("Arm target setpoint is in fudge mod", state.fudge);
     SmartDashboard.putBoolean("Arm should be deployed", deploy);
 
-    SmartDashboard.putBoolean("Left 1 Encoder Enabled", arm1LeftEncoderEnabled);
-    SmartDashboard.putBoolean("Right 1 Encoder Enabled", arm1RightEncoderEnabled);
-    SmartDashboard.putBoolean("Arm 2 Encoder Enabled", arm2EncoderEnabled);
-    SmartDashboard.putBoolean("Intake Pivot Encoder Enabled", intakePivotEncoderEnabled);
-
-    SmartDashboard.putString("Hello World", "Is this changing");
+    SmartDashboard.putBoolean("Shoulder left encoder enabled", shoulderLeftEncoderEnabled);
+    SmartDashboard.putBoolean("Shoulder right encoder enabled", shoulderRightEncoderEnabled);
+    SmartDashboard.putBoolean("Elbow encoder enabled", elbowEncoderEnabled);
+    SmartDashboard.putBoolean("Wrist encoder enabled", wristEncoderEnabled);
   }
 
   public void stop() {
-    arm1Left.set(ControlMode.PercentOutput, 0.0);
-    arm2Left.set(ControlMode.PercentOutput, 0.0);
-    intakePivotLeft.stopMotor();
+    shoulderLeft.set(ControlMode.PercentOutput, 0.0);
+    elbowLeft.set(ControlMode.PercentOutput, 0.0);
+    wristLeft.stopMotor();
   }
 
   public void setpointsFromStateMachine() {
     try{
-      SetPoint target = setPoints.get(state);
-      setArm1Setpoint(target.arm1Pos);
-      setArm2Setpoint(target.arm2Pos);
-      setIntakeSetpoint(target.wristPos);
+      SetPoint target = Constants.ArmConstants.setPoints.get(state);
+      setShoulderSetpoint(target.shoulderPos);
+      setElbowSetpoint(target.elbowPos);
+      setWristSetpoint(target.wristPos);
     } catch (Exception e) {
       System.err.println(e);
     }
   }
 
-  public void setArm1Setpoint(double setpoint) {
-    arm1TargetPosition = setpoint;
+  public void setShoulderSetpoint(double setpoint) {
+    shoulderTargetPosition = setpoint;
   }
 
-  public void fudgeArm1Setpoint(double amountToMove) {
-    arm1TargetPosition += amountToMove;
+  public void fudgeShoulderSetpoint(double amountToMove) {
+    shoulderTargetPosition += amountToMove;
   }
 
-  public void fudgeArm1WithAnalogStick(double analogStickValue) {
-    fudgeArm1Setpoint(analogStickValue * previousLoopTime * 8.0 * 2048.0);
+  public void fudgeShoulderWithAnalogStick(double analogStickValue) {
+    fudgeShoulderSetpoint(analogStickValue * previousLoopTime * 8.0 * 2048.0);
   }
 
-  public void setArm2Setpoint(double setpoint) {
-    arm2TargetPosition = setpoint;
+  public void setElbowSetpoint(double setpoint) {
+    elbowTargetPosition = setpoint;
   }
 
-  public void fudgeArm2Setpoint(double amountToMove) {
-    arm2TargetPosition += amountToMove;
+  public void fudgeElbowSetpoint(double amountToMove) {
+    elbowTargetPosition += amountToMove;
   }
 
-  public void fudgeArm2WithAnalogStick(double analogStickValue) {
-    fudgeArm2Setpoint(analogStickValue * previousLoopTime * 24.0 * 2048.0);
+  public void fudgeElbowWithAnalogStick(double analogStickValue) {
+    fudgeElbowSetpoint(analogStickValue * previousLoopTime * 24.0 * 2048.0);
   }
 
-  public void setIntakeSetpoint(double setpoint) {
-    intakeTargetPosition = setpoint;
+  public void setWristSetpoint(double setpoint) {
+    wristTargetPosition = setpoint;
   }
 
-  public void fudgeIntakeSetpoint(double amountToMove) {
-    intakeTargetPosition += amountToMove;
+  public void fudgeWristSetpoint(double amountToMove) {
+    wristTargetPosition += amountToMove;
   }
 
-  public void fudgeIntakeWithAnalogStick(double analogStickValue) {
-    fudgeIntakeSetpoint(analogStickValue * previousLoopTime * 16.0);
+  public void fudgeWristWithAnalogStick(double analogStickValue) {
+    fudgeWristSetpoint(analogStickValue * previousLoopTime * 16.0);
   }
 
   public void resetEncoders() {
-    resetArm1LeftEncoder();
-    resetArm2Encoder();
-    resetIntakeEncoder();
+    resetShoulderLeftEncoder();
+    resetElbowEncoder();
+    resetWristEncoder();
   }
 
-  private double getArm1LeftAdjustedAbsoluteEncoderPos() {
-    double adjustedPos = arm1LeftAbsoluteEncoder.getDistance() - 180.0;
+  private double getShoulderLeftAdjustedAbsoluteEncoderPos() {
+    double adjustedPos = shoulderLeftAbsoluteEncoder.getDistance() - 180.0;
     while (adjustedPos < 0) {
       adjustedPos += 360.0;
     }
     return adjustedPos;
   }
 
-  private double getArm1RightAbsoluteEncoderPos() {
-    return Math.abs(arm1RightAbsoluteEncoder.getDistance());
+  private double getShoulderRightAbsoluteEncoderPos() {
+    return Math.abs(shoulderRightAbsoluteEncoder.getDistance());
   }
 
-  private double getArm2LeftAdjustedAbsoluteEncoderPos() {
-    return arm2AbsoluteEncoder.getDistance();
+  private double getElbowAdjustedAbsoluteEncoderPos() {
+    return elbowAbsoluteEncoder.getDistance();
   }
 
-  private double getArm2AbsoluteEncoderPos() {
-    return arm2AbsoluteEncoder.getDistance();
+  private double getElbowAbsoluteEncoderPos() {
+    return elbowAbsoluteEncoder.getDistance();
   }
 
-  private double getArm2LeftCompensatedAbsoluteEncoderPos() {
-    return getArm2LeftAdjustedAbsoluteEncoderPos() - Constants.arm2LeftConstants.calibration + getArm1AbsoluteEncoderAverage() * Constants.ArmConstants.stage2ChainRatio;
+  private double getElbowCompensatedAbsoluteEncoderPos() {
+    return getElbowAdjustedAbsoluteEncoderPos() - Constants.ArmConstants.elbowCalibration + getShoulderAbsoluteEncoderAverage() * Constants.ArmConstants.elbowChainRunRatio;
   }
 
-  private double getArm1AbsoluteEncoderAverage() {
-    return (-(getArm1LeftAdjustedAbsoluteEncoderPos() - arm1LeftAdjustedCalibration)
-    + (getArm1RightAbsoluteEncoderPos() - Constants.arm1RightConstants.calibration)
+  private double getShoulderAbsoluteEncoderAverage() {
+    return (-(getShoulderLeftAdjustedAbsoluteEncoderPos() - shoulderLeftAdjustedCalibration)
+    + (getShoulderRightAbsoluteEncoderPos() - Constants.ArmConstants.shoulderRightCalibration)
     ) / 2;
   }
 
-  private double getIntakeAbsoluteEncoderPos() {
-    return intakePivotAbsoluteEncoder.getDistance();
+  private double getWristAbsoluteEncoderPos() {
+    return wristAbsoluteEncoder.getDistance();
   }
 
-  private double getIntakeCalibratedAbsoluteEncoderPos() {
-    return getIntakeAbsoluteEncoderPos() - Constants.intakePivotLeftConstants.calibration;
+  private double getWristCalibratedAbsoluteEncoderPos() {
+    return getWristAbsoluteEncoderPos() - Constants.ArmConstants.wristCalibration;
   }
 
-  private void resetArm1LeftEncoder() {
-    if (arm1LeftEncoderEnabled && arm1RightEncoderEnabled) arm1Left.setSelectedSensorPosition((getArm1AbsoluteEncoderAverage() / Constants.arm1LeftConstants.ratio / 360.0) * 2048.0);
-    else if (arm1LeftEncoderEnabled && ! arm1RightEncoderEnabled) arm1Left.setSelectedSensorPosition((-(getArm1LeftAdjustedAbsoluteEncoderPos() - arm1LeftAdjustedCalibration) / Constants.arm1LeftConstants.ratio / 360.0) * 2048.0);
-    else if (!arm1LeftEncoderEnabled && arm1RightEncoderEnabled) arm1Left.setSelectedSensorPosition(((getArm1RightAbsoluteEncoderPos() - Constants.arm1RightConstants.calibration) / Constants.arm1LeftConstants.ratio / 360.0) * 2048.0);
+  private void resetShoulderLeftEncoder() {
+    if (shoulderLeftEncoderEnabled && shoulderRightEncoderEnabled) shoulderLeft.setSelectedSensorPosition((getShoulderAbsoluteEncoderAverage() / Constants.ArmConstants.shoulderRatio / 360.0) * 2048.0);
+    else if (shoulderLeftEncoderEnabled && ! shoulderRightEncoderEnabled) shoulderLeft.setSelectedSensorPosition((-(getShoulderLeftAdjustedAbsoluteEncoderPos() - shoulderLeftAdjustedCalibration) / Constants.ArmConstants.shoulderRatio / 360.0) * 2048.0);
+    else if (!shoulderLeftEncoderEnabled && shoulderRightEncoderEnabled) shoulderLeft.setSelectedSensorPosition(((getShoulderRightAbsoluteEncoderPos() - Constants.ArmConstants.shoulderRightCalibration) / Constants.ArmConstants.shoulderRatio / 360.0) * 2048.0);
   }
 
-  private void resetArm2Encoder() {
-    if (arm2EncoderEnabled) arm2Left.setSelectedSensorPosition((getArm2LeftCompensatedAbsoluteEncoderPos() / (Constants.arm2LeftConstants.ratio * Constants.ArmConstants.stage2ChainRatio) / 360.0) * 2048.0);
+  private void resetElbowEncoder() {
+    if (elbowEncoderEnabled) elbowLeft.setSelectedSensorPosition((getElbowCompensatedAbsoluteEncoderPos() / (Constants.ArmConstants.elbowBaseRatio * Constants.ArmConstants.elbowChainRunRatio) / 360.0) * 2048.0);
   }
 
-  private void resetIntakeEncoder() {
-    if (intakePivotEncoderEnabled) intakePivotLeftEncoder.setPosition(getIntakeCalibratedAbsoluteEncoderPos() / Constants.intakePivotLeftConstants.ratio / 360.0);
+  private void resetWristEncoder() {
+    if (wristEncoderEnabled) wristLeftEncoder.setPosition(getWristCalibratedAbsoluteEncoderPos() / Constants.ArmConstants.wristRatio / 360.0);
   }
 
   public void updateHeightHigh() {
-    state.height = ArmState.Height.HIGH;
+    state.height = Height.HIGH;
     state.altpickupl = false;
   }
 
   public void updateHeightMedium() {
-    state.height = ArmState.Height.MEDIUM;
+    state.height = Height.MEDIUM;
     state.altpickupl = false;
   }
 
   public void updateHeightLow() {
-    state.height = ArmState.Height.LOW;
+    state.height = Height.LOW;
     state.altpickupl = false;
   }
 
   public void updateHeightPickup() {
-    state.height = ArmState.Height.HPPICKUP;
+    state.height = Height.HPPICKUP;
     state.altpickupl = false;
   }
 
   public void updateGamePieceCube() {
-    state.piece = ArmState.GamePiece.CUBE;
+    state.piece = GamePiece.CUBE;
     state.altpickupl = false;
   }
 
   public void updateGamePieceCone() {
-    state.piece = ArmState.GamePiece.CONE;
+    state.piece = GamePiece.CONE;
     state.altpickupl = false;
   }
 
@@ -551,9 +476,9 @@ public class ArmSubsystem extends SubsystemBase {
   public void updateFudgeTrue() {
     if (!state.fudge) {
       state.fudge = true;
-      setArm1Setpoint(arm1Left.getSelectedSensorPosition());
-      setArm2Setpoint(arm2Left.getSelectedSensorPosition());
-      setIntakeSetpoint(intakePivotLeftEncoder.getPosition());
+      setShoulderSetpoint(shoulderLeft.getSelectedSensorPosition());
+      setElbowSetpoint(elbowLeft.getSelectedSensorPosition());
+      setWristSetpoint(wristLeftEncoder.getPosition());
     }
   }
 
@@ -569,11 +494,11 @@ public class ArmSubsystem extends SubsystemBase {
     deploy = false;
   }
 
-  public ArmState.GamePiece getPiece() {
+  public GamePiece getPiece() {
     return state.piece;
   }
 
-  public ArmState.Height getHeight() {
+  public Height getHeight() {
     return state.height;
   }
 

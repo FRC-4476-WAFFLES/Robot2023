@@ -10,8 +10,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.Constants;
+import frc.robot.Constants.GamePiece;
 import frc.robot.subsystems.Camera.CameraLEDMode;
 
 import static frc.robot.RobotContainer.*;
@@ -37,47 +37,6 @@ public class DriveToScoreLimelight extends CommandBase {
   @Override
   public void initialize() {
     camera.setLEDMode(CameraLEDMode.On);
-
-    // if(camera.getHasTarget()) {
-    //   driveSubsystem.resetOdometry(camera.getRobotPose2d());
-    // }
-
-    // double lowestDistance = Double.MAX_VALUE;
-    // double curPosY = driveSubsystem.getOdometryLocation().getY();
-    // Pose2d lowestScoringOption = new Pose2d();
-
-    // for(int i = 0; i < (armSubsystem.getPiece().equals(ArmSubsystem.ArmState.GamePiece.CUBE) ? 3 : 6); i++) {
-    //   Pose2d pose = driveSubsystem.map.get(
-    //     new DriveSubsystem.DriveState(armSubsystem.getPiece() == ArmSubsystem.ArmState.GamePiece.CUBE ? DriveSubsystem.DriveState.GamePiece.CUBE : DriveSubsystem.DriveState.GamePiece.CONE,
-    //     DriverStation.getAlliance() == Alliance.Red ? DriveSubsystem.DriveState.Alliance.RED : DriveSubsystem.DriveState.Alliance.BLUE, i));
-    //   double diff = Math.abs(curPosY - pose.getY());
-    //   if(diff < lowestDistance) {
-    //     lowestDistance = diff;
-    //     lowestScoringOption = pose;
-    //   }
-    // }
-
-    // PathPlannerTrajectory traj2 = PathPlanner.generatePath(
-    //   new PathConstraints(4, 3), 
-    //   new PathPoint(driveSubsystem.getOdometryLocation().getTranslation(), DriverStation.getAlliance() == Alliance.Red ? Rotation2d.fromDegrees(180) : Rotation2d.fromDegrees(0), driveSubsystem.getOdometryLocation().getRotation()), // position, heading(direction of travel), holonomic rotation
-    //   new PathPoint(lowestScoringOption.getTranslation(), DriverStation.getAlliance() == Alliance.Red ? Rotation2d.fromDegrees(0) : Rotation2d.fromDegrees(180), lowestScoringOption.getRotation()// position, heading(direction of travel), holonomic rotation
-    // ));
-
-    // swerveCommand = new PPSwerveControllerCommand(
-    //   traj2, 
-    //   driveSubsystem::getOdometryLocation,
-    //   driveSubsystem.kinematics,
-    //   new PIDController(2, 0, 0),
-    //   new PIDController(2, 0, 0),
-    //   new PIDController(-1, 0, 0),
-    //   driveSubsystem::setModuleStates,
-    //   false,
-    //   driveSubsystem
-    // );
-
-    // swerveCommand.initialize();
-
-    // isDriving = true;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -90,10 +49,8 @@ public class DriveToScoreLimelight extends CommandBase {
       double curPosY = driveSubsystem.getOdometryLocation().getY();
       Pose2d lowestScoringOption = new Pose2d();
   
-      for(int i = 0; i < (armSubsystem.getPiece().equals(ArmSubsystem.ArmState.GamePiece.CUBE) ? 3 : 6); i++) {
-        Pose2d pose = driveSubsystem.scoringLocations.get(
-          new DriveSubsystem.DriveState(armSubsystem.getPiece() == ArmSubsystem.ArmState.GamePiece.CUBE ? DriveSubsystem.DriveState.GamePiece.CUBE : DriveSubsystem.DriveState.GamePiece.CONE,
-          DriverStation.getAlliance() == Alliance.Red ? DriveSubsystem.DriveState.Alliance.RED : DriveSubsystem.DriveState.Alliance.BLUE, i));
+      for(int i = 0; i < (armSubsystem.getPiece().equals(GamePiece.CUBE) ? 3 : 6); i++) {
+        Pose2d pose = Constants.DriveConstants.scoringLocations.get(new Constants.DriveConstants.DriveState(armSubsystem.getPiece(), DriverStation.getAlliance(), i));
         double diff = Math.abs(curPosY - pose.getY());
         if(diff < lowestDistance) {
           lowestDistance = diff;
@@ -107,14 +64,14 @@ public class DriveToScoreLimelight extends CommandBase {
       System.err.print("Current Pose: ");
       System.err.println(driveSubsystem.getOdometryLocation());
   
-      PathPlannerTrajectory traj2 = PathPlanner.generatePath(
+      PathPlannerTrajectory pathToScore = PathPlanner.generatePath(
         new PathConstraints(1, 1), 
         new PathPoint(driveSubsystem.getOdometryLocation().getTranslation(), DriverStation.getAlliance() == Alliance.Red ? Rotation2d.fromDegrees(180) : Rotation2d.fromDegrees(0), driveSubsystem.getOdometryLocation().getRotation()), // position, heading(direction of travel), holonomic rotation
         new PathPoint(lowestScoringOption.getTranslation(), DriverStation.getAlliance() == Alliance.Red ? Rotation2d.fromDegrees(0) : Rotation2d.fromDegrees(180), lowestScoringOption.getRotation() // .plus(Rotation2d.fromDegrees(180))// position, heading(direction of travel), holonomic rotation
       ));
   
       swerveCommand = new PPSwerveControllerCommand(
-        traj2, 
+        pathToScore, 
         driveSubsystem::getOdometryLocation,
         driveSubsystem.kinematics,
         new PIDController(2, 0, 0),
@@ -126,8 +83,6 @@ public class DriveToScoreLimelight extends CommandBase {
       );
 
       swerveCommand.initialize();
-
-      System.err.println(traj2);
   
       isDriving = true;
       hasFoundTarget = true;
@@ -145,6 +100,7 @@ public class DriveToScoreLimelight extends CommandBase {
     swerveCommand.end(interrupted);
     isDriving = false;
     hasFoundTarget = false;
+    camera.setLEDMode(CameraLEDMode.Off);
   }
 
   // Returns true when the command should end.

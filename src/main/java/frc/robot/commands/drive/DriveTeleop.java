@@ -5,17 +5,24 @@
 package frc.robot.commands.drive;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 
 import static frc.robot.RobotContainer.*;
 
-public class DriveTeleop extends CommandBase {
+import java.util.function.DoubleSupplier;
 
-  public DriveTeleop() {
+public class DriveTeleop extends CommandBase {
+  private final DoubleSupplier forwardAxis;
+  private final DoubleSupplier rightAxis;
+  private final DoubleSupplier rotationAxis;
+
+  public DriveTeleop(DoubleSupplier forwardAxis, DoubleSupplier rightAxis, DoubleSupplier rotationAxis) {
     // Tell the scheduler that no other drive commands can be running while
     // this one is running.
+    this.forwardAxis = forwardAxis;
+    this.rightAxis = rightAxis;
+    this.rotationAxis = rotationAxis;
     addRequirements(driveSubsystem);
   }
 
@@ -26,21 +33,17 @@ public class DriveTeleop extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double forward = leftJoystick.getY();
-    double right = leftJoystick.getX();
-    double rotation = rightJoystick.getX();
-
-    SmartDashboard.putNumber("Left Joystick Y", forward);
-    SmartDashboard.putNumber("Left Joystick X", right);
-    SmartDashboard.putNumber("Right Joystick X", rotation);
+    double forward = forwardAxis.getAsDouble();
+    double right = rightAxis.getAsDouble();
+    double rotation = rotationAxis.getAsDouble();
 
     forward = MathUtil.applyDeadband(forward, 0.05);
     right = MathUtil.applyDeadband(right, 0.05);
     rotation = MathUtil.applyDeadband(rotation, 0.05);
 
-    forward *= -Constants.SwerveConstants.maxAttainableSpeedMetersPerSecond;
-    right *= -Constants.SwerveConstants.maxAttainableSpeedMetersPerSecond;
-    rotation *= 6;
+    forward *= -Constants.DriveConstants.maxAttainableSpeedMetersPerSecond;
+    right *= -Constants.DriveConstants.maxAttainableSpeedMetersPerSecond;
+    rotation *= Constants.DriveConstants.maxAttainableRotationRateRadiansPerSecond;
     
     driveSubsystem.robotDrive(forward, right, rotation, true);
   }

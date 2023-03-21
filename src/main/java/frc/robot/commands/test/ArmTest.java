@@ -19,12 +19,12 @@ public class ArmTest extends CommandBase {
   private final PowerDistribution pdh = new PowerDistribution(1, PowerDistribution.ModuleType.kRev);
 
   private final DataLog log = DataLogManager.getLog();
-  private final DoubleLogEntry arm1LeftCurrent = new DoubleLogEntry(log, "Arm 1 Left Current");
-  private final DoubleLogEntry arm1RightCurrent = new DoubleLogEntry(log, "Arm 1 Right Current");
-  private final DoubleLogEntry arm2LeftCurrent = new DoubleLogEntry(log, "Arm 2 Left Current");
-  private final DoubleLogEntry arm2RightCurrent = new DoubleLogEntry(log, "Arm 2 Right Current");
-  private final DoubleLogEntry intakePivotLeftCurrent = new DoubleLogEntry(log, "Intake Pivot Left Current");
-  private final DoubleLogEntry intakePivotRightCurrent = new DoubleLogEntry(log, "Intake Pivot Right Current");
+  private final DoubleLogEntry shoulderLeftCurrent = new DoubleLogEntry(log, "Shoulder Left Current");
+  private final DoubleLogEntry shoulderRightCurrent = new DoubleLogEntry(log, "Shoulder Right Current");
+  private final DoubleLogEntry elbowLeftCurrent = new DoubleLogEntry(log, "Elbow Left Current");
+  private final DoubleLogEntry elbowRightCurrent = new DoubleLogEntry(log, "Elbow Right Current");
+  private final DoubleLogEntry wristLeftCurrent = new DoubleLogEntry(log, "Wrist Left Current");
+  private final DoubleLogEntry wristRightCurrent = new DoubleLogEntry(log, "Wrist Right Current");
 
   /** Creates a new ArmTest. */
   public ArmTest() {
@@ -72,12 +72,12 @@ public class ArmTest extends CommandBase {
 
     armSubsystem.setpointsFromStateMachine();
 
-    arm1LeftCurrent.append(pdh.getCurrent(Constants.arm1LeftPower));
-    arm1RightCurrent.append(pdh.getCurrent(Constants.arm1RightPower));
-    arm2LeftCurrent.append(pdh.getCurrent(Constants.arm2LeftPower));
-    arm2RightCurrent.append(pdh.getCurrent(Constants.arm2RightPower));
-    intakePivotLeftCurrent.append(pdh.getCurrent(Constants.intakePivotLeftPower));
-    intakePivotRightCurrent.append(pdh.getCurrent(Constants.intakePivotRightPower));
+    shoulderLeftCurrent.append(pdh.getCurrent(Constants.shoulderLeftPower));
+    shoulderRightCurrent.append(pdh.getCurrent(Constants.shoulderRightPower));
+    elbowLeftCurrent.append(pdh.getCurrent(Constants.elbowLeftPower));
+    elbowRightCurrent.append(pdh.getCurrent(Constants.elbowRightPower));
+    wristLeftCurrent.append(pdh.getCurrent(Constants.wristLeftPower));
+    wristRightCurrent.append(pdh.getCurrent(Constants.wristRightPower));
   }
 
   // Called once the command ends or is interrupted.
@@ -86,12 +86,12 @@ public class ArmTest extends CommandBase {
     armSubsystem.stop();
     log.pause();
 
-    arm1LeftCurrent.finish();
-    arm1RightCurrent.finish();
-    arm2LeftCurrent.finish();
-    arm2RightCurrent.finish();
-    intakePivotLeftCurrent.finish();
-    intakePivotRightCurrent.finish();
+    shoulderLeftCurrent.finish();
+    shoulderRightCurrent.finish();
+    elbowLeftCurrent.finish();
+    elbowRightCurrent.finish();
+    wristLeftCurrent.finish();
+    wristRightCurrent.finish();
   }
 
   // Returns true when the command should end.

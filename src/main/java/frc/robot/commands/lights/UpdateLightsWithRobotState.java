@@ -7,7 +7,7 @@ package frc.robot.commands.lights;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.ArmSubsystem.ArmState.GamePiece;
+import frc.robot.Constants.GamePiece;
 import frc.robot.subsystems.LightSubsystem.LightColours;
 
 import static frc.robot.RobotContainer.*;

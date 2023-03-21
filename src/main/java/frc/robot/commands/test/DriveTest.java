@@ -72,14 +72,14 @@ public class DriveTest extends CommandBase {
       driveSubsystem.robotDrive(Math.cos(heading), Math.sin(heading), 0, false);
     }
 
-    module0DriveCurrent.append(pdh.getCurrent(Constants.module0DrivePower));
-    module0AngleCurrent.append(pdh.getCurrent(Constants.module0AnglePower));
-    module1DriveCurrent.append(pdh.getCurrent(Constants.module1DrivePower));
-    module1AngleCurrent.append(pdh.getCurrent(Constants.module1AnglePower));
-    module2DriveCurrent.append(pdh.getCurrent(Constants.module2DrivePower));
-    module2AngleCurrent.append(pdh.getCurrent(Constants.module2AnglePower));
-    module3DriveCurrent.append(pdh.getCurrent(Constants.module3DrivePower));
-    module3AngleCurrent.append(pdh.getCurrent(Constants.module3AnglePower));
+    module0DriveCurrent.append(pdh.getCurrent(Constants.swerveModule0DrivePower));
+    module0AngleCurrent.append(pdh.getCurrent(Constants.swerveModule0AnglePower));
+    module1DriveCurrent.append(pdh.getCurrent(Constants.swerveModule1DrivePower));
+    module1AngleCurrent.append(pdh.getCurrent(Constants.swerveModule1AnglePower));
+    module2DriveCurrent.append(pdh.getCurrent(Constants.swerveModule2DrivePower));
+    module2AngleCurrent.append(pdh.getCurrent(Constants.swerveModule2AnglePower));
+    module3DriveCurrent.append(pdh.getCurrent(Constants.swerveModule3DrivePower));
+    module3AngleCurrent.append(pdh.getCurrent(Constants.swerveModule3AnglePower));
   }
 
   // Called once the command ends or is interrupted.
@@ -96,16 +96,6 @@ public class DriveTest extends CommandBase {
     module2AngleCurrent.finish();
     module3DriveCurrent.finish();
     module3AngleCurrent.finish();
-
-    // try {
-    //   DataLogReader reader = new DataLogReader("null");
-    //   DataLogIterator iterator = reader.iterator();
-    //   DataLogRecord record = iterator.next();
-    //   record.getEntry();
-    // } catch (IOException e) {
-    //   // TODO Auto-generated catch block
-    //   e.printStackTrace();
-    // }
   }
 
   // Returns true when the command should end.
