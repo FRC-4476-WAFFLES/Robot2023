@@ -8,6 +8,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.commands.drive.DriveAutoBalance;
 import frc.robot.commands.drive.DriveLockWheels;
 
@@ -85,7 +86,8 @@ public class OneCubeAndMobilityAndBalance extends SequentialCommandGroup {
         driveSubsystem::setModuleStates,
         false,
         driveSubsystem
-      ).until(() -> Math.abs(driveSubsystem.getPitch()) > 13),
+      )//.until(() -> Math.abs(driveSubsystem.getPitch()) > 13),
+      .raceWith(new SequentialCommandGroup(new WaitUntilCommand(() -> Math.abs(driveSubsystem.getPitch()) > 13), new WaitCommand(1.5))),
       
       new DriveAutoBalance(),
       new DriveLockWheels()

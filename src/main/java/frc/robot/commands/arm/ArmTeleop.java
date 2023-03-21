@@ -40,7 +40,7 @@ public class ArmTeleop extends CommandBase {
     } else {
       armSubsystem.setpointsFromStateMachine();
       if (intakeSubsystem.getPower() > 0.1 && armSubsystem.getHeight() == Height.HPPICKUP) {
-        armSubsystem.fudgeArm2Setpoint(20000);
+        armSubsystem.fudgeArm2Setpoint(40000);
       }
     }
   }

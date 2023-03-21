@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.ArmSubsystem.ArmState.GamePiece;
+import frc.robot.subsystems.ArmSubsystem.ArmState.Height;
 import frc.robot.utils.LazyTalonFX;
 
 public class ArmSubsystem extends SubsystemBase {
@@ -94,14 +95,14 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   HashMap<ArmState, SetPoint> setPoints = new HashMap<ArmState, SetPoint>() {{
-    put(new ArmState(ArmState.Height.HIGH, ArmState.GamePiece.CUBE, false, false), new SetPoint(12300, -97600, 0));
-    put(new ArmState(ArmState.Height.HIGH, ArmState.GamePiece.CONE, false, false), new SetPoint(25500, -175000, 40)); 
-    put(new ArmState(ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, false, false), new SetPoint(2200, -64500, 0)); 
-    put(new ArmState(ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, false, false), new SetPoint(2000, -115000, 30)); 
+    put(new ArmState(ArmState.Height.HIGH, ArmState.GamePiece.CUBE, false, false), new SetPoint(7000, -110000, 10));
+    put(new ArmState(ArmState.Height.HIGH, ArmState.GamePiece.CONE, false, false), new SetPoint(20000, -168000, 38)); 
+    put(new ArmState(ArmState.Height.MEDIUM, ArmState.GamePiece.CUBE, false, false), new SetPoint(0, -88000, 6));     
+    put(new ArmState(ArmState.Height.MEDIUM, ArmState.GamePiece.CONE, false, false), new SetPoint(0, -124000, 30)); 
     put(new ArmState(ArmState.Height.LOW, ArmState.GamePiece.CUBE, false, false), new SetPoint(33000, -27000, 0)); 
     put(new ArmState(ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false), new SetPoint(33000, -27000, 0)); 
     put(new ArmState(ArmState.Height.HPPICKUP, ArmState.GamePiece.CUBE, false, false), new SetPoint(-17000, -136000, 40)); 
-    put(new ArmState(ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, false, false), new SetPoint(-17000, -136000, 40)); 
+    put(new ArmState(ArmState.Height.HPPICKUP, ArmState.GamePiece.CONE, false, false), new SetPoint(-17000, -142000, 40)); 
   }};
 
   private ArmState state = new ArmState(ArmState.Height.LOW, ArmState.GamePiece.CONE, false, false);
@@ -317,6 +318,10 @@ public class ArmSubsystem extends SubsystemBase {
     if (arm1RightEncoderPreviousValue == getArm1RightAbsoluteEncoderPos()) arm1RightEncoderEnabled = false;
     if (arm2EncoderPreviousValue == getArm2AbsoluteEncoderPos()) arm2EncoderEnabled = false;
     if (intakePivotEncoderPreviousValue == getIntakeAbsoluteEncoderPos()) intakePivotEncoderEnabled = false;
+
+    if (state.piece == ArmState.GamePiece.CONE && state.height == Height.HIGH && Math.abs(arm2TargetPosition - arm2Left.getSelectedSensorPosition()) > 50000) {
+      arm1TargetPosition = arm1Left.getSelectedSensorPosition();
+    }
 
     if (!deploy) {
       setArm1Setpoint(-12000);
