@@ -289,6 +289,11 @@ public final class Constants {
         this.elbowPos = elbowPos;
         this.wristPos = wristPos;
       }
+
+      @Override
+      public String toString() {
+        return String.format("Shoulder Pose: %d \nElbow Pose: %d \nWrist Pose: %2.2f", this.shoulderPos, this.elbowPos, this.wristPos);
+      }
     }
   }
 }

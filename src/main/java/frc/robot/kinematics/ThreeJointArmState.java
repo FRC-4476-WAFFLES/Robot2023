@@ -17,6 +17,6 @@ public class ThreeJointArmState {
 
   @Override
   public String toString() {
-    return "Three Joint Arm State(Q1: " + q1.toString() + ", Q2: " + q2.toString() + ", Q3; " + q3.toString() + ")";
+    return "Three Joint Arm State(\nQ1: " + q1.toString() + ", \nQ2: " + q2.toString() + ", \nQ3: " + q3.toString() + "\n)";
   }
 }
