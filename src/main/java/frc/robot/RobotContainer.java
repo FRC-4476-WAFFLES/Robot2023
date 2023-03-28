@@ -36,8 +36,9 @@ import frc.robot.commands.auto.PathTest;
 import frc.robot.commands.auto.TwoCube;
 import frc.robot.commands.auto.TwoCubeAndBalance;
 import frc.robot.commands.auto.TwoCubeAndPickup;
-import frc.robot.commands.drive.DriveAutoBalance;
 import frc.robot.commands.drive.DriveTeleop;
+import frc.robot.commands.drive.DriveToScoreLimelight;
+import frc.robot.commands.drive.DriveTurnToNearest90;
 import frc.robot.commands.intake.IntakeTeleop;
 import frc.robot.commands.lights.UpdateLightsWithRobotState;
 import frc.robot.commands.test.MainTest;
@@ -153,6 +154,7 @@ public class RobotContainer {
    */
   private void configureBindings() {
     final var right1 = new JoystickButton(rightJoystick, 1);
+    final var right14 = new JoystickButton(rightJoystick, 14);
     final var left1 = new JoystickButton(leftJoystick, 1);
 
     final var aButton = new JoystickButton(operate, XboxController.Button.kA.value);
@@ -168,9 +170,10 @@ public class RobotContainer {
     // final var dpadDown = new Trigger(() -> operate.getPOV() == 180);
     final var dpadUp = new Trigger(() -> operate.getPOV() == 0);
 
-    right1.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem).alongWith(new InstantCommand(driveSubsystem::resetGyro)));
-    // left1.whileTrue(new DriveToScoreLimelight());
-    left1.whileTrue(new DriveAutoBalance());
+    right1.whileTrue(new DriveTurnToNearest90());
+    left1.whileTrue(new DriveToScoreLimelight());
+    right14.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem).alongWith(new InstantCommand(driveSubsystem::resetGyro)));
+    // left1.whileTrue(new DriveAutoBalance());
 
     aButton.onTrue(new InstantCommand(armSubsystem::updateHeightLow, armSubsystem));
     bButton.onTrue(new InstantCommand(armSubsystem::updateHeightMedium, armSubsystem));

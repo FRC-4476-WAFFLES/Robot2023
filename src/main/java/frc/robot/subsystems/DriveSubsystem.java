@@ -33,6 +33,8 @@ public class DriveSubsystem extends SubsystemBase {
 
     private final AHRS gyro = new AHRS(SPI.Port.kMXP);
 
+    private boolean lockWheels = false;
+
     public DriveSubsystem() {
         ArrayList<Translation2d> positions = new ArrayList<Translation2d>();
         ArrayList<SwerveModule> modules = new ArrayList<SwerveModule>();
@@ -111,6 +113,7 @@ public class DriveSubsystem extends SubsystemBase {
     public void robotDrive(double forward, double right, double rotation, boolean fieldCentric){
         ChassisSpeeds chassisSpeeds;
 
+        // TODO: find a better way of limiting undesired rotation
         double robotRotationRate = gyro.getRate();
         robotRotationRate = (robotRotationRate / 180.0) * Math.PI;
 
@@ -138,8 +141,14 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void setModuleStates(SwerveModuleState[] swerveModuleStates){
-        for(int x=0; x<modules.length; x++){
-            modules[x].drive(swerveModuleStates[x]);
+        if (lockWheels) {
+            for (int i = 0; i < modules.length; i++) {
+                modules[i].drive(new SwerveModuleState(0, Rotation2d.fromDegrees(i % 2 == 0 ? 45 : -45)));
+            }
+        } else {
+            for(int i = 0; i < modules.length; i++){
+                modules[i].drive(swerveModuleStates[i]);
+            }
         }
     }
 
@@ -190,9 +199,11 @@ public class DriveSubsystem extends SubsystemBase {
         }
     }
 
-    public void lockWheels() {
-        for (int i = 0; i < modules.length; i++) {
-            modules[i].drive(new SwerveModuleState(0, Rotation2d.fromDegrees(i % 2 == 0 ? 45 : -45)));
-        }
+    public void updateLockWheelsTrue() {
+        lockWheels = true;
+    }
+
+    public void updateLockWheelsFalse() {
+        lockWheels = false;
     }
 }

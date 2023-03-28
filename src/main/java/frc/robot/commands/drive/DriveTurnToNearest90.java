@@ -6,24 +6,26 @@ package frc.robot.commands.drive;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.utils.JoystickDrive;
+import frc.robot.utils.TurnToNearest90;
 
 import static frc.robot.RobotContainer.*;
 
-import java.util.function.DoubleSupplier;
-
-public class DriveTeleop extends CommandBase {
+public class DriveTurnToNearest90 extends CommandBase {
+  private final TurnToNearest90 turn;
   private final JoystickDrive drive;
 
-  public DriveTeleop(DoubleSupplier forwardAxis, DoubleSupplier rightAxis, DoubleSupplier rotationAxis) {
-    // Tell the scheduler that no other drive commands can be running while
-    // this one is running.
-    drive = new JoystickDrive(forwardAxis, rightAxis, rotationAxis);
+  /** Creates a new TurnToNearest90. */
+  public DriveTurnToNearest90() {
+    this.turn = new TurnToNearest90();
+    this.drive = new JoystickDrive();
     addRequirements(driveSubsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
@@ -31,7 +33,7 @@ public class DriveTeleop extends CommandBase {
     driveSubsystem.robotDrive(
       drive.getForward(), 
       drive.getRight(), 
-      drive.getRotation(), 
+      turn.calculate(driveSubsystem.getOdometryLocation().getRotation().getDegrees()), 
       true
     );
   }
@@ -39,14 +41,12 @@ public class DriveTeleop extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    // Stop the motors when the command ends. If we didn't do this, they might
-    // continue running during the next command.
     driveSubsystem.stop();
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    return Math.abs(driveSubsystem.getOdometryLocation().getRotation().getDegrees() % 90) < 5.0;
   }
 }
