@@ -9,15 +9,13 @@ import frc.robot.utils.JoystickDrive;
 
 import static frc.robot.RobotContainer.*;
 
-import java.util.function.DoubleSupplier;
-
 public class DriveTeleop extends CommandBase {
   private final JoystickDrive drive;
 
-  public DriveTeleop(DoubleSupplier forwardAxis, DoubleSupplier rightAxis, DoubleSupplier rotationAxis) {
+  public DriveTeleop() {
     // Tell the scheduler that no other drive commands can be running while
     // this one is running.
-    drive = new JoystickDrive(forwardAxis, rightAxis, rotationAxis);
+    drive = new JoystickDrive();
     addRequirements(driveSubsystem);
   }
 

@@ -187,6 +187,7 @@
         "names": [
           "intakeSetPower(-0.3)",
           "wait(0.5)",
+          "intakeSetPower(0.0)",
           "armUpdateDeployFalse"
         ],
         "executionBehavior": "sequential",

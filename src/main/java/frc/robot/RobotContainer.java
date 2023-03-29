@@ -38,6 +38,7 @@ import frc.robot.commands.auto.PathTest;
 import frc.robot.commands.auto.TwoCube;
 import frc.robot.commands.auto.TwoCubeAndBalance;
 import frc.robot.commands.auto.TwoCubeAndPickup;
+import frc.robot.commands.drive.DriveAutoBalance;
 import frc.robot.commands.drive.DriveTeleop;
 import frc.robot.commands.drive.DriveToScoreLimelight;
 import frc.robot.commands.drive.DriveTurnToNearest90;
@@ -68,7 +69,7 @@ public class RobotContainer {
   public static final Joystick rightJoystick = new Joystick(1);
   public static final XboxController operate = new XboxController(2);
 
-  private final DriveTeleop driveTeleop = new DriveTeleop(leftJoystick::getY, leftJoystick::getX, rightJoystick::getX);
+  private final DriveTeleop driveTeleop = new DriveTeleop();
   private final ArmTeleop armTeleop = new ArmTeleop(operate::getLeftX, operate::getLeftY, operate::getRightX);
   private final IntakeTeleop intakeTeleop = new IntakeTeleop(() -> -operate.getLeftTriggerAxis() + operate.getRightTriggerAxis());
   private final UpdateLightsWithRobotState updateLights = new UpdateLightsWithRobotState();
@@ -92,6 +93,7 @@ public class RobotContainer {
     put("wait(0.1)", new WaitCommand(0.1));
     put("wait(0.5)", new WaitCommand(0.5));
     put("turnToNearest90", new DriveTurnToNearest90(false));
+    put("autoBalance", new DriveAutoBalance());
   }};
 
   SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
