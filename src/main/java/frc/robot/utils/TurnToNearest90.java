@@ -28,8 +28,6 @@ public class TurnToNearest90 {
       targetHeading = 180;
     }
 
-    //targetHeading += 45; // IDK why this is needed, java bad
-
     double optimizedTargetAngle = Math.toRadians(currentHeading) + Rotation2d.fromDegrees(targetHeading).minus(Rotation2d.fromDegrees(currentHeading)).getRadians();
     turnController.setSetpoint(optimizedTargetAngle);
     return turnController.calculate(Math.toRadians(currentHeading));

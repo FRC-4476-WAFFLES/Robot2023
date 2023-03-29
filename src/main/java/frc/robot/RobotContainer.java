@@ -84,16 +84,19 @@ public class RobotContainer {
     put("updateArmHeightPickup", new InstantCommand(armSubsystem::updateHeightPickup, armSubsystem));
     put("updateArmDeployTrue", new InstantCommand(armSubsystem::updateDeployTrue, armSubsystem));
     put("updateArmDeployFalse", new InstantCommand(armSubsystem::updateDeployFalse, armSubsystem));
+
     put("updateDriveLockWheelsTrue", new InstantCommand(driveSubsystem::updateLockWheelsTrue, driveSubsystem));
     put("updateDriveLockWheelsFalse", new InstantCommand(driveSubsystem::updateLockWheelsFalse, driveSubsystem));
+    put("turnToNearest90", new DriveTurnToNearest90(false));
+    put("autoBalance", new DriveAutoBalance());
+
     put("intakeSetPower(-0.3)", new InstantCommand(() -> intakeSubsystem.setPower(-0.3)));
     put("intakeSetPower(0.0)", new InstantCommand(() -> intakeSubsystem.setPower(0.0)));
     put("intakeSetPower(0.1)", new InstantCommand(() -> intakeSubsystem.setPower(0.1)));
     put("intakeSetPower(1.0)", new InstantCommand(() -> intakeSubsystem.setPower(1.0)));
+    
     put("wait(0.1)", new WaitCommand(0.1));
     put("wait(0.5)", new WaitCommand(0.5));
-    put("turnToNearest90", new DriveTurnToNearest90(false));
-    put("autoBalance", new DriveAutoBalance());
   }};
 
   SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
