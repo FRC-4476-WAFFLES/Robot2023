@@ -6,6 +6,8 @@ package frc.robot;
 
 import java.util.HashMap;
 
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
@@ -15,7 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -73,28 +75,35 @@ public class RobotContainer {
 
   /** A map of events and their corresponding commands */
   private final HashMap<String, Command> eventMap = new HashMap<>() {{
-    put("intakeRun", new IntakeTeleop(() -> 0.5));
     put("updateArmPieceCube", new InstantCommand(armSubsystem::updateGamePieceCube, armSubsystem));
     put("updateArmPieceCone", new InstantCommand(armSubsystem::updateGamePieceCone, armSubsystem));
     put("updateArmHeightLow", new InstantCommand(armSubsystem::updateHeightLow, armSubsystem));
     put("updateArmHeightMedium", new InstantCommand(armSubsystem::updateHeightMedium, armSubsystem));
     put("updateArmHeightHigh", new InstantCommand(armSubsystem::updateHeightHigh, armSubsystem));
     put("updateArmHeightPickup", new InstantCommand(armSubsystem::updateHeightPickup, armSubsystem));
-    put("retractArm", new PrintCommand("Arm Retracted"));
-    put("lockWheels", new InstantCommand(driveSubsystem::lockWheels, driveSubsystem));
-    put("wait 1 sec", new WaitCommand(1));
-    put("reachedPoint", new PrintCommand("reached Point"));
+    put("updateArmDeployTrue", new InstantCommand(armSubsystem::updateDeployTrue, armSubsystem));
+    put("updateArmDeployFalse", new InstantCommand(armSubsystem::updateDeployFalse, armSubsystem));
+    put("updateDriveLockWheelsTrue", new InstantCommand(driveSubsystem::updateLockWheelsTrue, driveSubsystem));
+    put("updateDriveLockWheelsFalse", new InstantCommand(driveSubsystem::updateLockWheelsFalse, driveSubsystem));
+    put("intakeSetPower(-0.3)", new InstantCommand(() -> intakeSubsystem.setPower(-0.3)));
+    put("intakeSetPower(0.0)", new InstantCommand(() -> intakeSubsystem.setPower(0.0)));
+    put("intakeSetPower(0.1)", new InstantCommand(() -> intakeSubsystem.setPower(0.1)));
+    put("intakeSetPower(1.0)", new InstantCommand(() -> intakeSubsystem.setPower(1.0)));
+    put("wait(0.1)", new WaitCommand(0.1));
+    put("wait(0.5)", new WaitCommand(0.5));
+    put("turnToNearest90", new DriveTurnToNearest90(false));
   }};
 
   SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
     driveSubsystem::getAdjustedPose, // Pose2d supplier
     driveSubsystem::resetOdometry, // Pose2d consumer, used to reset odometry at the beginning of auto
-    new PIDConstants(0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
-    new PIDConstants(0, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
+    new PIDConstants(2, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
+    new PIDConstants(0.1, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
     driveSubsystem::setChassisSpeedsAuto, // Module states consumer used to output to the drive subsystem
     eventMap,
     true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
-    driveSubsystem // The drive subsystem. Used to properly set the requirements of path following commands
+    driveSubsystem, // The drive subsystem. Used to properly set the requirements of path following commands
+    intakeSubsystem // Require the intake subsystem to prevent the default command from overriding the auto commands
   );
 
   private SendableChooser<Command> autoChooser = new SendableChooser<Command>();
@@ -115,6 +124,7 @@ public class RobotContainer {
   private final Command twoCubeAndPickup = new TwoCubeAndPickup();
 
   private final Command testAuto = new PathTest();
+  private final Command fullAutoTest = autoBuilder.fullAuto(PathPlanner.loadPathGroup("Rotation Test", new PathConstraints(3, 2)));
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -140,6 +150,7 @@ public class RobotContainer {
     autoChooser.addOption("2 Cube and Balance", twoCubeAndBalance);
     autoChooser.addOption("2 Cube and Pickup", twoCubeAndPickup);
     autoChooser.addOption("Test Auto", testAuto);
+    autoChooser.addOption("Test Full Auto", fullAutoTest);
     SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
@@ -156,6 +167,7 @@ public class RobotContainer {
     final var right1 = new JoystickButton(rightJoystick, 1);
     final var right14 = new JoystickButton(rightJoystick, 14);
     final var left1 = new JoystickButton(leftJoystick, 1);
+    final var left2 = new JoystickButton(leftJoystick, 2);
 
     final var aButton = new JoystickButton(operate, XboxController.Button.kA.value);
     final var bButton = new JoystickButton(operate, XboxController.Button.kB.value);
@@ -172,6 +184,7 @@ public class RobotContainer {
 
     right1.whileTrue(new DriveTurnToNearest90());
     left1.whileTrue(new DriveToScoreLimelight());
+    left2.toggleOnTrue(new StartEndCommand(driveSubsystem::updateLockWheelsTrue, driveSubsystem::updateLockWheelsFalse, driveSubsystem));
     right14.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem).alongWith(new InstantCommand(driveSubsystem::resetGyro)));
     // left1.whileTrue(new DriveAutoBalance());
 
@@ -199,5 +212,10 @@ public class RobotContainer {
 
   public Command getTestCommand() {
     return new MainTest();
+  }
+
+  // Automatically unlock the wheels at the start of teleop
+  public Command getTeleopInitCommand() {
+    return new InstantCommand(driveSubsystem::updateLockWheelsFalse, driveSubsystem);
   }
 }

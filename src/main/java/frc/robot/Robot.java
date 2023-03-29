@@ -6,14 +6,10 @@ package frc.robot;
 
 import com.pathplanner.lib.server.PathPlannerServer;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
-import static frc.robot.RobotContainer.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -38,9 +34,7 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
 
     // If not connected to FMS, (so not in a match), start the PathPlanner server
-    if (!DriverStation.isFMSAttached()) {
-      PathPlannerServer.startServer(5811);
-    }
+    PathPlannerServer.startServer(5811);
   }
 
   /**
@@ -59,9 +53,7 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
 
     // If not connected to FMS, (so not in a match), send the current robot pose to the PathPlanner server
-    if (!DriverStation.isFMSAttached()) {
-      PathPlannerServer.sendPathFollowingData(new Pose2d(), driveSubsystem.getOdometryLocation());
-    }
+    // PathPlannerServer.sendPathFollowingData(new Pose2d(), driveSubsystem.getOdometryLocation());
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
@@ -104,6 +96,11 @@ public class Robot extends TimedRobot {
     // Make sure the test command is not running
     if (m_testCommand != null) {
       m_testCommand.cancel();
+    }
+
+    Command m_teleopInitCommand = m_robotContainer.getTeleopInitCommand();
+    if (m_teleopInitCommand != null) {
+      m_teleopInitCommand.schedule();
     }
   }
 

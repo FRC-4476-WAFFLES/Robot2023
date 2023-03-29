@@ -140,6 +140,10 @@ public class Camera extends SubsystemBase {
     double[] poseDoubles = getRawRobotPose();
     return new Pose2d(poseDoubles[0], poseDoubles[1], Rotation2d.fromDegrees(poseDoubles[5]));
   }
+
+  public int getAprilTagID() {
+    return (int) camera.getEntry("tid").getInteger(0);
+  }
   
   public Pipeline getActivePipeline() {
     // getpipe: True active pipeline index of the camera (0 .. 9)

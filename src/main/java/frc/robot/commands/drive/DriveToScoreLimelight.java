@@ -10,11 +10,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants;
-import frc.robot.Constants.GamePiece;
+import frc.robot.Constants.DriveConstants.DriveState;
 import frc.robot.subsystems.Camera.CameraLEDMode;
 
 import static frc.robot.RobotContainer.*;
+import static frc.robot.Constants.*;
+
+import java.util.HashMap;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
@@ -43,35 +45,47 @@ public class DriveToScoreLimelight extends CommandBase {
   @Override
   public void execute() {
     if(camera.getHasTarget() && !hasFoundTarget) {
-      driveSubsystem.resetOdometry(new Pose2d(camera.getRobotPose2d().getTranslation(), camera.getRobotPose2d().getRotation().plus(Rotation2d.fromDegrees(180))));
+      Pose2d cameraRobotPose = camera.getRobotPose2d();
+      driveSubsystem.resetOdometry(new Pose2d(cameraRobotPose.getTranslation(), cameraRobotPose.getRotation().plus(Rotation2d.fromDegrees(180))));
+
+      // If one of the HP April Tags are in view, drive to pickup. Otherwise, drive to score
+      HashMap<DriveState, Pose2d> locations;
+      int numberOfOptions;
+      if (camera.getAprilTagID() == 4 || camera.getAprilTagID() == 5) {
+        locations = DriveConstants.pickupLocations;
+        numberOfOptions = 2;
+      } else {
+        locations = DriveConstants.scoringLocations;
+        numberOfOptions = armSubsystem.getPiece().equals(GamePiece.CUBE) ? 3 : 6;
+      }
 
       double lowestDistance = Double.MAX_VALUE;
       double curPosY = driveSubsystem.getOdometryLocation().getY();
-      Pose2d lowestScoringOption = new Pose2d();
+      Pose2d closestOption = new Pose2d();
   
-      for(int i = 0; i < (armSubsystem.getPiece().equals(GamePiece.CUBE) ? 3 : 6); i++) {
-        Pose2d pose = Constants.DriveConstants.scoringLocations.get(new Constants.DriveConstants.DriveState(armSubsystem.getPiece(), DriverStation.getAlliance(), i));
+      for(int i = 0; i < numberOfOptions; i++) {
+        Pose2d pose = locations.get(new DriveConstants.DriveState(armSubsystem.getPiece(), DriverStation.getAlliance(), i));
         double diff = Math.abs(curPosY - pose.getY());
         if(diff < lowestDistance) {
           lowestDistance = diff;
-          lowestScoringOption = pose;
+          closestOption = pose;
         }
       }
 
       System.err.print("Closest target: ");
-      System.err.println(lowestScoringOption);
+      System.err.println(closestOption);
 
       System.err.print("Current Pose: ");
       System.err.println(driveSubsystem.getOdometryLocation());
   
-      PathPlannerTrajectory pathToScore = PathPlanner.generatePath(
+      PathPlannerTrajectory pathToLocation = PathPlanner.generatePath(
         new PathConstraints(1, 1), 
         new PathPoint(driveSubsystem.getOdometryLocation().getTranslation(), DriverStation.getAlliance() == Alliance.Red ? Rotation2d.fromDegrees(180) : Rotation2d.fromDegrees(0), driveSubsystem.getOdometryLocation().getRotation()), // position, heading(direction of travel), holonomic rotation
-        new PathPoint(lowestScoringOption.getTranslation(), DriverStation.getAlliance() == Alliance.Red ? Rotation2d.fromDegrees(0) : Rotation2d.fromDegrees(180), lowestScoringOption.getRotation() // .plus(Rotation2d.fromDegrees(180))// position, heading(direction of travel), holonomic rotation
+        new PathPoint(closestOption.getTranslation(), DriverStation.getAlliance() == Alliance.Red ? Rotation2d.fromDegrees(0) : Rotation2d.fromDegrees(180), closestOption.getRotation() // .plus(Rotation2d.fromDegrees(180))// position, heading(direction of travel), holonomic rotation
       ));
   
       swerveCommand = new PPSwerveControllerCommand(
-        pathToScore, 
+        pathToLocation, 
         driveSubsystem::getOdometryLocation,
         driveSubsystem.kinematics,
         new PIDController(2, 0, 0),
@@ -90,7 +104,7 @@ public class DriveToScoreLimelight extends CommandBase {
     
     if (swerveCommand != null && isDriving && hasFoundTarget) {
       swerveCommand.execute();
-      System.err.println("Driving to target");
+      // System.err.println("Driving to target");
     }
   }
 

@@ -4,14 +4,10 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public class TurnToNearest90 {
-  private final PIDController turnController = new PIDController(-4.0, 0, -0.2);
+  private final PIDController turnController = new PIDController(-8.0, 0, -0.0);
   private double targetHeading = 0;
 
   public TurnToNearest90() {}
-
-  public void setTargetHeading(double targetHeading) {
-    this.targetHeading = targetHeading;
-  }
 
   public double getTargetHeading() {
     return targetHeading;

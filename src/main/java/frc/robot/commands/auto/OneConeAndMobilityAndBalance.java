@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.commands.drive.DriveAutoBalance;
-import frc.robot.commands.drive.DriveLockWheels;
 
 import static frc.robot.RobotContainer.*;
 
@@ -90,7 +89,7 @@ public class OneConeAndMobilityAndBalance extends SequentialCommandGroup {
       .raceWith(new SequentialCommandGroup(new WaitUntilCommand(() -> Math.abs(driveSubsystem.getPitch()) > 13), new WaitCommand(1.5))),
       
       new DriveAutoBalance(),
-      new DriveLockWheels()
+      new InstantCommand(driveSubsystem::updateLockWheelsTrue, driveSubsystem)
     );
     addRequirements(intakeSubsystem);
   }

@@ -31,7 +31,7 @@ public class PathTest extends SequentialCommandGroup {
         driveSubsystem.kinematics,
         new PIDController(2, 0, 0),
         new PIDController(2, 0, 0),
-        new PIDController(0, 0, 0),
+        new PIDController(0.1, 0.0, 0.0),
         driveSubsystem::setModuleStates,
         false,
         driveSubsystem

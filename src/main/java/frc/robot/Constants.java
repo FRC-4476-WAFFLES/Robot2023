@@ -139,6 +139,18 @@ public final class Constants {
       put(new DriveState(GamePiece.CONE, Alliance.Blue, 5), new Pose2d(1.98, 4.99, new Rotation2d(0.0)));
     }};
 
+    public static final HashMap<DriveState, Pose2d> pickupLocations = new HashMap<>() {{
+      put(new DriveState(GamePiece.CUBE, Alliance.Red, 0), new Pose2d(1.16, 6.11, new Rotation2d(0.0)));
+      put(new DriveState(GamePiece.CONE, Alliance.Red, 0), new Pose2d(1.16, 6.11, new Rotation2d(0.0)));
+      put(new DriveState(GamePiece.CUBE, Alliance.Red, 1), new Pose2d(1.16, 7.47, new Rotation2d(0.0)));
+      put(new DriveState(GamePiece.CONE, Alliance.Red, 1), new Pose2d(1.16, 7.47, new Rotation2d(0.0)));
+
+      put(new DriveState(GamePiece.CUBE, Alliance.Blue, 0), new Pose2d(15.33, 6.11, new Rotation2d(Math.PI)));
+      put(new DriveState(GamePiece.CONE, Alliance.Blue, 0), new Pose2d(15.33, 6.11, new Rotation2d(Math.PI)));
+      put(new DriveState(GamePiece.CUBE, Alliance.Blue, 1), new Pose2d(15.33, 7.47, new Rotation2d(Math.PI)));
+      put(new DriveState(GamePiece.CONE, Alliance.Blue, 1), new Pose2d(15.33, 7.47, new Rotation2d(Math.PI)));
+    }};
+
     // Constants for each individual swerve module
     public static final SwerveModuleConstants swerveModules[] = new SwerveModuleConstants[] {
       // Modules are in the order of Back Left (0), Front Left (1), Front Right (2), Back Right (3), when intake is front of robot

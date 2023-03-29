@@ -41,7 +41,7 @@ public class JoystickDrive {
   public double getRotation() {
     double rotation = rotationAxis.getAsDouble();
     rotation = MathUtil.applyDeadband(rotation, 0.05);
-    rotation *= -Constants.DriveConstants.maxAttainableRotationRateRadiansPerSecond;
+    rotation *= Constants.DriveConstants.maxAttainableRotationRateRadiansPerSecond;
     return rotation;
   }
 }

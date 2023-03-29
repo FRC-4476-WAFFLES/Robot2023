@@ -206,4 +206,8 @@ public class DriveSubsystem extends SubsystemBase {
     public void updateLockWheelsFalse() {
         lockWheels = false;
     }
+
+    public boolean getLockWheels() {
+        return lockWheels;
+    }
 }

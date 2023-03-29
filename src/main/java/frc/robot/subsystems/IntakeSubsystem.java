@@ -33,7 +33,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void setPower(double power) {
-    intake.set(power);
+    // intake.set(power);
   }
 
   public double getPower() {
