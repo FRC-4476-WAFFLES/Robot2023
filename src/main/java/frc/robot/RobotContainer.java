@@ -38,6 +38,7 @@ import frc.robot.commands.auto.PathTest;
 import frc.robot.commands.auto.TwoCube;
 import frc.robot.commands.auto.TwoCubeAndBalance;
 import frc.robot.commands.auto.TwoCubeAndPickup;
+import frc.robot.commands.disabled.UpdateLiveAuto;
 import frc.robot.commands.drive.DriveAutoBalance;
 import frc.robot.commands.drive.DriveTeleop;
 import frc.robot.commands.drive.DriveToScoreLimelight;
@@ -157,6 +158,8 @@ public class RobotContainer {
     autoChooser.addOption("Test Auto", testAuto);
     autoChooser.addOption("Test Full Auto", fullAutoTest);
     SmartDashboard.putData("Auto Chooser", autoChooser);
+
+    SmartDashboard.setDefaultBoolean("Use Live Auto", false);
   }
 
   /**
@@ -212,7 +215,15 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
+    if (SmartDashboard.getBoolean("Get Live Auto", false)) {
+      return autoBuilder.fullAuto(PathPlanner.loadPathGroup(SmartDashboard.getString("Live Auto Name", "Live Auto"), new PathConstraints(3, 2)));
+    } else {
+      return autoChooser.getSelected();
+    }
+  }
+
+  public Command getDisabledCommand() {
+    return new UpdateLiveAuto();
   }
 
   public Command getTestCommand() {
