@@ -17,9 +17,8 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "updateArmHeightHigh",
-          "updateArmPieceCone",
-          "updateArmDeployTrue"
+          "armUpdateConeHigh",
+          "armUpdateDeployTrue"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "after",
@@ -101,10 +100,10 @@
       "isStopPoint": true,
       "stopEvent": {
         "names": [
-          "turnToNearest90",
-          "armUpdateGamePieceCube",
-          "armUpdateHeightLow",
-          "armUpdateDeployTrue"
+          "driveTurnToNearest90",
+          "armUpdateCubeLow",
+          "armUpdateDeployTrue",
+          "intakeSetPower(1.0)"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "after",
@@ -159,9 +158,9 @@
       "isStopPoint": true,
       "stopEvent": {
         "names": [
-          "turnToNearest90",
-          "updateArmHeightHigh",
-          "updateArmDeployTrue"
+          "driveTurnToNearest90",
+          "armUpdateCubeHigh",
+          "armUpdateDeployTrue"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "after",
@@ -199,12 +198,5 @@
   "maxVelocity": 3.0,
   "maxAcceleration": 2.0,
   "isReversed": null,
-  "markers": [
-    {
-      "position": 3.1636363636363902,
-      "names": [
-        "intakeSetPower(1.0)"
-      ]
-    }
-  ]
+  "markers": []
 }

@@ -76,25 +76,25 @@ public class RobotContainer {
 
   /** A map of events and their corresponding commands */
   private final HashMap<String, Command> eventMap = new HashMap<>() {{
-    put("updateArmPieceCube", new InstantCommand(armSubsystem::updateGamePieceCube, armSubsystem));
-    put("updateArmPieceCone", new InstantCommand(armSubsystem::updateGamePieceCone, armSubsystem));
-    put("updateArmHeightLow", new InstantCommand(armSubsystem::updateHeightLow, armSubsystem));
-    put("updateArmHeightMedium", new InstantCommand(armSubsystem::updateHeightMedium, armSubsystem));
-    put("updateArmHeightHigh", new InstantCommand(armSubsystem::updateHeightHigh, armSubsystem));
-    put("updateArmHeightPickup", new InstantCommand(armSubsystem::updateHeightPickup, armSubsystem));
-    put("updateArmDeployTrue", new InstantCommand(armSubsystem::updateDeployTrue, armSubsystem));
-    put("updateArmDeployFalse", new InstantCommand(armSubsystem::updateDeployFalse, armSubsystem));
+    put("armUpdateCubeLow", new InstantCommand(() -> {armSubsystem.updateGamePieceCube(); armSubsystem.updateHeightLow();}, armSubsystem));
+    put("armUpdateCubeMedium", new InstantCommand(() -> {armSubsystem.updateGamePieceCube(); armSubsystem.updateHeightMedium();}, armSubsystem));
+    put("armUpdateCubeHigh", new InstantCommand(() -> {armSubsystem.updateGamePieceCube(); armSubsystem.updateHeightHigh();}, armSubsystem));
+    put("armUpdateConeLow", new InstantCommand(() -> {armSubsystem.updateGamePieceCone(); armSubsystem.updateHeightLow();}, armSubsystem));
+    put("armUpdateConeMedium", new InstantCommand(() -> {armSubsystem.updateGamePieceCone(); armSubsystem.updateHeightMedium();}, armSubsystem));
+    put("armUpdateConeHigh", new InstantCommand(() -> {armSubsystem.updateGamePieceCone(); armSubsystem.updateHeightHigh();}, armSubsystem));
+    put("armUpdateDeployTrue", new InstantCommand(armSubsystem::updateDeployTrue, armSubsystem));
+    put("armUpdateDeployFalse", new InstantCommand(armSubsystem::updateDeployFalse, armSubsystem));
 
-    put("updateDriveLockWheelsTrue", new InstantCommand(driveSubsystem::updateLockWheelsTrue, driveSubsystem));
-    put("updateDriveLockWheelsFalse", new InstantCommand(driveSubsystem::updateLockWheelsFalse, driveSubsystem));
-    put("turnToNearest90", new DriveTurnToNearest90(false));
-    put("autoBalance", new DriveAutoBalance());
+    put("driveUpdateLockWheelsTrue", new InstantCommand(driveSubsystem::updateLockWheelsTrue, driveSubsystem));
+    put("driveUpdateLockWheelsFalse", new InstantCommand(driveSubsystem::updateLockWheelsFalse, driveSubsystem));
+    put("driveTurnToNearest90", new DriveTurnToNearest90(false));
+    put("driveAutoBalance", new DriveAutoBalance());
 
     put("intakeSetPower(-0.3)", new InstantCommand(() -> intakeSubsystem.setPower(-0.3)));
     put("intakeSetPower(0.0)", new InstantCommand(() -> intakeSubsystem.setPower(0.0)));
     put("intakeSetPower(0.1)", new InstantCommand(() -> intakeSubsystem.setPower(0.1)));
     put("intakeSetPower(1.0)", new InstantCommand(() -> intakeSubsystem.setPower(1.0)));
-    
+
     put("wait(0.1)", new WaitCommand(0.1));
     put("wait(0.5)", new WaitCommand(0.5));
   }};
