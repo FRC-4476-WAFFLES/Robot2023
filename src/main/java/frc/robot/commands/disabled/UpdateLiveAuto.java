@@ -4,6 +4,13 @@
 
 package frc.robot.commands.disabled;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class UpdateLiveAuto extends CommandBase {
@@ -19,10 +26,21 @@ public class UpdateLiveAuto extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // TODO: Check if the command should update the auto path, then do so if it should
-    // Path filePath = Path.of("path to file location");
+    // TODO: check names of smartdashboard keys
+    if (SmartDashboard.getBoolean("Live Auto Robot Update", false)) {
+      try {
+        String pathName = SmartDashboard.getString("Live Auto Name", "Live Auto");
+        Path filePath = new File(Filesystem.getDeployDirectory(), "pathplanner/" + pathName + ".path").toPath();
 
-    // Files.writeString(filePath, path from smartdashboard);
+        String currentAutoPath = Files.readString(filePath);
+
+        Files.writeString(filePath, SmartDashboard.getString("Live Auto Path", currentAutoPath));
+
+        System.err.println(Files.readString(filePath)); // For debugging, print out the updated auto path
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
   }
 
   // Called once the command ends or is interrupted.
