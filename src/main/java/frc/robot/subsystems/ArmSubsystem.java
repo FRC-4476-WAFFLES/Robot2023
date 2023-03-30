@@ -272,9 +272,9 @@ public class ArmSubsystem extends SubsystemBase {
 
     wristTargetPosition = MathUtil.clamp(wristTargetPosition, 0, 50);
 
-    // shoulderLeft.set(ControlMode.Position, shoulderTargetPosition);
-    // elbowLeft.set(ControlMode.Position, elbowTargetPosition);
-    // wristPID.setReference(wristTargetPosition, ControlType.kPosition);
+    shoulderLeft.set(ControlMode.Position, shoulderTargetPosition);
+    elbowLeft.set(ControlMode.Position, elbowTargetPosition);
+    wristPID.setReference(wristTargetPosition, ControlType.kPosition);
     
     SmartDashboard.putNumber("Shoulder left absolute encoder", getShoulderLeftAdjustedAbsoluteEncoderPos());
     SmartDashboard.putNumber("Shoulder right absolute encoder", getShoulderRightAbsoluteEncoderPos());

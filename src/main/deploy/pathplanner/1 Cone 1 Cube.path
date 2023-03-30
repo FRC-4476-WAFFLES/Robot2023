@@ -2,12 +2,12 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 2.69,
+        "x": 1.98,
         "y": 5.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.632822710181797,
+        "x": 2.151531869454609,
         "y": 5.0
       },
       "holonomicAngle": 0,
@@ -18,41 +18,13 @@
       "stopEvent": {
         "names": [
           "armUpdateConeHigh",
-          "armUpdateDeployTrue"
+          "armUpdateDeployTrue",
+          "wait(4.0)",
+          "outtake"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "after",
-        "waitTime": 1.5
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 1.98,
-        "y": 5.0
-      },
-      "prevControl": {
-        "x": 2.151531869454609,
-        "y": 5.0
-      },
-      "nextControl": {
-        "x": 2.151531869454609,
-        "y": 5.0
-      },
-      "holonomicAngle": 0,
-      "isReversal": true,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": true,
-      "stopEvent": {
-        "names": [
-          "intakeSetPower(-0.3)",
-          "wait(0.5)",
-          "intakeSetPower(0.0)",
-          "armUpdateDeployFalse"
-        ],
-        "executionBehavior": "sequential",
-        "waitBehavior": "none",
-        "waitTime": 0
+        "waitTime": 0.1
       }
     },
     {
@@ -95,18 +67,17 @@
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
-      "velOverride": null,
+      "velOverride": 1.0,
       "isLocked": false,
-      "isStopPoint": true,
+      "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "driveTurnToNearest90",
           "armUpdateCubeLow",
           "armUpdateDeployTrue",
           "intakeSetPower(1.0)"
         ],
         "executionBehavior": "sequential",
-        "waitBehavior": "after",
+        "waitBehavior": "none",
         "waitTime": 0.5
       }
     },
@@ -134,7 +105,7 @@
           "armUpdateDeployFalse"
         ],
         "executionBehavior": "parallel",
-        "waitBehavior": "before",
+        "waitBehavior": "none",
         "waitTime": 0.5
       }
     },
@@ -158,7 +129,7 @@
       "isStopPoint": true,
       "stopEvent": {
         "names": [
-          "driveTurnToNearest90",
+          "driveTurnToAngle(0)",
           "armUpdateCubeHigh",
           "armUpdateDeployTrue"
         ],
@@ -184,9 +155,7 @@
       "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "intakeSetPower(-0.3)",
-          "wait(0.5)",
-          "intakeSetPower(0.0)",
+          "outtake",
           "armUpdateDeployFalse"
         ],
         "executionBehavior": "sequential",
@@ -196,7 +165,22 @@
     }
   ],
   "maxVelocity": 3.0,
-  "maxAcceleration": 2.0,
+  "maxAcceleration": 3.0,
   "isReversed": null,
-  "markers": []
+  "markers": [
+    {
+      "position": 0.05,
+      "names": [
+        "armUpdateDeployFalse"
+      ]
+    },
+    {
+      "position": 1.8,
+      "names": [
+        "armUpdateCubeLow",
+        "armUpdateDeployTrue",
+        "intakeSetPower(1.0)"
+      ]
+    }
+  ]
 }

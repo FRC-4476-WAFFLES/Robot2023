@@ -17,31 +17,30 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.arm.ArmAuto;
 import frc.robot.commands.arm.ArmTeleop;
 import frc.robot.commands.auto.Balance;
 import frc.robot.commands.auto.Mobility;
 import frc.robot.commands.auto.MobilityAndBalance;
 import frc.robot.commands.auto.OneConeAndBalance;
 import frc.robot.commands.auto.OneConeAndMobilityAndBalance;
-import frc.robot.commands.auto.OneConeAndOneCube;
 import frc.robot.commands.auto.OneCube;
 import frc.robot.commands.auto.OneCubeAndBalance;
 import frc.robot.commands.auto.OneCubeAndMobilityAndBalance;
 import frc.robot.commands.auto.OneCubeAndPickup;
 import frc.robot.commands.auto.OneCubeAndPickupAndBalance;
 import frc.robot.commands.auto.PathTest;
-import frc.robot.commands.auto.TwoCube;
-import frc.robot.commands.auto.TwoCubeAndBalance;
-import frc.robot.commands.auto.TwoCubeAndPickup;
 import frc.robot.commands.drive.DriveAutoBalance;
 import frc.robot.commands.drive.DriveTeleop;
 import frc.robot.commands.drive.DriveToScoreLimelight;
 import frc.robot.commands.drive.DriveTurnToNearest90;
+import frc.robot.commands.drive.DriveTurnToSpecificAngle;
 import frc.robot.commands.intake.IntakeTeleop;
 import frc.robot.commands.lights.UpdateLightsWithRobotState;
 import frc.robot.commands.test.MainTest;
@@ -88,6 +87,7 @@ public class RobotContainer {
     put("driveUpdateLockWheelsTrue", new InstantCommand(driveSubsystem::updateLockWheelsTrue, driveSubsystem));
     put("driveUpdateLockWheelsFalse", new InstantCommand(driveSubsystem::updateLockWheelsFalse, driveSubsystem));
     put("driveTurnToNearest90", new DriveTurnToNearest90(false));
+    put("driveTurnToAngle(0)", new DriveTurnToSpecificAngle(0));
     put("driveAutoBalance", new DriveAutoBalance());
 
     put("intakeSetPower(-0.3)", new InstantCommand(() -> intakeSubsystem.setPower(-0.3)));
@@ -97,6 +97,9 @@ public class RobotContainer {
 
     put("wait(0.1)", new WaitCommand(0.1));
     put("wait(0.5)", new WaitCommand(0.5));
+    put("wait(4.0)", new WaitCommand(4.0));
+
+    put("outtake", new SequentialCommandGroup(new InstantCommand(() -> intakeSubsystem.setPower(-0.3)), new WaitCommand(0.5), new InstantCommand(() -> intakeSubsystem.setPower(0.0))));
   }};
 
   SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
@@ -123,13 +126,14 @@ public class RobotContainer {
   private final Command oneConeAndMobilityAndBalance = new OneConeAndMobilityAndBalance();
   private final Command oneCubeAndPickup = new OneCubeAndPickup();
   private final Command oneCubeAndPickupAndBalance = new OneCubeAndPickupAndBalance();
-  private final Command twoCube = new TwoCube();
-  private final Command oneConeAndOneCube = new OneConeAndOneCube();
-  private final Command twoCubeAndBalance = new TwoCubeAndBalance();
-  private final Command twoCubeAndPickup = new TwoCubeAndPickup();
+  // private final Command twoCube = new TwoCube();
+  // private final Command oneConeAndOneCube = new OneConeAndOneCube();
+  // private final Command twoCubeAndBalance = new TwoCubeAndBalance();
+  // private final Command twoCubeAndPickup = new TwoCubeAndPickup();
 
   private final Command testAuto = new PathTest();
-  private final Command fullAutoTest = autoBuilder.fullAuto(PathPlanner.loadPathGroup("Rotation Test", new PathConstraints(3, 2)));
+  private final Command fullAutoTest = autoBuilder.fullAuto(PathPlanner.loadPathGroup("Arm Testing", new PathConstraints(1, 1))).alongWith(new ArmAuto());
+  private final Command oneConeAndOneCube = autoBuilder.fullAuto(PathPlanner.loadPathGroup("1 Cone 1 Cube", new PathConstraints(3, 2))).alongWith(new ArmAuto());
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -150,10 +154,10 @@ public class RobotContainer {
     autoChooser.addOption("1 Cone and Mobility and Balance", oneConeAndMobilityAndBalance);
     autoChooser.addOption("1 Cube and Pickup", oneCubeAndPickup);
     autoChooser.addOption("1 Cube and Pickup and Balance", oneCubeAndPickupAndBalance);
-    autoChooser.addOption("2 Cube", twoCube);
+    // autoChooser.addOption("2 Cube", twoCube);
     autoChooser.addOption("1 Cone and 1 Cube", oneConeAndOneCube);
-    autoChooser.addOption("2 Cube and Balance", twoCubeAndBalance);
-    autoChooser.addOption("2 Cube and Pickup", twoCubeAndPickup);
+    // autoChooser.addOption("2 Cube and Balance", twoCubeAndBalance);
+    // autoChooser.addOption("2 Cube and Pickup", twoCubeAndPickup);
     autoChooser.addOption("Test Auto", testAuto);
     autoChooser.addOption("Test Full Auto", fullAutoTest);
     SmartDashboard.putData("Auto Chooser", autoChooser);
