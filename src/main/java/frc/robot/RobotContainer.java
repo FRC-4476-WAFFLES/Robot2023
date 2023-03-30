@@ -160,6 +160,8 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
     SmartDashboard.setDefaultBoolean("Use Live Auto", false);
+    SmartDashboard.setDefaultNumber("Live Auto Max Velocity", 3);
+    SmartDashboard.setDefaultNumber("Live Auto Max Acceleration", 2);
   }
 
   /**
@@ -215,8 +217,12 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    if (SmartDashboard.getBoolean("Get Live Auto", false)) {
-      return autoBuilder.fullAuto(PathPlanner.loadPathGroup(SmartDashboard.getString("Live Auto Name", "Live Auto"), new PathConstraints(3, 2)));
+    if (SmartDashboard.getBoolean("Use Live Auto", false)) {
+      double maxVelocity = SmartDashboard.getNumber("Live Auto Max Velocity", 3);
+      double maxAcceleration = SmartDashboard.getNumber("Live Auto Max Acceleration", 2);
+      System.err.println(PathPlanner.loadPath(SmartDashboard.getString("Live Auto Name", "Live Auto"), new PathConstraints(maxVelocity, maxAcceleration)));
+      // return autoBuilder.fullAuto(PathPlanner.loadPathGroup(SmartDashboard.getString("Live Auto Name", "Live Auto"), new PathConstraints(maxVelocity, maxAcceleration)));
+      return null;
     } else {
       return autoChooser.getSelected();
     }

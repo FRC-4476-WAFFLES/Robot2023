@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class UpdateLiveAuto extends CommandBase {
   private boolean autoHasBeenReloaded = false;
+
   /** Creates a new UpdateLiveAuto. */
   public UpdateLiveAuto() {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -22,12 +23,14 @@ public class UpdateLiveAuto extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    SmartDashboard.setDefaultBoolean("Live Auto DS Reload", false);
+    SmartDashboard.setDefaultString("Live Auto Name", "Live Auto");
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    // TODO: check names of smartdashboard keys
     boolean reloadAuto = SmartDashboard.getBoolean("Live Auto Robot Reload", false);
     if (reloadAuto && !autoHasBeenReloaded) {
       try {
@@ -39,8 +42,6 @@ public class UpdateLiveAuto extends CommandBase {
         Files.writeString(filePath, SmartDashboard.getString("Live Auto Path", currentAutoPath));
 
         autoHasBeenReloaded = true;
-
-        System.err.println(Files.readString(filePath)); // For debugging, print out the updated auto path
       } catch (IOException e) {
         e.printStackTrace();
       }
