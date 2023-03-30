@@ -19,7 +19,7 @@
         "names": [
           "armUpdateConeHigh",
           "armUpdateDeployTrue",
-          "wait(4.0)",
+          "wait(1.2)",
           "outtake"
         ],
         "executionBehavior": "sequential",
@@ -84,17 +84,17 @@
     {
       "anchorPoint": {
         "x": 6.317578789003732,
-        "y": 4.6
+        "y": 4.55
       },
       "prevControl": {
-        "x": 6.122114115778726,
-        "y": 4.6
+        "x": 6.154696817239569,
+        "y": 4.574183185456242
       },
       "nextControl": {
-        "x": 6.122114115778726,
-        "y": 4.6
+        "x": 6.154696817239569,
+        "y": 4.574183185456242
       },
-      "holonomicAngle": 180.0,
+      "holonomicAngle": -175.0,
       "isReversal": true,
       "velOverride": null,
       "isLocked": false,
@@ -122,7 +122,7 @@
         "x": 2.058567868058284,
         "y": 4.71140868101993
       },
-      "holonomicAngle": 0,
+      "holonomicAngle": 6.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -135,7 +135,7 @@
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "after",
-        "waitTime": 0.5
+        "waitTime": 0.0
       }
     },
     {
@@ -148,7 +148,7 @@
         "y": 4.562747727492602
       },
       "nextControl": null,
-      "holonomicAngle": 0,
+      "holonomicAngle": 6.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,

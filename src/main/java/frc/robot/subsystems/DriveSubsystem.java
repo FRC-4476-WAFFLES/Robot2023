@@ -143,7 +143,7 @@ public class DriveSubsystem extends SubsystemBase {
     public void setModuleStates(SwerveModuleState[] swerveModuleStates){
         if (lockWheels) {
             for (int i = 0; i < modules.length; i++) {
-                modules[i].drive(new SwerveModuleState(0, Rotation2d.fromDegrees(i % 2 == 0 ? 45 : -45)));
+                modules[i].drive(new SwerveModuleState(0, Rotation2d.fromDegrees(i % 2 == 0 ? -45 : 45)));
             }
         } else {
             for(int i = 0; i < modules.length; i++){

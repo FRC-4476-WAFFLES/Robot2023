@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   private Command m_testCommand;
+  private Command m_disabledCommand;
 
   private RobotContainer m_robotContainer;
 
@@ -58,7 +59,13 @@ public class Robot extends TimedRobot {
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    m_disabledCommand = m_robotContainer.getDisabledCommand();
+
+    if (m_disabledCommand != null) {
+      m_disabledCommand.schedule();
+    }
+  }
 
   @Override
   public void disabledPeriodic() {}
@@ -71,6 +78,10 @@ public class Robot extends TimedRobot {
     // Make sure the test command is not running
     if (m_testCommand != null) {
       m_testCommand.cancel();
+    }
+
+    if (m_disabledCommand != null) {
+      m_disabledCommand.cancel();
     }
 
     // schedule the autonomous command (example)
@@ -98,6 +109,10 @@ public class Robot extends TimedRobot {
       m_testCommand.cancel();
     }
 
+    if (m_disabledCommand != null) {
+      m_disabledCommand.cancel();
+    }
+
     Command m_teleopInitCommand = m_robotContainer.getTeleopInitCommand();
     if (m_teleopInitCommand != null) {
       m_teleopInitCommand.schedule();
@@ -115,6 +130,10 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().cancelAll();
 
     m_testCommand = m_robotContainer.getTestCommand();
+
+    if (m_disabledCommand != null) {
+      m_disabledCommand.cancel();
+    }
 
     // schedule the autonomous command (example)
     if (m_testCommand != null) {

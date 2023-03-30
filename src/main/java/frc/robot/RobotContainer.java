@@ -36,6 +36,7 @@ import frc.robot.commands.auto.OneCubeAndMobilityAndBalance;
 import frc.robot.commands.auto.OneCubeAndPickup;
 import frc.robot.commands.auto.OneCubeAndPickupAndBalance;
 import frc.robot.commands.auto.PathTest;
+import frc.robot.commands.disabled.UpdateLiveAuto;
 import frc.robot.commands.drive.DriveAutoBalance;
 import frc.robot.commands.drive.DriveTeleop;
 import frc.robot.commands.drive.DriveToScoreLimelight;
@@ -88,16 +89,81 @@ public class RobotContainer {
     put("driveUpdateLockWheelsFalse", new InstantCommand(driveSubsystem::updateLockWheelsFalse, driveSubsystem));
     put("driveTurnToNearest90", new DriveTurnToNearest90(false));
     put("driveTurnToAngle(0)", new DriveTurnToSpecificAngle(0));
+    put("driveTurnToAngle(10)", new DriveTurnToSpecificAngle(10));
     put("driveAutoBalance", new DriveAutoBalance());
 
+    put("intakeSetPower(-1.0)", new InstantCommand(() -> intakeSubsystem.setPower(-1.0)));
+    put("intakeSetPower(-0.9)", new InstantCommand(() -> intakeSubsystem.setPower(-0.9)));
+    put("intakeSetPower(-0.8)", new InstantCommand(() -> intakeSubsystem.setPower(-0.8)));
+    put("intakeSetPower(-0.7)", new InstantCommand(() -> intakeSubsystem.setPower(-0.7)));
+    put("intakeSetPower(-0.6)", new InstantCommand(() -> intakeSubsystem.setPower(-0.6)));
+    put("intakeSetPower(-0.5)", new InstantCommand(() -> intakeSubsystem.setPower(-0.5)));
+    put("intakeSetPower(-0.4)", new InstantCommand(() -> intakeSubsystem.setPower(-0.4)));
     put("intakeSetPower(-0.3)", new InstantCommand(() -> intakeSubsystem.setPower(-0.3)));
+    put("intakeSetPower(-0.2)", new InstantCommand(() -> intakeSubsystem.setPower(-0.2)));
+    put("intakeSetPower(-0.1)", new InstantCommand(() -> intakeSubsystem.setPower(-0.1)));
     put("intakeSetPower(0.0)", new InstantCommand(() -> intakeSubsystem.setPower(0.0)));
     put("intakeSetPower(0.1)", new InstantCommand(() -> intakeSubsystem.setPower(0.1)));
+    put("intakeSetPower(0.2)", new InstantCommand(() -> intakeSubsystem.setPower(0.2)));
+    put("intakeSetPower(0.3)", new InstantCommand(() -> intakeSubsystem.setPower(0.3)));
+    put("intakeSetPower(0.4)", new InstantCommand(() -> intakeSubsystem.setPower(0.4)));
+    put("intakeSetPower(0.5)", new InstantCommand(() -> intakeSubsystem.setPower(0.5)));
+    put("intakeSetPower(0.6)", new InstantCommand(() -> intakeSubsystem.setPower(0.6)));
+    put("intakeSetPower(0.7)", new InstantCommand(() -> intakeSubsystem.setPower(0.7)));
+    put("intakeSetPower(0.8)", new InstantCommand(() -> intakeSubsystem.setPower(0.8)));
+    put("intakeSetPower(0.9)", new InstantCommand(() -> intakeSubsystem.setPower(0.9)));
     put("intakeSetPower(1.0)", new InstantCommand(() -> intakeSubsystem.setPower(1.0)));
 
     put("wait(0.1)", new WaitCommand(0.1));
+    put("wait(0.2)", new WaitCommand(0.2));
+    put("wait(0.3)", new WaitCommand(0.3));
+    put("wait(0.4)", new WaitCommand(0.4));
     put("wait(0.5)", new WaitCommand(0.5));
+    put("wait(0.6)", new WaitCommand(0.6));
+    put("wait(0.7)", new WaitCommand(0.7));
+    put("wait(0.8)", new WaitCommand(0.8));
+    put("wait(0.9)", new WaitCommand(0.9));
+    put("wait(1.0)", new WaitCommand(1.0));
+    put("wait(1.1)", new WaitCommand(1.1));
+    put("wait(1.2)", new WaitCommand(1.2));
+    put("wait(1.3)", new WaitCommand(1.3));
+    put("wait(1.4)", new WaitCommand(1.4));
+    put("wait(1.5)", new WaitCommand(1.5));
+    put("wait(1.6)", new WaitCommand(1.6));
+    put("wait(1.7)", new WaitCommand(1.7));
+    put("wait(1.8)", new WaitCommand(1.8));
+    put("wait(1.9)", new WaitCommand(1.9));
+    put("wait(2.0)", new WaitCommand(2.0));
+    put("wait(2.1)", new WaitCommand(2.1));
+    put("wait(2.2)", new WaitCommand(2.2));
+    put("wait(2.3)", new WaitCommand(2.3));
+    put("wait(2.4)", new WaitCommand(2.4));
+    put("wait(2.5)", new WaitCommand(2.5));
+    put("wait(2.6)", new WaitCommand(2.6));
+    put("wait(2.7)", new WaitCommand(2.7));
+    put("wait(2.8)", new WaitCommand(2.8));
+    put("wait(2.9)", new WaitCommand(2.9));
+    put("wait(3.0)", new WaitCommand(3.0));
+    put("wait(3.1)", new WaitCommand(3.1));
+    put("wait(3.2)", new WaitCommand(3.2));
+    put("wait(3.3)", new WaitCommand(3.3));
+    put("wait(3.4)", new WaitCommand(3.4));
+    put("wait(3.5)", new WaitCommand(3.5));
+    put("wait(3.6)", new WaitCommand(3.6));
+    put("wait(3.7)", new WaitCommand(3.7));
+    put("wait(3.8)", new WaitCommand(3.8));
+    put("wait(3.9)", new WaitCommand(3.9));
     put("wait(4.0)", new WaitCommand(4.0));
+    put("wait(4.1)", new WaitCommand(4.1));
+    put("wait(4.2)", new WaitCommand(4.2));
+    put("wait(4.3)", new WaitCommand(4.3));
+    put("wait(4.4)", new WaitCommand(4.4));
+    put("wait(4.5)", new WaitCommand(4.5));
+    put("wait(4.6)", new WaitCommand(4.6));
+    put("wait(4.7)", new WaitCommand(4.7));
+    put("wait(4.8)", new WaitCommand(4.8));
+    put("wait(4.9)", new WaitCommand(4.9));
+    put("wait(5.0)", new WaitCommand(5.0));
 
     put("outtake", new SequentialCommandGroup(new InstantCommand(() -> intakeSubsystem.setPower(-0.3)), new WaitCommand(0.5), new InstantCommand(() -> intakeSubsystem.setPower(0.0))));
   }};
@@ -133,7 +199,7 @@ public class RobotContainer {
 
   private final Command testAuto = new PathTest();
   private final Command fullAutoTest = autoBuilder.fullAuto(PathPlanner.loadPathGroup("Arm Testing", new PathConstraints(1, 1))).alongWith(new ArmAuto());
-  private final Command oneConeAndOneCube = autoBuilder.fullAuto(PathPlanner.loadPathGroup("1 Cone 1 Cube", new PathConstraints(3, 2))).alongWith(new ArmAuto());
+  private final Command oneConeAndOneCube = autoBuilder.fullAuto(PathPlanner.loadPathGroup("1 Cone 1 Cube", new PathConstraints(3, 3))).alongWith(new ArmAuto());
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -193,7 +259,7 @@ public class RobotContainer {
 
     right1.whileTrue(new DriveTurnToNearest90());
     left1.whileTrue(new DriveToScoreLimelight());
-    left2.toggleOnTrue(new StartEndCommand(driveSubsystem::updateLockWheelsTrue, driveSubsystem::updateLockWheelsFalse, driveSubsystem));
+    left2.toggleOnTrue(new StartEndCommand(driveSubsystem::updateLockWheelsTrue, driveSubsystem::updateLockWheelsFalse));
     right14.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem).alongWith(new InstantCommand(driveSubsystem::resetGyro)));
     // left1.whileTrue(new DriveAutoBalance());
 
@@ -216,7 +282,18 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
+    if (SmartDashboard.getBoolean("Use Live Auto", false)) {
+      double maxVelocity = SmartDashboard.getNumber("Live Auto Max Velocity", 3);
+      double maxAcceleration = SmartDashboard.getNumber("Live Auto Max Acceleration", 2);
+      // System.err.println(PathPlanner.loadPath(SmartDashboard.getString("Live Auto Name", "Live Auto"), new PathConstraints(maxVelocity, maxAcceleration)));
+      return autoBuilder.fullAuto(PathPlanner.loadPathGroup(SmartDashboard.getString("Live Auto Name", "Live Auto"), new PathConstraints(maxVelocity, maxAcceleration)));
+    } else {
+      return autoChooser.getSelected();
+    }
+  }
+
+  public Command getDisabledCommand() {
+    return new UpdateLiveAuto();
   }
 
   public Command getTestCommand() {

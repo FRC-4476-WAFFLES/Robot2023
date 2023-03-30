@@ -244,7 +244,7 @@ public final class Constants {
 
     public static final HashMap<ArmState, SetPoint> setPoints = new HashMap<ArmState, SetPoint>() {{
       put(new ArmState(Height.HIGH, GamePiece.CUBE, false, false), new SetPoint(7000, -110000, 10));
-      put(new ArmState(Height.HIGH, GamePiece.CONE, false, false), new SetPoint(20000, -168000, 38)); 
+      put(new ArmState(Height.HIGH, GamePiece.CONE, false, false), new SetPoint(14500, -145000, 30)); 
       put(new ArmState(Height.MEDIUM, GamePiece.CUBE, false, false), new SetPoint(0, -88000, 6));     
       put(new ArmState(Height.MEDIUM, GamePiece.CONE, false, false), new SetPoint(0, -124000, 30)); 
       put(new ArmState(Height.LOW, GamePiece.CUBE, false, false), new SetPoint(33000, -27000, 0)); 
