@@ -9,7 +9,6 @@ import java.util.HashMap;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.auto.PIDConstants;
-import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -42,6 +41,7 @@ import frc.robot.commands.drive.DriveTeleop;
 import frc.robot.commands.drive.DriveToScoreLimelight;
 import frc.robot.commands.drive.DriveTurnToNearest90;
 import frc.robot.commands.drive.DriveTurnToSpecificAngle;
+import frc.robot.commands.drive.SwerveAutoBuilderEx;
 import frc.robot.commands.intake.IntakeTeleop;
 import frc.robot.commands.lights.UpdateLightsWithRobotState;
 import frc.robot.commands.test.MainTest;
@@ -168,11 +168,11 @@ public class RobotContainer {
     put("outtake", new SequentialCommandGroup(new InstantCommand(() -> intakeSubsystem.setPower(-0.3)), new WaitCommand(0.5), new InstantCommand(() -> intakeSubsystem.setPower(0.0))));
   }};
 
-  SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
+  SwerveAutoBuilderEx autoBuilder = new SwerveAutoBuilderEx(
     driveSubsystem::getAdjustedPose, // Pose2d supplier
     driveSubsystem::resetOdometry, // Pose2d consumer, used to reset odometry at the beginning of auto
     new PIDConstants(2, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
-    new PIDConstants(0.1, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
+    new PIDConstants(-4.0, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
     driveSubsystem::setChassisSpeedsAuto, // Module states consumer used to output to the drive subsystem
     eventMap,
     true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
