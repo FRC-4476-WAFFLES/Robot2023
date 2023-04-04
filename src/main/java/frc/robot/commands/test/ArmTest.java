@@ -46,25 +46,25 @@ public class ArmTest extends CommandBase {
   public void execute() {
     if (timer.get() < 3) {
       armSubsystem.updateGamePieceCube();
-      armSubsystem.updateHeightHigh();
+      armSubsystem.updateHeightScoreHigh();
       armSubsystem.updateDeployTrue();
     } else if (timer.get() < 6) {
       armSubsystem.updateDeployFalse();
     } else if (timer.get() < 9) {
       armSubsystem.updateGamePieceCone();
-      armSubsystem.updateHeightMedium();
+      armSubsystem.updateHeightScoreMedium();
       armSubsystem.updateDeployTrue();
     } else if (timer.get() < 12) {
       armSubsystem.updateDeployFalse();
     } else if (timer.get() < 15) {
       armSubsystem.updateGamePieceCone();
-      armSubsystem.updateHeightLow();
+      armSubsystem.updateHeightScoreLow();
       armSubsystem.updateDeployTrue();
     } else if (timer.get() < 18) {
       armSubsystem.updateDeployFalse();
     } else if (timer.get() < 21) {
       armSubsystem.updateGamePieceCube();
-      armSubsystem.updateHeightPickup();
+      armSubsystem.updateHeightPickupShelf();
       armSubsystem.updateDeployTrue();
     } else {
       armSubsystem.updateDeployFalse();

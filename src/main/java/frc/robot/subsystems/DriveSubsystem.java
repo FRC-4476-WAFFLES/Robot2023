@@ -34,6 +34,7 @@ public class DriveSubsystem extends SubsystemBase {
     private final AHRS gyro = new AHRS(SPI.Port.kMXP);
 
     private boolean lockWheels = false;
+    private boolean isAutoAiming = false;
 
     public DriveSubsystem() {
         ArrayList<Translation2d> positions = new ArrayList<Translation2d>();
@@ -209,5 +210,13 @@ public class DriveSubsystem extends SubsystemBase {
 
     public boolean getLockWheels() {
         return lockWheels;
+    }
+
+    public boolean isAutoAiming() {
+        return isAutoAiming;
+    }
+
+    public void setAutoAiming(boolean isAutoAiming) {
+        this.isAutoAiming = isAutoAiming;
     }
 }

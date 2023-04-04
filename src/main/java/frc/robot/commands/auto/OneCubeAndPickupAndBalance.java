@@ -33,7 +33,7 @@ public class OneCubeAndPickupAndBalance extends SequentialCommandGroup {
     addCommands(
       new InstantCommand(() -> {
         armSubsystem.updateGamePieceCube();
-        armSubsystem.updateHeightHigh();
+        armSubsystem.updateHeightScoreHigh();
         armSubsystem.updateFudgeFalse();
       }, armSubsystem),
       new InstantCommand(() -> intakeSubsystem.setPower(0.1)),
@@ -81,7 +81,7 @@ public class OneCubeAndPickupAndBalance extends SequentialCommandGroup {
             new WaitCommand(1.0),
             new InstantCommand(() -> {
               armSubsystem.updateGamePieceCube();
-              armSubsystem.updateHeightLow();
+              armSubsystem.updateHeightScoreLow();
               armSubsystem.updateDeployTrue();
             }, armSubsystem),
             new InstantCommand(() -> intakeSubsystem.setPower(0.5))

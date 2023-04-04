@@ -13,17 +13,19 @@ import static frc.robot.RobotContainer.*;
 public class DriveTurnToNearest90 extends CommandBase {
   private final TurnToNearest90 turn;
   private final JoystickDrive drive;
-  private boolean canTranslate;
+  private final boolean canTranslate;
+  private final boolean endCommand;
 
   /** Creates a new TurnToNearest90. */
   public DriveTurnToNearest90() {
-    this(true);
+    this(true, true);
   }
 
-  public DriveTurnToNearest90(boolean canTranslate) {
+  public DriveTurnToNearest90(boolean canTranslate, boolean endCommand) {
     this.turn = new TurnToNearest90();
     this.drive = new JoystickDrive();
     this.canTranslate = canTranslate;
+    this.endCommand = endCommand;
     addRequirements(driveSubsystem);
   }
 
@@ -57,6 +59,6 @@ public class DriveTurnToNearest90 extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(driveSubsystem.getOdometryLocation().getRotation().getDegrees() - turn.getTargetHeading()) < 5.0;
+    return endCommand && Math.abs(driveSubsystem.getOdometryLocation().getRotation().getDegrees() - turn.getTargetHeading()) < 2.0;
   }
 }

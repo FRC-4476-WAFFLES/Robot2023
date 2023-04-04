@@ -34,7 +34,7 @@ public class TwoCubeAndBalance extends SequentialCommandGroup {
     addCommands(
       new InstantCommand(() -> {
         armSubsystem.updateGamePieceCube();
-        armSubsystem.updateHeightHigh();
+        armSubsystem.updateHeightScoreHigh();
         armSubsystem.updateFudgeFalse();
         armSubsystem.updateDeployTrue();
         driveSubsystem.resetOdometry(driveToScore1.getInitialHolonomicPose());
@@ -79,7 +79,7 @@ public class TwoCubeAndBalance extends SequentialCommandGroup {
         ).alongWith(
           new WaitCommand(0.5).andThen(new InstantCommand(() -> {
             armSubsystem.updateGamePieceCube();
-            armSubsystem.updateHeightLow();
+            armSubsystem.updateHeightScoreLow();
           }, armSubsystem)),
           new InstantCommand(() -> intakeSubsystem.setPower(0.5))
         ),
@@ -101,7 +101,7 @@ public class TwoCubeAndBalance extends SequentialCommandGroup {
         ).alongWith(
           new WaitCommand(1.7).andThen(new InstantCommand(() -> {
             armSubsystem.updateGamePieceCube();
-            armSubsystem.updateHeightHigh();
+            armSubsystem.updateHeightScoreHigh();
             armSubsystem.updateDeployTrue();
           }, armSubsystem))
         ),

@@ -39,7 +39,7 @@ public class ArmTeleop extends CommandBase {
       armSubsystem.fudgeWristWithAnalogStick(MathUtil.applyDeadband(joystickAxis3.get(), 0.05));
     } else {
       armSubsystem.setpointsFromStateMachine();
-      if (intakeSubsystem.getPower() > 0.1 && armSubsystem.getHeight() == Height.HPPICKUP) {
+      if (intakeSubsystem.getPower() > 0.1 && armSubsystem.getHeight() == Height.PICKUP_SHELF) {
         armSubsystem.fudgeElbowSetpoint(40000);
       }
     }

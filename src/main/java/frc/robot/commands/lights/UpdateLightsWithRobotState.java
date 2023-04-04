@@ -7,6 +7,7 @@ package frc.robot.commands.lights;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants;
 import frc.robot.Constants.GamePiece;
 import frc.robot.subsystems.LightSubsystem.LightColours;
 
@@ -28,6 +29,10 @@ public class UpdateLightsWithRobotState extends CommandBase {
       lightSubsystem.setLightColour(LightColours.BLUE);
     } else if (driveSubsystem.getLockWheels()) {
       lightSubsystem.setLightColour(LightColours.PINK);
+    } else if (driveSubsystem.isAutoAiming() && Math.abs(camera.getFilteredHorizontal()) < Constants.DriveConstants.aimToleranceDegrees && camera.getHasTarget()) {
+      lightSubsystem.setLightColour(LightColours.GREEN);
+    } else if (driveSubsystem.isAutoAiming() && camera.getHasTarget()) {
+      lightSubsystem.blinkBetweenColours(LightColours.RED, LightColours.BLACK);
     } else if (armSubsystem.getPiece() == GamePiece.CUBE) {
       lightSubsystem.blinkBetweenColours(LightColours.VIOLET, LightColours.BLACK);
     } else {

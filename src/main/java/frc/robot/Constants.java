@@ -74,10 +74,12 @@ public final class Constants {
 
   /** The different heights of the scoring and pickup locations */
   public enum Height {
-    HIGH,
-    MEDIUM,
-    LOW, 
-    HPPICKUP
+    SCORE_HIGH,
+    SCORE_MEDIUM,
+    SCORE_LOW, 
+    PICKUP_SHELF,
+    PICKUP_CHUTE,
+    PICKUP_GROUND
   }
 
   /** The different game peices */
@@ -116,6 +118,8 @@ public final class Constants {
     public static final double ticksPerSteeringRevolution = 2048.0 * steeringRatio;
     // Convert degrees to motor ticks
     public static final double ticksPerSteeringDegree = ticksPerSteeringRevolution / 360.0;
+
+    public static final double cameraHorisontalTolerance = 2;
 
     public static final HashMap<DriveState, Pose2d> scoringLocations = new HashMap<>() {{
       put(new DriveState(GamePiece.CONE, Alliance.Red, 0), new Pose2d(14.59, 0.53, new Rotation2d(0.0)));
@@ -231,11 +235,11 @@ public final class Constants {
     public static final double a2 = 1.0;
     public static final double a3 = 0.1;
 
-    public static final double shoulderLeftCalibration = 344.0;
+    public static final double shoulderLeftCalibration = 341.0;
     public static final double shoulderRightCalibration = 284.0;
     public static final double shoulderRatio = (1.0 / 80.0) * (15.0 / 36.0);
 
-    public static final double elbowCalibration = 250.0;
+    public static final double elbowCalibration = 192.0;
     public static final double elbowBaseRatio = 1.0 / 100.0;
     public static final double elbowChainRunRatio = 32.0 / 74.0;
 
@@ -243,26 +247,28 @@ public final class Constants {
     public static final double wristRatio = 1.0 / 80.0;
 
     public static final HashMap<ArmState, SetPoint> setPoints = new HashMap<ArmState, SetPoint>() {{
-      put(new ArmState(Height.HIGH, GamePiece.CUBE, false, false), new SetPoint(7000, -110000, 10));
-      put(new ArmState(Height.HIGH, GamePiece.CONE, false, false), new SetPoint(14500, -145000, 30)); 
-      put(new ArmState(Height.MEDIUM, GamePiece.CUBE, false, false), new SetPoint(0, -88000, 6));     
-      put(new ArmState(Height.MEDIUM, GamePiece.CONE, false, false), new SetPoint(0, -124000, 30)); 
-      put(new ArmState(Height.LOW, GamePiece.CUBE, false, false), new SetPoint(33000, -27000, 0)); 
-      put(new ArmState(Height.LOW, GamePiece.CONE, false, false), new SetPoint(33000, -27000, 0)); 
-      put(new ArmState(Height.HPPICKUP, GamePiece.CUBE, false, false), new SetPoint(-17000, -136000, 40)); 
-      put(new ArmState(Height.HPPICKUP, GamePiece.CONE, false, false), new SetPoint(-17000, -142000, 40)); 
+      put(new ArmState(Height.SCORE_HIGH, GamePiece.CUBE, false), new SetPoint(7000, -110000, 10));
+      put(new ArmState(Height.SCORE_HIGH, GamePiece.CONE, false), new SetPoint(14500, -145000, 30)); 
+      put(new ArmState(Height.SCORE_MEDIUM, GamePiece.CUBE, false), new SetPoint(0, -88000, 6));     
+      put(new ArmState(Height.SCORE_MEDIUM, GamePiece.CONE, false), new SetPoint(-7000, -100000, 24)); 
+      put(new ArmState(Height.SCORE_LOW, GamePiece.CUBE, false), new SetPoint(17000, -21000, 9.2)); 
+      put(new ArmState(Height.SCORE_LOW, GamePiece.CONE, false), new SetPoint(17000, -21000, 0)); 
+      put(new ArmState(Height.PICKUP_SHELF, GamePiece.CUBE, false), new SetPoint(-17000, -136000, 40)); 
+      put(new ArmState(Height.PICKUP_SHELF, GamePiece.CONE, false), new SetPoint(-17000, -142000, 40)); 
+      put(new ArmState(Height.PICKUP_CHUTE, GamePiece.CUBE, false), new SetPoint(-17000, -47000, 0)); 
+      put(new ArmState(Height.PICKUP_CHUTE, GamePiece.CONE, false), new SetPoint(-17000, -47000, 0)); 
+      put(new ArmState(Height.PICKUP_GROUND, GamePiece.CUBE, false), new SetPoint(17000, -21000, 9.2)); 
+      put(new ArmState(Height.PICKUP_GROUND, GamePiece.CONE, false), new SetPoint(33000, -27000, 0)); 
     }};
 
     public static class ArmState {
       public Height height;
       public GamePiece piece;
-      public boolean altpickupl;
       public boolean fudge;
   
-      public ArmState(Height height, GamePiece piece, boolean altpickupl, boolean fudge){
+      public ArmState(Height height, GamePiece piece, boolean fudge){
         this.height = height;
         this.piece = piece;
-        this.altpickupl = altpickupl;
         this.fudge = fudge;
       }
   
@@ -278,7 +284,7 @@ public final class Constants {
   
         final ArmState armStateObj = (ArmState) obj;
   
-        return this.height.equals(armStateObj.height) && this.piece.equals(armStateObj.piece) && this.altpickupl == armStateObj.altpickupl;
+        return this.height.equals(armStateObj.height) && this.piece.equals(armStateObj.piece);
       }
   
       @Override
@@ -286,7 +292,6 @@ public final class Constants {
         int temp = 0;
         temp += height.ordinal();
         temp += piece.ordinal() * 4;
-        temp += altpickupl ? 16 : 0;
         return temp;
       }
     }

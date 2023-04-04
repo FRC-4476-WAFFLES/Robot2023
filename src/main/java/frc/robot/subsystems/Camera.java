@@ -29,7 +29,8 @@ public class Camera extends SubsystemBase {
   }
 
   public enum Pipeline {
-    TheOnlyPipelineWeAreUsing
+    AprilTags,
+    RetroReflective
   }
 
   NetworkTable camera;
@@ -55,6 +56,7 @@ public class Camera extends SubsystemBase {
     SmartDashboard.putBoolean("Camera has target", getHasTarget());
     SmartDashboard.putNumber("Camera tx", getHorizontal());
     SmartDashboard.putNumber("Camera ty", getVertical());
+    SmartDashboard.putNumber("Camera filtered tx", txFiltered);
     SmartDashboard.putString("Robot pose", getRobotPose2d().toString());
   }
 
@@ -148,10 +150,12 @@ public class Camera extends SubsystemBase {
   public Pipeline getActivePipeline() {
     // getpipe: True active pipeline index of the camera (0 .. 9)
     switch ((int) camera.getEntry("getpipe").getDouble(0)) {
-    case 0:
-      return Pipeline.TheOnlyPipelineWeAreUsing;
-    default:
-      return Pipeline.TheOnlyPipelineWeAreUsing;
+      case 0:
+        return Pipeline.AprilTags;
+      case 1:
+        return Pipeline.RetroReflective;
+      default:
+        return Pipeline.AprilTags;
     }
   }
 }

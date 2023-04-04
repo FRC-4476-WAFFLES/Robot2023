@@ -29,7 +29,7 @@ public class OneCubeAndBalance extends SequentialCommandGroup {
     addCommands(
       new InstantCommand(() -> {
         armSubsystem.updateGamePieceCube();
-        armSubsystem.updateHeightHigh();
+        armSubsystem.updateHeightScoreHigh();
         armSubsystem.updateFudgeFalse();
       }, armSubsystem),
       new InstantCommand(() -> intakeSubsystem.setPower(0.1)),

@@ -29,7 +29,7 @@ public class OneConeAndBalance extends SequentialCommandGroup {
     addCommands(
       new InstantCommand(() -> {
         armSubsystem.updateGamePieceCone();
-        armSubsystem.updateHeightHigh();
+        armSubsystem.updateHeightScoreHigh();
         armSubsystem.updateFudgeFalse();
         armSubsystem.resetEncoders();
       }, armSubsystem),

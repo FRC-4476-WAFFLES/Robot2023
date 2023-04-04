@@ -33,7 +33,7 @@ public class TwoCubeAndPickup extends SequentialCommandGroup {
     addCommands(
       new InstantCommand(() -> {
         armSubsystem.updateGamePieceCube();
-        armSubsystem.updateHeightHigh();
+        armSubsystem.updateHeightScoreHigh();
         armSubsystem.updateFudgeFalse();
         armSubsystem.updateDeployTrue();
         driveSubsystem.resetOdometry(driveToScore1.getInitialHolonomicPose());
@@ -79,7 +79,7 @@ public class TwoCubeAndPickup extends SequentialCommandGroup {
             new WaitCommand(1.0),
             new InstantCommand(() -> {
               armSubsystem.updateGamePieceCube();
-              armSubsystem.updateHeightLow();
+              armSubsystem.updateHeightScoreLow();
               armSubsystem.updateDeployTrue();
             }, armSubsystem),
             new InstantCommand(() -> intakeSubsystem.setPower(0.5))
@@ -103,7 +103,7 @@ public class TwoCubeAndPickup extends SequentialCommandGroup {
         ).alongWith(
           new WaitCommand(2.0).andThen(new InstantCommand(() -> {
             armSubsystem.updateGamePieceCube();
-            armSubsystem.updateHeightMedium();
+            armSubsystem.updateHeightScoreMedium();
             armSubsystem.updateDeployTrue();
           }, armSubsystem))
         ),
@@ -128,7 +128,7 @@ public class TwoCubeAndPickup extends SequentialCommandGroup {
             new WaitCommand(1.0),
             new InstantCommand(() -> {
               armSubsystem.updateGamePieceCube();
-              armSubsystem.updateHeightLow();
+              armSubsystem.updateHeightScoreLow();
               armSubsystem.updateDeployTrue();
             }, armSubsystem),
             new InstantCommand(() -> intakeSubsystem.setPower(0.5))

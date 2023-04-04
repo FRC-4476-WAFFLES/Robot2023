@@ -32,7 +32,7 @@ import frc.robot.Constants.Height;
 import frc.robot.utils.LazyTalonFX;
 
 public class ArmSubsystem extends SubsystemBase {
-  private ArmState state = new ArmState(Height.LOW, GamePiece.CONE, false, false);
+  private ArmState state = new ArmState(Height.SCORE_LOW, GamePiece.CONE, false);
   private boolean deploy = false;
 
   private final CANSparkMax wristLeft;
@@ -64,6 +64,7 @@ public class ArmSubsystem extends SubsystemBase {
   private double previousLoopTime = 0;
 
   private double shoulderLeftAdjustedCalibration;
+  private double shoulderRightAdjustedCalibration;
   private double elbowAdjustedCalibration;
   private double wristAdjustedCalibration;
 
@@ -201,6 +202,11 @@ public class ArmSubsystem extends SubsystemBase {
       shoulderLeftAdjustedCalibration += 360;
     }
 
+    shoulderRightAdjustedCalibration = Constants.ArmConstants.shoulderRightCalibration - 180;
+    while (shoulderRightAdjustedCalibration < 0) {
+      shoulderRightAdjustedCalibration += 360;
+    }
+
     elbowAdjustedCalibration = Constants.ArmConstants.elbowCalibration - 180;
     while (elbowAdjustedCalibration < 0) {
       elbowAdjustedCalibration += 360;
@@ -246,7 +252,7 @@ public class ArmSubsystem extends SubsystemBase {
     if (elbowEncoderPreviousValue == getElbowAbsoluteEncoderPos()) elbowEncoderEnabled = false;
     if (wristEncoderPreviousValue == getWristAbsoluteEncoderPos()) wristEncoderEnabled = false;
 
-    if (state.piece == GamePiece.CONE && state.height == Height.HIGH && Math.abs(elbowTargetPosition - elbowLeft.getSelectedSensorPosition()) > 50000) {
+    if (state.piece == GamePiece.CONE && state.height == Height.SCORE_HIGH && Math.abs(elbowTargetPosition - elbowLeft.getSelectedSensorPosition()) > 50000) {
       shoulderTargetPosition = shoulderLeft.getSelectedSensorPosition();
     }
 
@@ -260,7 +266,7 @@ public class ArmSubsystem extends SubsystemBase {
       shoulderTargetPosition = Math.min(shoulderTargetPosition, 2.0 * Constants.ArmConstants.shoulderRatio * 2048.0 / 360.0);
     }
 
-    if (Math.abs(getShoulderAbsoluteEncoderAverage()) < 20 && Math.abs(getElbowCompensatedAbsoluteEncoderPos()) < 30) {
+    if (Math.abs(getShoulderAbsoluteEncoderAverage()) < 20 && Math.abs(getElbowCompensatedAbsoluteEncoderPos()) < 20) { // 20, 30
       wristTargetPosition = armRetractPosition;
     } else if (
       Math.abs(getShoulderAbsoluteEncoderAverage()) < 30 
@@ -275,8 +281,11 @@ public class ArmSubsystem extends SubsystemBase {
     shoulderLeft.set(ControlMode.Position, shoulderTargetPosition);
     elbowLeft.set(ControlMode.Position, elbowTargetPosition);
     wristPID.setReference(wristTargetPosition, ControlType.kPosition);
+
+    SmartDashboard.putNumber("Shoulder Left Adjusted Calibration", shoulderLeftAdjustedCalibration);
+    SmartDashboard.putNumber("Shoulder Right Adjusted Calibration", shoulderRightAdjustedCalibration);
     
-    SmartDashboard.putNumber("Shoulder left absolute encoder", getShoulderLeftAdjustedAbsoluteEncoderPos());
+    SmartDashboard.putNumber("Shoulder left absolute encoder", getShoulderLeftAbsoluteEncoderPos());
     SmartDashboard.putNumber("Shoulder right absolute encoder", getShoulderRightAbsoluteEncoderPos());
     SmartDashboard.putNumber("Shoulder absolute pos", getShoulderAbsoluteEncoderAverage());
 
@@ -309,7 +318,6 @@ public class ArmSubsystem extends SubsystemBase {
 
     SmartDashboard.putBoolean("Arm target setpoint is cube", state.piece == GamePiece.CUBE);
     SmartDashboard.putString("Arm target setpoint height", state.height.name());
-    SmartDashboard.putBoolean("Arm target setpoint is alt pickup 1", state.altpickupl);
     SmartDashboard.putBoolean("Arm target setpoint is in fudge mod", state.fudge);
     SmartDashboard.putBoolean("Arm should be deployed", deploy);
 
@@ -386,8 +394,20 @@ public class ArmSubsystem extends SubsystemBase {
     return adjustedPos;
   }
 
+  private double getShoulderLeftAbsoluteEncoderPos() {
+    return shoulderLeftAbsoluteEncoder.getDistance();
+  }
+
   private double getShoulderRightAbsoluteEncoderPos() {
-    return Math.abs(shoulderRightAbsoluteEncoder.getDistance());
+    return shoulderRightAbsoluteEncoder.getDistance();
+  }
+
+  private double getShoulderRightAdjustedAbsoluteEncoderPos() {
+    double adjustedPos = shoulderRightAbsoluteEncoder.getDistance() - 180.0;
+    while (adjustedPos < 0) {
+      adjustedPos += 360.0;
+    }
+    return adjustedPos;
   }
 
   private double getElbowAdjustedAbsoluteEncoderPos() {
@@ -403,8 +423,11 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   private double getShoulderAbsoluteEncoderAverage() {
+    // return (-(getShoulderLeftAdjustedAbsoluteEncoderPos() - shoulderLeftAdjustedCalibration)
+    // + (getShoulderRightAbsoluteEncoderPos() - Constants.ArmConstants.shoulderRightCalibration)
+    // ) / 2;
     return (-(getShoulderLeftAdjustedAbsoluteEncoderPos() - shoulderLeftAdjustedCalibration)
-    + (getShoulderRightAbsoluteEncoderPos() - Constants.ArmConstants.shoulderRightCalibration)
+    + (getShoulderRightAdjustedAbsoluteEncoderPos() - shoulderRightAdjustedCalibration)
     ) / 2;
   }
 
@@ -430,34 +453,36 @@ public class ArmSubsystem extends SubsystemBase {
     if (wristEncoderEnabled) wristLeftEncoder.setPosition(getWristCalibratedAbsoluteEncoderPos() / Constants.ArmConstants.wristRatio / 360.0);
   }
 
-  public void updateHeightHigh() {
-    state.height = Height.HIGH;
-    state.altpickupl = false;
+  public void updateHeightScoreHigh() {
+    state.height = Height.SCORE_HIGH;
   }
 
-  public void updateHeightMedium() {
-    state.height = Height.MEDIUM;
-    state.altpickupl = false;
+  public void updateHeightScoreMedium() {
+    state.height = Height.SCORE_MEDIUM;
   }
 
-  public void updateHeightLow() {
-    state.height = Height.LOW;
-    state.altpickupl = false;
+  public void updateHeightScoreLow() {
+    state.height = Height.SCORE_LOW;
   }
 
-  public void updateHeightPickup() {
-    state.height = Height.HPPICKUP;
-    state.altpickupl = false;
+  public void updateHeightPickupShelf() {
+    state.height = Height.PICKUP_SHELF;
+  }
+
+  public void updateHeightPickupChute() {
+    state.height = Height.PICKUP_CHUTE;
+  }
+
+  public void updateHeightPickupGround() {
+    state.height = Height.PICKUP_GROUND;
   }
 
   public void updateGamePieceCube() {
     state.piece = GamePiece.CUBE;
-    state.altpickupl = false;
   }
 
   public void updateGamePieceCone() {
     state.piece = GamePiece.CONE;
-    state.altpickupl = false;
   }
 
   public void togglePiece() {
@@ -466,11 +491,6 @@ public class ArmSubsystem extends SubsystemBase {
     } else {
       state.piece = GamePiece.CUBE;
     }
-    state.altpickupl = false;
-  }
-
-  public void toggleAltPickupl() {
-    state.altpickupl = !state.altpickupl;
   }
 
   public void updateFudgeTrue() {

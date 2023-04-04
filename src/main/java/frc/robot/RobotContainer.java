@@ -76,18 +76,20 @@ public class RobotContainer {
 
   /** A map of events and their corresponding commands */
   private final HashMap<String, Command> eventMap = new HashMap<>() {{
-    put("armUpdateCubeLow", new InstantCommand(() -> {armSubsystem.updateGamePieceCube(); armSubsystem.updateHeightLow();}, armSubsystem));
-    put("armUpdateCubeMedium", new InstantCommand(() -> {armSubsystem.updateGamePieceCube(); armSubsystem.updateHeightMedium();}, armSubsystem));
-    put("armUpdateCubeHigh", new InstantCommand(() -> {armSubsystem.updateGamePieceCube(); armSubsystem.updateHeightHigh();}, armSubsystem));
-    put("armUpdateConeLow", new InstantCommand(() -> {armSubsystem.updateGamePieceCone(); armSubsystem.updateHeightLow();}, armSubsystem));
-    put("armUpdateConeMedium", new InstantCommand(() -> {armSubsystem.updateGamePieceCone(); armSubsystem.updateHeightMedium();}, armSubsystem));
-    put("armUpdateConeHigh", new InstantCommand(() -> {armSubsystem.updateGamePieceCone(); armSubsystem.updateHeightHigh();}, armSubsystem));
+    put("armUpdateCubeScoreLow", new InstantCommand(() -> {armSubsystem.updateGamePieceCube(); armSubsystem.updateHeightScoreLow();}, armSubsystem));
+    put("armUpdateCubeScoreMedium", new InstantCommand(() -> {armSubsystem.updateGamePieceCube(); armSubsystem.updateHeightScoreMedium();}, armSubsystem));
+    put("armUpdateCubeScoreHigh", new InstantCommand(() -> {armSubsystem.updateGamePieceCube(); armSubsystem.updateHeightScoreHigh();}, armSubsystem));
+    put("armUpdateCubePickupGround", new InstantCommand(() -> {armSubsystem.updateGamePieceCube(); armSubsystem.updateHeightPickupGround();}, armSubsystem));
+    put("armUpdateConeScoreLow", new InstantCommand(() -> {armSubsystem.updateGamePieceCone(); armSubsystem.updateHeightScoreLow();}, armSubsystem));
+    put("armUpdateConeScoreMedium", new InstantCommand(() -> {armSubsystem.updateGamePieceCone(); armSubsystem.updateHeightScoreMedium();}, armSubsystem));
+    put("armUpdateConeScoreHigh", new InstantCommand(() -> {armSubsystem.updateGamePieceCone(); armSubsystem.updateHeightScoreHigh();}, armSubsystem));
+    put("armUpdateConePickupGround", new InstantCommand(() -> {armSubsystem.updateGamePieceCone(); armSubsystem.updateHeightPickupGround();}, armSubsystem));
     put("armUpdateDeployTrue", new InstantCommand(armSubsystem::updateDeployTrue, armSubsystem));
     put("armUpdateDeployFalse", new InstantCommand(armSubsystem::updateDeployFalse, armSubsystem));
 
     put("driveUpdateLockWheelsTrue", new InstantCommand(driveSubsystem::updateLockWheelsTrue, driveSubsystem));
     put("driveUpdateLockWheelsFalse", new InstantCommand(driveSubsystem::updateLockWheelsFalse, driveSubsystem));
-    put("driveTurnToNearest90", new DriveTurnToNearest90(false));
+    put("driveTurnToNearest90", new DriveTurnToNearest90(false, true));
     put("driveTurnToAngle(0)", new DriveTurnToSpecificAngle(0));
     put("driveTurnToAngle(10)", new DriveTurnToSpecificAngle(10));
     put("driveAutoBalance", new DriveAutoBalance());
@@ -249,29 +251,31 @@ public class RobotContainer {
     final var xButton = new JoystickButton(operate, XboxController.Button.kX.value);
     final var yButton = new JoystickButton(operate, XboxController.Button.kY.value);
     // final var leftStickButton = new JoystickButton(operate, XboxController.Button.kLeftStick.value);
-    // final var rightStickButton = new JoystickButton(operate, XboxController.Button.kRightStick.value);
+    final var rightStickButton = new JoystickButton(operate, XboxController.Button.kRightStick.value);
     // final var leftBumperButton = new JoystickButton(operate, XboxController.Button.kLeftBumper.value);
     final var rightBumperButton = new JoystickButton(operate, XboxController.Button.kRightBumper.value);
     // final var backButton = new JoystickButton(operate, XboxController.Button.kBack.value);
     // final var startButton = new JoystickButton(operate, XboxController.Button.kStart.value);
-    // final var dpadDown = new Trigger(() -> operate.getPOV() == 180);
+    final var dpadDown = new Trigger(() -> operate.getPOV() == 180);
     final var dpadUp = new Trigger(() -> operate.getPOV() == 0);
 
-    right1.whileTrue(new DriveTurnToNearest90());
-    left1.whileTrue(new DriveToScoreLimelight());
+    left1.whileTrue(new DriveTurnToNearest90(true, true));
+    right1.whileTrue(new DriveToScoreLimelight());
     left2.toggleOnTrue(new StartEndCommand(driveSubsystem::updateLockWheelsTrue, driveSubsystem::updateLockWheelsFalse));
     right14.onTrue(new InstantCommand(driveSubsystem::resetSteerEncoders, driveSubsystem).alongWith(new InstantCommand(driveSubsystem::resetGyro)));
     // left1.whileTrue(new DriveAutoBalance());
 
-    aButton.onTrue(new InstantCommand(armSubsystem::updateHeightLow, armSubsystem));
-    bButton.onTrue(new InstantCommand(armSubsystem::updateHeightMedium, armSubsystem));
-    yButton.onTrue(new InstantCommand(armSubsystem::updateHeightHigh, armSubsystem));
-    xButton.onTrue(new InstantCommand(armSubsystem::updateHeightPickup, armSubsystem));
+    aButton.onTrue(new InstantCommand(armSubsystem::updateHeightPickupGround, armSubsystem));
+    bButton.onTrue(new InstantCommand(armSubsystem::updateHeightScoreMedium, armSubsystem));
+    yButton.onTrue(new InstantCommand(armSubsystem::updateHeightScoreHigh, armSubsystem));
+    xButton.onTrue(new InstantCommand(armSubsystem::updateHeightPickupShelf, armSubsystem));
+    dpadDown.onTrue(new InstantCommand(armSubsystem::updateHeightPickupChute, armSubsystem));
+    rightStickButton.onTrue(new InstantCommand(armSubsystem::updateHeightScoreLow, armSubsystem));
     rightBumperButton.onTrue(new InstantCommand(armSubsystem::togglePiece, armSubsystem));
     dpadUp.onTrue(new InstantCommand(armSubsystem::updateFudgeTrue, armSubsystem));
     dpadUp.onFalse(new InstantCommand(armSubsystem::updateFudgeFalse, armSubsystem));
 
-    aButton.or(bButton).or(xButton).or(yButton).or(armSubsystem::getFudge).onTrue(new InstantCommand(armSubsystem::updateDeployTrue)).onFalse(new InstantCommand(armSubsystem::updateDeployFalse));
+    aButton.or(bButton).or(xButton).or(yButton).or(dpadDown).or(rightStickButton).or(armSubsystem::getFudge).onTrue(new InstantCommand(armSubsystem::updateDeployTrue)).onFalse(new InstantCommand(armSubsystem::updateDeployFalse));
 
     SmartDashboard.putData("Reset Arm Encoders", new InstantCommand(armSubsystem::resetEncoders, armSubsystem));
   }
@@ -282,14 +286,15 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    if (SmartDashboard.getBoolean("Use Live Auto", false)) {
-      double maxVelocity = SmartDashboard.getNumber("Live Auto Max Velocity", 3);
-      double maxAcceleration = SmartDashboard.getNumber("Live Auto Max Acceleration", 2);
-      // System.err.println(PathPlanner.loadPath(SmartDashboard.getString("Live Auto Name", "Live Auto"), new PathConstraints(maxVelocity, maxAcceleration)));
-      return autoBuilder.fullAuto(PathPlanner.loadPathGroup(SmartDashboard.getString("Live Auto Name", "Live Auto"), new PathConstraints(maxVelocity, maxAcceleration)));
-    } else {
-      return autoChooser.getSelected();
-    }
+    // if (SmartDashboard.getBoolean("Use Live Auto", false)) {
+    //   double maxVelocity = SmartDashboard.getNumber("Live Auto Max Velocity", 3);
+    //   double maxAcceleration = SmartDashboard.getNumber("Live Auto Max Acceleration", 2);
+    //   // System.err.println(PathPlanner.loadPath(SmartDashboard.getString("Live Auto Name", "Live Auto"), new PathConstraints(maxVelocity, maxAcceleration)));
+    //   return autoBuilder.fullAuto(PathPlanner.loadPathGroup(SmartDashboard.getString("Live Auto Name", "Live Auto"), new PathConstraints(maxVelocity, maxAcceleration)));
+    // } else {
+    //   return autoChooser.getSelected();
+    // }
+    return autoChooser.getSelected();
   }
 
   public Command getDisabledCommand() {
