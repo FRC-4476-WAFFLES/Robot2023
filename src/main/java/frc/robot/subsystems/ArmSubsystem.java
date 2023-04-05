@@ -266,7 +266,7 @@ public class ArmSubsystem extends SubsystemBase {
       shoulderTargetPosition = Math.min(shoulderTargetPosition, 2.0 * Constants.ArmConstants.shoulderRatio * 2048.0 / 360.0);
     }
 
-    if (Math.abs(getShoulderAbsoluteEncoderAverage()) < 20 && Math.abs(getElbowCompensatedAbsoluteEncoderPos()) < 20) { // 20, 30
+    if (Math.abs(getShoulderAbsoluteEncoderAverage()) < 15 && Math.abs(getElbowCompensatedAbsoluteEncoderPos()) < 20) { // 20, 30
       wristTargetPosition = armRetractPosition;
     } else if (
       Math.abs(getShoulderAbsoluteEncoderAverage()) < 30 

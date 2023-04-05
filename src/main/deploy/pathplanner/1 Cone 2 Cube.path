@@ -19,7 +19,7 @@
         "names": [
           "armUpdateConeScoreHigh",
           "armUpdateDeployTrue",
-          "wait(1.5)",
+          "wait(1.2)",
           "outtake"
         ],
         "executionBehavior": "sequential",
@@ -29,18 +29,18 @@
     },
     {
       "anchorPoint": {
-        "x": 4.8,
-        "y": 5.002728839276921
+        "x": 2.7547983301094807,
+        "y": 4.796050617742261
       },
       "prevControl": {
-        "x": 4.516298868676442,
-        "y": 5.002728839276921
+        "x": 2.4710971987859223,
+        "y": 4.796050617742261
       },
       "nextControl": {
-        "x": 5.016964194612148,
-        "y": 5.002728839276921
+        "x": 2.97176252472163,
+        "y": 4.796050617742261
       },
-      "holonomicAngle": 89.18805913110361,
+      "holonomicAngle": 0.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -54,25 +54,27 @@
     },
     {
       "anchorPoint": {
-        "x": 5.662972124803023,
-        "y": 4.55
+        "x": 5.712362877717208,
+        "y": 4.6
       },
       "prevControl": {
-        "x": 5.360615012824542,
-        "y": 4.55
+        "x": 4.091223026412389,
+        "y": 4.6
       },
       "nextControl": {
-        "x": 5.937828961439644,
-        "y": 4.55
+        "x": 5.9872197143538255,
+        "y": 4.6
       },
       "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": 1.0,
       "isLocked": false,
-      "isStopPoint": true,
+      "isStopPoint": false,
       "stopEvent": {
         "names": [
-          "driveTurnToNearest90"
+          "armUpdateCubeLow",
+          "armUpdateDeployTrue",
+          "intakeSetPower(1.0)"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",
@@ -81,16 +83,16 @@
     },
     {
       "anchorPoint": {
-        "x": 6.6,
+        "x": 6.317578789003732,
         "y": 4.55
       },
       "prevControl": {
-        "x": 6.4353325679298035,
-        "y": 4.55
+        "x": 6.154696817239569,
+        "y": 4.574183185456242
       },
       "nextControl": {
-        "x": 6.4353325679298035,
-        "y": 4.55
+        "x": 6.154696817239569,
+        "y": 4.574183185456242
       },
       "holonomicAngle": 180.0,
       "isReversal": true,
@@ -109,18 +111,18 @@
     },
     {
       "anchorPoint": {
-        "x": 4.5,
-        "y": 5.0
+        "x": 3.1128649989111676,
+        "y": 4.71140868101993
       },
       "prevControl": {
-        "x": 5.554297130852878,
-        "y": 5.0
+        "x": 4.167162129764051,
+        "y": 4.71140868101993
       },
       "nextControl": {
-        "x": 4.1332557263742,
-        "y": 5.0
+        "x": 2.058567868058284,
+        "y": 4.71140868101993
       },
-      "holonomicAngle": 90.16861128356109,
+      "holonomicAngle": 1.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -138,16 +140,44 @@
     },
     {
       "anchorPoint": {
-        "x": 3.2,
-        "y": 5.0
+        "x": 1.980754660510747,
+        "y": 4.414086773965274
       },
       "prevControl": {
-        "x": 3.272634174206439,
-        "y": 5.0
+        "x": 2.335253857383606,
+        "y": 4.562747727492602
       },
       "nextControl": {
-        "x": 2.968732175119797,
-        "y": 5.0
+        "x": 2.335253857383606,
+        "y": 4.562747727492602
+      },
+      "holonomicAngle": 0.0,
+      "isReversal": true,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": true,
+      "stopEvent": {
+        "names": [
+          "outtake",
+          "armUpdateDeployFalse"
+        ],
+        "executionBehavior": "sequential",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 3.2068341687703787,
+        "y": 4.71339041803448
+      },
+      "prevControl": {
+        "x": 2.6561110024389687,
+        "y": 4.71339041803448
+      },
+      "nextControl": {
+        "x": 3.701267638089699,
+        "y": 4.71339041803448
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -163,56 +193,51 @@
     },
     {
       "anchorPoint": {
-        "x": 2.3,
-        "y": 4.5
+        "x": 5.847047262607646,
+        "y": 4.1588251106531375
       },
       "prevControl": {
-        "x": 2.4695602312745275,
-        "y": 4.911676486691062
+        "x": 5.105005221219752,
+        "y": 4.900867152041034
       },
-      "nextControl": null,
-      "holonomicAngle": 0.0,
+      "nextControl": {
+        "x": 6.160497218953622,
+        "y": 3.84537515430716
+      },
+      "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [
-          "driveTurnToAngle(0)",
-          "outtake",
-          "armUpdateDeployFalse",
-          "driveUpdateLockWheelsTrue"
-        ],
-        "executionBehavior": "sequential",
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 6.256943359367769,
+        "y": 3.387255987339963
+      },
+      "prevControl": {
+        "x": 5.931437635470025,
+        "y": 3.495757895305879
+      },
+      "nextControl": null,
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
     }
   ],
-  "maxVelocity": 2.0,
-  "maxAcceleration": 2.0,
-  "isReversed": null,
-  "markers": [
-    {
-      "position": 0.05,
-      "names": [
-        "armUpdateDeployFalse"
-      ]
-    },
-    {
-      "position": 1.0545454545454764,
-      "names": [
-        "armUpdateCubePickupGround",
-        "armUpdateDeployTrue",
-        "intakeSetPower(1.0)"
-      ]
-    },
-    {
-      "position": 4.407272727272725,
-      "names": [
-        "armUpdateCubeScoreHigh",
-        "armUpdateDeployTrue"
-      ]
-    }
-  ]
+  "markers": []
 }

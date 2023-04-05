@@ -94,7 +94,7 @@ public class SwerveModule {
             currentAngle -= 360;
         }
 
-        double velocityOffset = currentAngleVelocityRaw * DriveConstants.steeringToDriveRatio;
+        double velocityOffset = -currentAngleVelocityRaw * DriveConstants.steeringToDriveRatio;
 
         SwerveModuleState optimizedState = SwerveModuleState.optimize(desired, Rotation2d.fromDegrees(currentAngle));
         

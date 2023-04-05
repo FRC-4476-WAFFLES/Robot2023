@@ -9,6 +9,7 @@ import java.util.HashMap;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.auto.PIDConstants;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -92,6 +93,7 @@ public class RobotContainer {
     put("driveTurnToNearest90", new DriveTurnToNearest90(false, true));
     put("driveTurnToAngle(0)", new DriveTurnToSpecificAngle(0));
     put("driveTurnToAngle(10)", new DriveTurnToSpecificAngle(10));
+    put("driveTurnToAngle(180)", new DriveTurnToSpecificAngle(180));
     put("driveAutoBalance", new DriveAutoBalance());
 
     put("intakeSetPower(-1.0)", new InstantCommand(() -> intakeSubsystem.setPower(-1.0)));
@@ -167,14 +169,14 @@ public class RobotContainer {
     put("wait(4.9)", new WaitCommand(4.9));
     put("wait(5.0)", new WaitCommand(5.0));
 
-    put("outtake", new SequentialCommandGroup(new InstantCommand(() -> intakeSubsystem.setPower(-0.3)), new WaitCommand(0.5), new InstantCommand(() -> intakeSubsystem.setPower(0.0))));
+    put("outtake", new SequentialCommandGroup(new InstantCommand(() -> intakeSubsystem.setPower(-0.5)), new WaitCommand(0.8), new InstantCommand(() -> intakeSubsystem.setPower(0.0))));
   }};
 
-  SwerveAutoBuilderEx autoBuilder = new SwerveAutoBuilderEx(
+  SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
     driveSubsystem::getAdjustedPose, // Pose2d supplier
     driveSubsystem::resetOdometry, // Pose2d consumer, used to reset odometry at the beginning of auto
     new PIDConstants(2, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
-    new PIDConstants(-4.0, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
+    new PIDConstants(0.1, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
     driveSubsystem::setChassisSpeedsAuto, // Module states consumer used to output to the drive subsystem
     eventMap,
     true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
@@ -201,7 +203,7 @@ public class RobotContainer {
 
   private final Command testAuto = new PathTest();
   private final Command fullAutoTest = autoBuilder.fullAuto(PathPlanner.loadPathGroup("Arm Testing", new PathConstraints(1, 1))).alongWith(new ArmAuto());
-  private final Command oneConeAndOneCube = autoBuilder.fullAuto(PathPlanner.loadPathGroup("1 Cone 1 Cube", new PathConstraints(3, 3))).alongWith(new ArmAuto());
+  private final Command oneConeAndOneCube = autoBuilder.fullAuto(PathPlanner.loadPathGroup("1 Cone 1 Cube", new PathConstraints(2, 2))).alongWith(new ArmAuto());
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {

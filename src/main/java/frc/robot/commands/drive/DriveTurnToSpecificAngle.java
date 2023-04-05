@@ -32,11 +32,12 @@ public class DriveTurnToSpecificAngle extends PIDCommand {
     addRequirements(driveSubsystem);
     // Use addRequirements() here to declare subsystem dependencies.
     // Configure additional PID options by calling `getController` here.
+    getController().enableContinuousInput(-180, 180);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(driveSubsystem.getOdometryLocation().getRotation().getDegrees() - targetHeading) < 5.0;
+    return Math.abs(driveSubsystem.getOdometryLocation().getRotation().getDegrees() - targetHeading) < 2.0;
   }
 }
