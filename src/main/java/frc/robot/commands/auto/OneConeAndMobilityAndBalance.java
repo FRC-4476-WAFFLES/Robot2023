@@ -40,7 +40,7 @@ public class OneConeAndMobilityAndBalance extends SequentialCommandGroup {
       new InstantCommand(armSubsystem::setpointsFromStateMachine, armSubsystem),
       new SequentialCommandGroup(
         new InstantCommand(armSubsystem::updateDeployTrue, armSubsystem), 
-        new WaitCommand(1.5), 
+        new WaitCommand(2.0), 
         new PPSwerveControllerCommand(
           driveToScore,
           driveSubsystem::getOdometryLocation,

@@ -253,7 +253,9 @@ public class ArmSubsystem extends SubsystemBase {
     if (wristEncoderPreviousValue == getWristAbsoluteEncoderPos()) wristEncoderEnabled = false;
 
     if (state.piece == GamePiece.CONE && state.height == Height.SCORE_HIGH && Math.abs(elbowTargetPosition - elbowLeft.getSelectedSensorPosition()) > 50000) {
-      shoulderTargetPosition = shoulderLeft.getSelectedSensorPosition();
+      // shoulderTargetPosition = shoulderLeft.getSelectedSensorPosition();
+      shoulderTargetPosition = -10000;
+      setWristSetpoint(armRetractPosition);
     }
 
     if (!deploy) {
@@ -263,10 +265,10 @@ public class ArmSubsystem extends SubsystemBase {
     }
     
     if (Math.abs(getElbowCompensatedAbsoluteEncoderPos()) < 10) {
-      shoulderTargetPosition = Math.min(shoulderTargetPosition, 2.0 * Constants.ArmConstants.shoulderRatio * 2048.0 / 360.0);
+      shoulderTargetPosition = Math.min(shoulderTargetPosition, 5.0 * Constants.ArmConstants.shoulderRatio * 2048.0 / 360.0);
     }
 
-    if (Math.abs(getShoulderAbsoluteEncoderAverage()) < 15 && Math.abs(getElbowCompensatedAbsoluteEncoderPos()) < 20) { // 20, 30
+    if (Math.abs(getShoulderAbsoluteEncoderAverage()) < 10 && -getElbowCompensatedAbsoluteEncoderPos() < 15) { // 20, 30
       wristTargetPosition = armRetractPosition;
     } else if (
       Math.abs(getShoulderAbsoluteEncoderAverage()) < 30 

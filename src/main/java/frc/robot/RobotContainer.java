@@ -204,6 +204,7 @@ public class RobotContainer {
   private final Command testAuto = new PathTest();
   private final Command fullAutoTest = autoBuilder.fullAuto(PathPlanner.loadPathGroup("Arm Testing", new PathConstraints(1, 1))).alongWith(new ArmAuto());
   private final Command oneConeAndOneCube = autoBuilder.fullAuto(PathPlanner.loadPathGroup("1 Cone 1 Cube", new PathConstraints(2, 2))).alongWith(new ArmAuto());
+  private final Command oneConeAndOneCubeBumpSide = autoBuilder.fullAuto(PathPlanner.loadPathGroup("1 Cone 1 Cube Bump Side 2 Copy", new PathConstraints(2, 2))).alongWith(new ArmAuto());
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -226,6 +227,7 @@ public class RobotContainer {
     autoChooser.addOption("1 Cube and Pickup and Balance", oneCubeAndPickupAndBalance);
     // autoChooser.addOption("2 Cube", twoCube);
     autoChooser.addOption("1 Cone and 1 Cube", oneConeAndOneCube);
+    autoChooser.addOption("1 Cone and 1 Cube Bump Side", oneConeAndOneCubeBumpSide);
     // autoChooser.addOption("2 Cube and Balance", twoCubeAndBalance);
     // autoChooser.addOption("2 Cube and Pickup", twoCubeAndPickup);
     autoChooser.addOption("Test Auto", testAuto);
