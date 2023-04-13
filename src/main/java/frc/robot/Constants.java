@@ -164,6 +164,15 @@ public final class Constants {
       new SwerveModuleConstants(new Translation2d(-wheelbaseLengthM / 2.0, -wheelbaseWidthM / 2.0), 47, swerveModule3Angle, swerveModule3Drive, swerveModule3Encoder),
     };
 
+    // // Constants for each individual swerve module
+    // public static final SwerveModuleConstants swerveModules[] = new SwerveModuleConstants[] {
+    //   // Modules are in the order of Back Left (0), Front Left (1), Front Right (2), Back Right (3), when intake is front of robot
+    //   new SwerveModuleConstants(new Translation2d(-wheelbaseLengthM / 2.0, -wheelbaseWidthM / 2.0), 80, swerveModule0Angle, swerveModule0Drive, swerveModule0Encoder),
+    //   new SwerveModuleConstants(new Translation2d(-wheelbaseLengthM / 2.0, wheelbaseWidthM / 2.0), -123, swerveModule1Angle, swerveModule1Drive, swerveModule1Encoder),
+    //   new SwerveModuleConstants(new Translation2d(wheelbaseLengthM / 2.0, wheelbaseWidthM / 2.0), 22, swerveModule2Angle, swerveModule2Drive, swerveModule2Encoder),
+    //   new SwerveModuleConstants(new Translation2d(wheelbaseLengthM / 2.0, -wheelbaseWidthM / 2.0), 47, swerveModule3Angle, swerveModule3Drive, swerveModule3Encoder),
+    // };
+
     public static final class SwerveModuleConstants {
       /** Represents the offset from the centre of the robot, in metres. */
       public final Translation2d position;
@@ -235,24 +244,25 @@ public final class Constants {
     public static final double a2 = 1.0;
     public static final double a3 = 0.1;
 
-    public static final double shoulderLeftCalibration = 341.0;
+    public static final double shoulderLeftCalibration = 284.0;
     public static final double shoulderRightCalibration = 284.0;
     public static final double shoulderRatio = (1.0 / 80.0) * (15.0 / 36.0);
 
     public static final double elbowCalibration = 192.0;
     public static final double elbowBaseRatio = 1.0 / 100.0;
     public static final double elbowChainRunRatio = 32.0 / 74.0;
+    public static final double elbowRatio = elbowBaseRatio * elbowChainRunRatio;
 
     public static final double wristCalibration = 70.0;
     public static final double wristRatio = 1.0 / 80.0;
 
     public static final HashMap<ArmState, SetPoint> setPoints = new HashMap<ArmState, SetPoint>() {{
       put(new ArmState(Height.SCORE_HIGH, GamePiece.CUBE, false), new SetPoint(7000, -113000, 10));
-      put(new ArmState(Height.SCORE_HIGH, GamePiece.CONE, false), new SetPoint(12000, -152000, 30)); // 14500, -150000, 30
+      put(new ArmState(Height.SCORE_HIGH, GamePiece.CONE, false), new SetPoint(12000, -152000, 30));
       put(new ArmState(Height.SCORE_MEDIUM, GamePiece.CUBE, false), new SetPoint(0, -90000, 6));     
       put(new ArmState(Height.SCORE_MEDIUM, GamePiece.CONE, false), new SetPoint(-9000, -102000, 24)); 
-      put(new ArmState(Height.SCORE_LOW, GamePiece.CUBE, false), new SetPoint(17000, -23000, 9.2)); 
-      put(new ArmState(Height.SCORE_LOW, GamePiece.CONE, false), new SetPoint(17000, -23000, 0)); 
+      put(new ArmState(Height.SCORE_LOW, GamePiece.CUBE, false), new SetPoint(25000, -36000, 0)); 
+      put(new ArmState(Height.SCORE_LOW, GamePiece.CONE, false), new SetPoint(25000, -36000, 0)); 
       put(new ArmState(Height.PICKUP_SHELF, GamePiece.CUBE, false), new SetPoint(-17000, -136000, 40)); 
       put(new ArmState(Height.PICKUP_SHELF, GamePiece.CONE, false), new SetPoint(-17000, -142000, 40)); 
       put(new ArmState(Height.PICKUP_CHUTE, GamePiece.CUBE, false), new SetPoint(-17000, -47000, 0)); 

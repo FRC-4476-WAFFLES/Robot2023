@@ -263,26 +263,33 @@ public class ArmSubsystem extends SubsystemBase {
       setElbowSetpoint(-7000);
       setWristSetpoint(armRetractPosition);
     }
-    
-    if (Math.abs(getElbowCompensatedAbsoluteEncoderPos()) < 10) {
-      shoulderTargetPosition = Math.min(shoulderTargetPosition, 5.0 * Constants.ArmConstants.shoulderRatio * 2048.0 / 360.0);
+
+    double shoulderRelativeAngle = shoulderLeft.getSelectedSensorPosition() / 2048.0 * Constants.ArmConstants.shoulderRatio * 360.0;
+    double elbowRelativeAngle = elbowLeft.getSelectedSensorPosition() / 2048.0 * Constants.ArmConstants.elbowRatio * 360.0;
+
+    if (elbowRelativeAngle > 10) {
+      shoulderTargetPosition = Math.min(shoulderTargetPosition, 5.0 / Constants.ArmConstants.shoulderRatio * 2048.0 / 360.0);
     }
 
-    if (Math.abs(getShoulderAbsoluteEncoderAverage()) < 10 && -getElbowCompensatedAbsoluteEncoderPos() < 15) { // 20, 30
+    if (shoulderRelativeAngle < 10 && elbowRelativeAngle + shoulderRelativeAngle * Constants.ArmConstants.elbowChainRunRatio > -15) { // 20, 30
       wristTargetPosition = armRetractPosition;
-    } else if (
-      Math.abs(getShoulderAbsoluteEncoderAverage()) < 30 
-      && Math.abs(getElbowCompensatedAbsoluteEncoderPos()) < 40 
-      && Math.abs(elbowLeft.getSelectedSensorVelocity() * 10 / 2048.0) > 2000 // Falcon is spinning at 2000 rpm or faster
-    ) {
-      wristTargetPosition = armRetractPosition;
+    // } else if (
+    //   Math.abs(shoulderLeft.getSelectedSensorPosition() / 2048.0 / Constants.ArmConstants.shoulderRatio * 360.0) < 30 
+    //   && Math.abs(getElbowCompensatedAbsoluteEncoderPos()) < 40 
+    //   && Math.abs(elbowLeft.getSelectedSensorVelocity() * 10 / 2048.0) > 2000 // Falcon is spinning at 2000 rpm or faster
+    // ) {
+    //   wristTargetPosition = armRetractPosition;
     }
 
     wristTargetPosition = MathUtil.clamp(wristTargetPosition, 0, 50);
 
-    shoulderLeft.set(ControlMode.Position, shoulderTargetPosition);
-    elbowLeft.set(ControlMode.Position, elbowTargetPosition);
-    wristPID.setReference(wristTargetPosition, ControlType.kPosition);
+    // shoulderLeft.set(ControlMode.Position, shoulderTargetPosition);
+    // elbowLeft.set(ControlMode.Position, elbowTargetPosition);
+    // wristPID.setReference(wristTargetPosition, ControlType.kPosition);
+
+    SmartDashboard.putNumber("Shoulder Relative Angle", shoulderRelativeAngle);
+    SmartDashboard.putNumber("Elbow Relative Angle", elbowRelativeAngle);
+    SmartDashboard.putNumber("Elbow Relative Angle Adjusted", elbowRelativeAngle + shoulderRelativeAngle * Constants.ArmConstants.elbowChainRunRatio);
 
     SmartDashboard.putNumber("Shoulder Left Adjusted Calibration", shoulderLeftAdjustedCalibration);
     SmartDashboard.putNumber("Shoulder Right Adjusted Calibration", shoulderRightAdjustedCalibration);

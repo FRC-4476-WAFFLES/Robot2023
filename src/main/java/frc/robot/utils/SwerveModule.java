@@ -16,7 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.AnalogEncoder;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.DriveConstants.SwerveModuleConstants;;
+import frc.robot.Constants.DriveConstants.SwerveModuleConstants;
 
 public class SwerveModule {
     /** Holds constants like the angle calibration. */
@@ -30,6 +30,8 @@ public class SwerveModule {
 
     private final AnalogEncoder angleEncoder;
     
+    private SwerveModuleState desiredState = new SwerveModuleState();
+
     //private double lastAngle;
 
     public SwerveModule(SwerveModuleConstants constants) {
@@ -65,15 +67,15 @@ public class SwerveModule {
         driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
         angleMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
 
-        angleMotor.config_kP(0, 0.05);
+        angleMotor.config_kP(0, 0.8); // 0.05
         angleMotor.config_kI(0, 0);
-        angleMotor.config_kD(0, 0.2);
+        angleMotor.config_kD(0, 0.0); // 0.2
         angleMotor.configNeutralDeadband(0.02);
 
-        driveMotor.config_kP(0, 0.1); // 0.03
+        driveMotor.config_kP(0, 0.1); // 0.1
         driveMotor.config_kI(0, 0); // 0
-        driveMotor.config_kD(0, 0.0); // 0.1
-        driveMotor.config_kF(0, 0.045); // 0.1
+        driveMotor.config_kD(0, 0.0); // 0.0
+        driveMotor.config_kF(0, 0.045); // 0.045
 
         angleEncoder.setDistancePerRotation(360);
         resetSteerEncoder();
@@ -84,15 +86,8 @@ public class SwerveModule {
      * @param desired Desired state of the swerve module
      */
     public void drive(SwerveModuleState desired) {
-        double currentAngleRaw = angleMotor.getSelectedSensorPosition() / DriveConstants.ticksPerSteeringDegree;
+        double currentAngle = angleMotor.getSelectedSensorPosition() / DriveConstants.ticksPerSteeringDegree;
         double currentAngleVelocityRaw = angleMotor.getSelectedSensorVelocity();
-
-        double currentAngle = currentAngleRaw % 360;
-        if (currentAngle < -180) {
-            currentAngle += 360;
-        } else if (currentAngle > 180) {
-            currentAngle -= 360;
-        }
 
         double velocityOffset = -currentAngleVelocityRaw * DriveConstants.steeringToDriveRatio;
 
@@ -100,7 +95,9 @@ public class SwerveModule {
         
         // The minus function will currently give you an angle from -180 to 180.
         // If future library versions change this, this code may no longer work.
-        double targetAngle = currentAngleRaw + optimizedState.angle.minus(Rotation2d.fromDegrees(currentAngleRaw)).getDegrees();
+        double targetAngle = currentAngle + optimizedState.angle.minus(Rotation2d.fromDegrees(currentAngle)).getDegrees();
+
+        this.desiredState = new SwerveModuleState(desired.speedMetersPerSecond, Rotation2d.fromDegrees(targetAngle));
 
         // double angle = (Math.abs(desired.speedMetersPerSecond) <= (SwerveConstants.maxAttainableSpeedMetersPerSecond * 0.01)) ? lastAngle : targetAngle; //Prevent rotating module if speed is less then 1%. Prevents Jittering.
         
@@ -138,12 +135,19 @@ public class SwerveModule {
         return new SwerveModulePosition(driveMotor.getSelectedSensorPosition() / DriveConstants.metersToTicks, getState().angle);
     }
 
+    public SwerveModuleState getDesiredState() {
+        return desiredState;
+    }
+
     public double getAbsoluteEncoderPosition() {
         return getAbsolutePosition();
     }
 
     public double getAngleMotorPosition() {
         return angleMotor.getSelectedSensorPosition();
+    }
+    public double getDriveMotorPosition(){
+        return driveMotor.getSelectedSensorPosition();
     }
 
     public double getCalculatedEncoderPos() {

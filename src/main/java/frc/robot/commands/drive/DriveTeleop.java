@@ -5,17 +5,21 @@
 package frc.robot.commands.drive;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants;
 import frc.robot.utils.JoystickDrive;
+import frc.robot.utils.TurnToNearest90;
 
 import static frc.robot.RobotContainer.*;
 
 public class DriveTeleop extends CommandBase {
   private final JoystickDrive drive;
+  private final TurnToNearest90 nearest90;
 
   public DriveTeleop() {
     // Tell the scheduler that no other drive commands can be running while
     // this one is running.
     drive = new JoystickDrive();
+    nearest90 = new TurnToNearest90();
     addRequirements(driveSubsystem);
   }
 
@@ -26,12 +30,21 @@ public class DriveTeleop extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    driveSubsystem.robotDrive(
-      drive.getForward(), 
-      drive.getRight(), 
-      drive.getRotation(), 
-      true
-    );
+    if (armSubsystem.getDeploy() && !armSubsystem.getHeight().equals(Constants.Height.PICKUP_GROUND)) {
+      driveSubsystem.robotDrive(
+        drive.getForward(), 
+        drive.getRight(), 
+        nearest90.calculate(driveSubsystem.getOdometryLocation().getRotation().getDegrees()), 
+        true
+      );
+    } else {
+      driveSubsystem.robotDrive(
+        drive.getForward(), 
+        drive.getRight(), 
+        drive.getRotation(), 
+        true
+      );
+    }
   }
 
   // Called once the command ends or is interrupted.

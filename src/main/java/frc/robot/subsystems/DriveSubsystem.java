@@ -99,7 +99,22 @@ public class DriveSubsystem extends SubsystemBase {
         for (int i = 0; i < modules.length; i++) {
             String moduleLabel = "Module " + String.valueOf(i) + " ";
             SmartDashboard.putNumber(moduleLabel + "Speed", moduleStates[i].speedMetersPerSecond);
-            SmartDashboard.putNumber(moduleLabel + "Angle", modules[i].getState().angle.getDegrees());
+            SmartDashboard.putNumber(moduleLabel + "Angle", moduleStates[i].angle.getDegrees());
+
+            SwerveModuleState desiredState = modules[i].getDesiredState();
+            SmartDashboard.putNumber(moduleLabel + "Target Speed", desiredState.speedMetersPerSecond);
+            SmartDashboard.putNumber(moduleLabel + "Target Angle", desiredState.angle.getDegrees());
+
+            SmartDashboard.putNumber(moduleLabel + "Speed Error", desiredState.speedMetersPerSecond - moduleStates[i].speedMetersPerSecond);
+            double angleError = (desiredState.angle.getDegrees() - moduleStates[i].angle.getDegrees()) % 360;
+            if (angleError < 180) {
+                angleError += 360;
+            } 
+            if (angleError > 180) {
+                angleError -= 360;
+            }
+            SmartDashboard.putNumber(moduleLabel + "Angle Error", angleError);
+
             SmartDashboard.putNumber(moduleLabel + "Encoder", modules[i].getAbsoluteEncoderPosition());
 
             double encoderAngle = modules[i].getAbsoluteEncoderPosition() * (21.4 * 2048.0 / 360.0);
@@ -108,6 +123,7 @@ public class DriveSubsystem extends SubsystemBase {
 
             SmartDashboard.putNumber(moduleLabel + "Builtin encoder pos", modules[i].getAngleMotorPosition());
             SmartDashboard.putNumber(moduleLabel + "Calculated encoder pos", modules[i].getCalculatedEncoderPos());
+            SmartDashboard.putNumber(moduleLabel + "Builtin Driving encoder pos",modules[i].getDriveMotorPosition());
         }
     }
 

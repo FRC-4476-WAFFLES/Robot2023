@@ -44,7 +44,7 @@ public class DriveToScoreLimelight extends CommandBase {
     if (camera.getHasTarget()) {
       driveSubsystem.robotDrive(
         drive.getForward(), 
-        alignController.calculate(camera.getFilteredHorizontal()), 
+        alignController.calculate(camera.getFilteredHorizontal(), drive.getRight() * -4.0), 
         rotationController.calculate(driveSubsystem.getOdometryLocation().getRotation().getDegrees()), 
         true
       );
