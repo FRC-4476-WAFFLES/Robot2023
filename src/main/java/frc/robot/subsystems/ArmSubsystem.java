@@ -161,23 +161,9 @@ public class ArmSubsystem extends SubsystemBase {
     wristLeft = new CANSparkMax(Constants.wristLeft, MotorType.kBrushless);
     wristRight = new CANSparkMax(Constants.wristRight, MotorType.kBrushless);
 
-    wristLeft.restoreFactoryDefaults();
-    wristRight.restoreFactoryDefaults();
-
-    wristLeft.setSmartCurrentLimit(20);
-    wristRight.setSmartCurrentLimit(20);
-
-    wristLeft.setIdleMode(IdleMode.kBrake);
-    wristRight.setIdleMode(IdleMode.kBrake);
-
-    wristLeft.setControlFramePeriodMs(40);
-    wristRight.setControlFramePeriodMs(40);
-
-    wristLeft.setSoftLimit(SoftLimitDirection.kReverse, 0);
-    wristLeft.setSoftLimit(SoftLimitDirection.kForward, (float) (135.0 / Constants.ArmConstants.wristRatio / 360.0));
-
-    wristLeft.setInverted(true);
-    wristRight.follow(wristLeft, true);
+    for (int i = 0; i < 50; i++) {
+      initializeWristMotors();
+    }
 
     wristPID = wristLeft.getPIDController();
 
@@ -283,9 +269,9 @@ public class ArmSubsystem extends SubsystemBase {
 
     wristTargetPosition = MathUtil.clamp(wristTargetPosition, 0, 50);
 
-    // shoulderLeft.set(ControlMode.Position, shoulderTargetPosition);
-    // elbowLeft.set(ControlMode.Position, elbowTargetPosition);
-    // wristPID.setReference(wristTargetPosition, ControlType.kPosition);
+    shoulderLeft.set(ControlMode.Position, shoulderTargetPosition);
+    elbowLeft.set(ControlMode.Position, elbowTargetPosition);
+    wristPID.setReference(wristTargetPosition, ControlType.kPosition);
 
     SmartDashboard.putNumber("Shoulder Relative Angle", shoulderRelativeAngle);
     SmartDashboard.putNumber("Elbow Relative Angle", elbowRelativeAngle);
@@ -340,6 +326,26 @@ public class ArmSubsystem extends SubsystemBase {
     shoulderLeft.set(ControlMode.PercentOutput, 0.0);
     elbowLeft.set(ControlMode.PercentOutput, 0.0);
     wristLeft.stopMotor();
+  }
+
+  public void initializeWristMotors() {
+    wristLeft.restoreFactoryDefaults();
+    wristRight.restoreFactoryDefaults();
+
+    wristLeft.setSmartCurrentLimit(20);
+    wristRight.setSmartCurrentLimit(20);
+
+    wristLeft.setIdleMode(IdleMode.kBrake);
+    wristRight.setIdleMode(IdleMode.kBrake);
+
+    wristLeft.setControlFramePeriodMs(40);
+    wristRight.setControlFramePeriodMs(40);
+
+    wristLeft.setSoftLimit(SoftLimitDirection.kReverse, 0);
+    wristLeft.setSoftLimit(SoftLimitDirection.kForward, (float) (135.0 / Constants.ArmConstants.wristRatio / 360.0));
+
+    wristLeft.setInverted(true);
+    wristRight.follow(wristLeft, true);
   }
 
   public void setpointsFromStateMachine() {

@@ -244,8 +244,8 @@ public final class Constants {
     public static final double a2 = 1.0;
     public static final double a3 = 0.1;
 
-    public static final double shoulderLeftCalibration = 284.0;
-    public static final double shoulderRightCalibration = 284.0;
+    public static final double shoulderLeftCalibration = 282.0;
+    public static final double shoulderRightCalibration = 282.0;
     public static final double shoulderRatio = (1.0 / 80.0) * (15.0 / 36.0);
 
     public static final double elbowCalibration = 192.0;
@@ -253,13 +253,13 @@ public final class Constants {
     public static final double elbowChainRunRatio = 32.0 / 74.0;
     public static final double elbowRatio = elbowBaseRatio * elbowChainRunRatio;
 
-    public static final double wristCalibration = 70.0;
+    public static final double wristCalibration = 250;
     public static final double wristRatio = 1.0 / 80.0;
 
     public static final HashMap<ArmState, SetPoint> setPoints = new HashMap<ArmState, SetPoint>() {{
       put(new ArmState(Height.SCORE_HIGH, GamePiece.CUBE, false), new SetPoint(7000, -113000, 10));
-      put(new ArmState(Height.SCORE_HIGH, GamePiece.CONE, false), new SetPoint(12000, -152000, 30));
-      put(new ArmState(Height.SCORE_MEDIUM, GamePiece.CUBE, false), new SetPoint(0, -90000, 6));     
+      put(new ArmState(Height.SCORE_HIGH, GamePiece.CONE, false), new SetPoint(12000, -147000, 30));
+      put(new ArmState(Height.SCORE_MEDIUM, GamePiece.CUBE, false), new SetPoint(0, -80000, 6));     
       put(new ArmState(Height.SCORE_MEDIUM, GamePiece.CONE, false), new SetPoint(-9000, -102000, 24)); 
       put(new ArmState(Height.SCORE_LOW, GamePiece.CUBE, false), new SetPoint(25000, -36000, 0)); 
       put(new ArmState(Height.SCORE_LOW, GamePiece.CONE, false), new SetPoint(25000, -36000, 0)); 
@@ -267,7 +267,7 @@ public final class Constants {
       put(new ArmState(Height.PICKUP_SHELF, GamePiece.CONE, false), new SetPoint(-17000, -142000, 40)); 
       put(new ArmState(Height.PICKUP_CHUTE, GamePiece.CUBE, false), new SetPoint(-17000, -47000, 0)); 
       put(new ArmState(Height.PICKUP_CHUTE, GamePiece.CONE, false), new SetPoint(-17000, -47000, 0)); 
-      put(new ArmState(Height.PICKUP_GROUND, GamePiece.CUBE, false), new SetPoint(17000, -21000, 9.2)); 
+      put(new ArmState(Height.PICKUP_GROUND, GamePiece.CUBE, false), new SetPoint(33000, -27000, 0)); 
       put(new ArmState(Height.PICKUP_GROUND, GamePiece.CONE, false), new SetPoint(33000, -27000, 0)); 
     }};
 

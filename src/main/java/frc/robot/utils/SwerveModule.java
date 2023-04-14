@@ -67,7 +67,7 @@ public class SwerveModule {
         driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
         angleMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
 
-        angleMotor.config_kP(0, 0.8); // 0.05
+        angleMotor.config_kP(0, 0.05); // 0.05
         angleMotor.config_kI(0, 0);
         angleMotor.config_kD(0, 0.0); // 0.2
         angleMotor.configNeutralDeadband(0.02);
@@ -86,16 +86,32 @@ public class SwerveModule {
      * @param desired Desired state of the swerve module
      */
     public void drive(SwerveModuleState desired) {
-        double currentAngle = angleMotor.getSelectedSensorPosition() / DriveConstants.ticksPerSteeringDegree;
+        double currentAngleRaw = angleMotor.getSelectedSensorPosition() / DriveConstants.ticksPerSteeringDegree;
         double currentAngleVelocityRaw = angleMotor.getSelectedSensorVelocity();
+
+        double currentAngle = currentAngleRaw % 360;
 
         double velocityOffset = -currentAngleVelocityRaw * DriveConstants.steeringToDriveRatio;
 
         SwerveModuleState optimizedState = SwerveModuleState.optimize(desired, Rotation2d.fromDegrees(currentAngle));
+
+        // if (optimizedState.angle.getDegrees() > 180) {
+        //     optimizedState.angle = optimizedState.angle.minus(Rotation2d.fromDegrees(360));
+        // }
+        // if (optimizedState.angle.getDegrees() < -180) {
+        //     optimizedState.angle = optimizedState.angle.plus(Rotation2d.fromDegrees(360));
+        // }
         
         // The minus function will currently give you an angle from -180 to 180.
         // If future library versions change this, this code may no longer work.
-        double targetAngle = currentAngle + optimizedState.angle.minus(Rotation2d.fromDegrees(currentAngle)).getDegrees();
+        double targetAngle = currentAngleRaw + optimizedState.angle.minus(Rotation2d.fromDegrees(currentAngleRaw)).getDegrees();
+
+        // if (targetAngle > 180) {
+        //     targetAngle -= 360;
+        // }
+        // if (targetAngle < -180) {
+        //     targetAngle += 360;
+        // }
 
         this.desiredState = new SwerveModuleState(desired.speedMetersPerSecond, Rotation2d.fromDegrees(targetAngle));
 

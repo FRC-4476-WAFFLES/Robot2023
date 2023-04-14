@@ -282,6 +282,7 @@ public class RobotContainer {
     aButton.or(bButton).or(xButton).or(yButton).or(dpadDown).or(rightStickButton).or(armSubsystem::getFudge).onTrue(new InstantCommand(armSubsystem::updateDeployTrue)).onFalse(new InstantCommand(armSubsystem::updateDeployFalse));
 
     SmartDashboard.putData("Reset Arm Encoders", new InstantCommand(armSubsystem::resetEncoders, armSubsystem));
+    SmartDashboard.putData("Initialize Wrist Motors", new InstantCommand(armSubsystem::initializeWristMotors, armSubsystem));
   }
 
   /**
