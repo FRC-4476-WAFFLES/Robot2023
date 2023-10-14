@@ -150,6 +150,15 @@ public class ArmSubsystem extends SubsystemBase {
     shoulderRight.follow(shoulderLeft);
     shoulderRight.setInverted(InvertType.OpposeMaster);
 
+    // shoulderRight.config_kP(0, 0.03);
+    // shoulderRight.config_kI(0, 0);
+    // shoulderRight.config_kD(0, 0.006);
+    // shoulderRight.configNeutralDeadband(0.05);
+
+    // shoulderRight.setInverted(true);
+    // shoulderLeft.follow(shoulderRight);
+    // shoulderLeft.setInverted(InvertType.OpposeMaster);
+
     elbowLeft.config_kP(0, 0.015); // 0.15
     elbowLeft.config_kI(0, 0);
     elbowLeft.config_kD(0, 0.015);
@@ -220,6 +229,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     setShoulderSetpoint(shoulderLeft.getSelectedSensorPosition());
+    // setShoulderSetpoint(shoulderRight.getSelectedSensorPosition());
     setElbowSetpoint(elbowLeft.getSelectedSensorPosition());
     setWristSetpoint(wristLeftEncoder.getPosition());
 
@@ -251,6 +261,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     double shoulderRelativeAngle = shoulderLeft.getSelectedSensorPosition() / 2048.0 * Constants.ArmConstants.shoulderRatio * 360.0;
+    // double shoulderRelativeAngle = shoulderRight.getSelectedSensorPosition() / 2048.0 * Constants.ArmConstants.shoulderRatio * 360.0;
     double elbowRelativeAngle = elbowLeft.getSelectedSensorPosition() / 2048.0 * Constants.ArmConstants.elbowRatio * 360.0;
 
     if (elbowRelativeAngle > 10) {
@@ -270,6 +281,7 @@ public class ArmSubsystem extends SubsystemBase {
     wristTargetPosition = MathUtil.clamp(wristTargetPosition, 0, 50);
 
     shoulderLeft.set(ControlMode.Position, shoulderTargetPosition);
+    //shoulderRight.set(ControlMode.Position, shoulderTargetPosition);
     elbowLeft.set(ControlMode.Position, elbowTargetPosition);
     wristPID.setReference(wristTargetPosition, ControlType.kPosition);
 
@@ -287,11 +299,10 @@ public class ArmSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Shoulder calculated relative pos", (-(getShoulderLeftAdjustedAbsoluteEncoderPos() - shoulderLeftAdjustedCalibration) / Constants.ArmConstants.shoulderRatio / 360.0) * 2048.0);
 
     SmartDashboard.putNumber("Shoulder relative pos", shoulderLeft.getSelectedSensorPosition());
+    // SmartDashboard.putNumber("Shoulder relative pos", shoulderRight.getSelectedSensorPosition());
     SmartDashboard.putNumber("Shoulder target position", shoulderTargetPosition);
 
     SmartDashboard.putNumber("Elbow absolute encoder", getElbowAbsoluteEncoderPos());
-
-    SmartDashboard.putNumber("Shoulder applied power", shoulderLeft.getMotorOutputPercent());
 
     SmartDashboard.putNumber("Elbow calculated relative pos", (getElbowCompensatedAbsoluteEncoderPos() / (Constants.ArmConstants.elbowBaseRatio * Constants.ArmConstants.elbowChainRunRatio) / 360.0) * 2048.0);
     SmartDashboard.putNumber("Elbow relative pos", elbowLeft.getSelectedSensorPosition());
@@ -324,6 +335,7 @@ public class ArmSubsystem extends SubsystemBase {
 
   public void stop() {
     shoulderLeft.set(ControlMode.PercentOutput, 0.0);
+    // shoulderRight.set(ControlMode.PercentOutput, 0.0);
     elbowLeft.set(ControlMode.PercentOutput, 0.0);
     wristLeft.stopMotor();
   }
@@ -458,6 +470,10 @@ public class ArmSubsystem extends SubsystemBase {
     if (shoulderLeftEncoderEnabled && shoulderRightEncoderEnabled) shoulderLeft.setSelectedSensorPosition((getShoulderAbsoluteEncoderAverage() / Constants.ArmConstants.shoulderRatio / 360.0) * 2048.0);
     else if (shoulderLeftEncoderEnabled && ! shoulderRightEncoderEnabled) shoulderLeft.setSelectedSensorPosition((-(getShoulderLeftAdjustedAbsoluteEncoderPos() - shoulderLeftAdjustedCalibration) / Constants.ArmConstants.shoulderRatio / 360.0) * 2048.0);
     else if (!shoulderLeftEncoderEnabled && shoulderRightEncoderEnabled) shoulderLeft.setSelectedSensorPosition(((getShoulderRightAbsoluteEncoderPos() - Constants.ArmConstants.shoulderRightCalibration) / Constants.ArmConstants.shoulderRatio / 360.0) * 2048.0);
+
+    // if (shoulderLeftEncoderEnabled && shoulderRightEncoderEnabled) shoulderRight.setSelectedSensorPosition((getShoulderAbsoluteEncoderAverage() / Constants.ArmConstants.shoulderRatio / 360.0) * 2048.0);
+    // else if (shoulderLeftEncoderEnabled && ! shoulderRightEncoderEnabled) shoulderRight.setSelectedSensorPosition((-(getShoulderLeftAdjustedAbsoluteEncoderPos() - shoulderLeftAdjustedCalibration) / Constants.ArmConstants.shoulderRatio / 360.0) * 2048.0);
+    // else if (!shoulderLeftEncoderEnabled && shoulderRightEncoderEnabled) shoulderRight.setSelectedSensorPosition(((getShoulderRightAbsoluteEncoderPos() - Constants.ArmConstants.shoulderRightCalibration) / Constants.ArmConstants.shoulderRatio / 360.0) * 2048.0);
   }
 
   private void resetElbowEncoder() {
@@ -512,6 +528,7 @@ public class ArmSubsystem extends SubsystemBase {
     if (!state.fudge) {
       state.fudge = true;
       setShoulderSetpoint(shoulderLeft.getSelectedSensorPosition());
+      // setShoulderSetpoint(shoulderRight.getSelectedSensorPosition());
       setElbowSetpoint(elbowLeft.getSelectedSensorPosition());
       setWristSetpoint(wristLeftEncoder.getPosition());
     }

@@ -25,8 +25,8 @@ public class OneConeAndMobilityAndBalance extends SequentialCommandGroup {
   /** Creates a new OneConeAndMobilityAndBalance. */
   public OneConeAndMobilityAndBalance() {
     PathPlannerTrajectory driveToScore = PathPlanner.loadPath("Start to Scoring", new PathConstraints(1, 1));
-    PathPlannerTrajectory driveToMobility = PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1, 1));
-    PathPlannerTrajectory driveToClimb = PathPlanner.loadPath("Mobility to Climb", new PathConstraints(1, 1));
+    PathPlannerTrajectory driveToMobility = PathPlanner.loadPath("1 Cube Climb", new PathConstraints(1.25, 1));
+    PathPlannerTrajectory driveToClimb = PathPlanner.loadPath("Mobility to Climb", new PathConstraints(1.25, 1));
 
     addCommands(
       new InstantCommand(() -> {
@@ -86,7 +86,7 @@ public class OneConeAndMobilityAndBalance extends SequentialCommandGroup {
         false,
         driveSubsystem
       )//.until(() -> Math.abs(driveSubsystem.getPitch()) > 13),
-      .raceWith(new SequentialCommandGroup(new WaitUntilCommand(() -> Math.abs(driveSubsystem.getPitch()) > 13), new WaitCommand(1.5))),
+      .raceWith(new SequentialCommandGroup(new WaitUntilCommand(() -> Math.abs(driveSubsystem.getPitch()) > 13), new WaitCommand(1.3))),
       
       new DriveAutoBalance(),
       new InstantCommand(driveSubsystem::updateLockWheelsTrue, driveSubsystem)

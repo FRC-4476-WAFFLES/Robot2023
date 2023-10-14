@@ -36,13 +36,14 @@ public class DriveAutoBalance extends CommandBase {
     if (Math.abs(currentPitch) < 5) {
       driveSubsystem.robotDrive(0, 0, 0, false);
       loopCount += 1;
+      
     } else if (currentPitch < -10.0) {
       driveSubsystem.robotDrive(0.25, 0, rotationSpeed, false);
       loopCount = 0;
     } else if (currentPitch < -8.0) {
-      driveSubsystem.robotDrive(0.1, 0, rotationSpeed, false);
+      driveSubsystem.robotDrive(0.15, 0, rotationSpeed, false);
     } else if (currentPitch > 8.0) {
-      driveSubsystem.robotDrive(-0.1, 0, rotationSpeed, false);
+      driveSubsystem.robotDrive(-0.15, 0, rotationSpeed, false);
     }else if (currentPitch > 10.0) {
       driveSubsystem.robotDrive(-0.25, 0, rotationSpeed, false);
       loopCount = 0;
