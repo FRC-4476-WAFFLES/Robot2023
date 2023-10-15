@@ -12,6 +12,8 @@ import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -130,8 +132,11 @@ public class SwerveModule {
         
         // lastAngle = angle;
 
+        VelocityVoltage driveMotorVelocity = new VelocityVoltage(0);
+
         angleMotor.set(ControlMode.Position, targetAngle * DriveConstants.ticksPerSteeringDegree);
-        driveMotor.set(ControlMode.Velocity, optimizedState.speedMetersPerSecond * DriveConstants.metersPerSecondToTicksPer100ms - velocityOffset);
+        angleMotor.setControl(new PositionVoltage(0).withSlot(0).withPosition((targetAngle * DriveConstants.ticksPerSteeringDegree)/2048));
+        driveMotor.setControl(driveMotorVelocity.withVelocity((optimizedState.speedMetersPerSecond * DriveConstants.metersPerSecondToTicksPer100ms - velocityOffset)/2048 * 10));
         //driveMotor.set(ControlMode.Velocity, -velocityOffset);
     }
 
