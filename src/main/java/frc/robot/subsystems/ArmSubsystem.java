@@ -11,6 +11,13 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.PositionDutyCycle;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
@@ -29,7 +36,6 @@ import frc.robot.Constants.ArmConstants.ArmState;
 import frc.robot.Constants.ArmConstants.SetPoint;
 import frc.robot.Constants.GamePiece;
 import frc.robot.Constants.Height;
-import frc.robot.utils.LazyTalonFX;
 
 public class ArmSubsystem extends SubsystemBase {
   private ArmState state = new ArmState(Height.SCORE_LOW, GamePiece.CONE, false);
@@ -38,10 +44,10 @@ public class ArmSubsystem extends SubsystemBase {
   private final CANSparkMax wristLeft;
   private final CANSparkMax wristRight;
 
-  private final LazyTalonFX shoulderLeft;
-  private final LazyTalonFX shoulderRight;
-  private final LazyTalonFX elbowLeft;
-  private final LazyTalonFX elbowRight;
+  private final TalonFX shoulderLeft;
+  private final TalonFX shoulderRight;
+  private final TalonFX elbowLeft;
+  private final TalonFX elbowRight;
 
   private final SparkMaxPIDController wristPID;
 
@@ -80,15 +86,15 @@ public class ArmSubsystem extends SubsystemBase {
 
   /** Creates a new ArmSubsystem. */
   public ArmSubsystem() {
-    shoulderLeft = new LazyTalonFX(Constants.shoulderLeft);
-    shoulderRight = new LazyTalonFX(Constants.shoulderRight);
-    elbowLeft = new LazyTalonFX(Constants.elbowLeft);
-    elbowRight = new LazyTalonFX(Constants.elbowRight);
+    shoulderLeft = new TalonFX(Constants.shoulderLeft);
+    shoulderRight = new TalonFX(Constants.shoulderRight);
+    elbowLeft = new TalonFX(Constants.elbowLeft);
+    elbowRight = new TalonFX(Constants.elbowRight);
 
-    shoulderLeft.configFactoryDefault();
-    shoulderRight.configFactoryDefault();
-    elbowLeft.configFactoryDefault();
-    elbowRight.configFactoryDefault();
+    shoulderLeft.getConfigurator().apply(new TalonFXConfiguration());
+    shoulderRight.getConfigurator().apply(new TalonFXConfiguration());
+    elbowLeft.getConfigurator().apply(new TalonFXConfiguration());
+    elbowRight.getConfigurator().apply(new TalonFXConfiguration());
 
     shoulderLeft.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 40, 40, 0.03));
     shoulderRight.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 40, 40, 0.03));
@@ -100,10 +106,10 @@ public class ArmSubsystem extends SubsystemBase {
     elbowLeft.setNeutralMode(NeutralMode.Brake);
     elbowRight.setNeutralMode(NeutralMode.Brake);
 
-    shoulderLeft.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
-    shoulderRight.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
-    elbowLeft.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
-    elbowRight.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
+    shoulderLeft.getPosition().setUpdateFrequency(10);
+    shoulderRight.getPosition().setUpdateFrequency(10);
+    elbowLeft.getPosition().setUpdateFrequency(10);
+    elbowRight.getPosition().setUpdateFrequency(10);
 
     shoulderLeft.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
     shoulderRight.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
@@ -142,21 +148,27 @@ public class ArmSubsystem extends SubsystemBase {
     shoulderLeft.configReverseSoftLimitEnable(true);
     elbowLeft.configReverseSoftLimitEnable(true);
 
-    shoulderLeft.config_kP(0, 0.03);
-    shoulderLeft.config_kI(0, 0);
-    shoulderLeft.config_kD(0, 0.006);
+    var shoulderLeftSlot0Configs = new Slot0Configs();
+    
+    shoulderLeftSlot0Configs.kP = 0.03;
+    shoulderLeftSlot0Configs.kI = 0;
+    shoulderLeftSlot0Configs.kD = 0.006;
     shoulderLeft.configNeutralDeadband(0.05);
 
-    shoulderRight.follow(shoulderLeft);
-    shoulderRight.setInverted(InvertType.OpposeMaster);
+    shoulderLeft.getConfigurator().apply(shoulderLeftSlot0Configs, 0.050);
 
-    elbowLeft.config_kP(0, 0.015); // 0.15
-    elbowLeft.config_kI(0, 0);
-    elbowLeft.config_kD(0, 0.015);
-    elbowLeft.configNeutralDeadband(0.06);
+    shoulderRight.setControl(new Follower(shoulderLeft.getDeviceID(), true));
     
-    elbowRight.follow(elbowLeft);
-    elbowRight.setInverted(InvertType.OpposeMaster);
+    var elbowLeftSlot0Configs = new Slot0Configs();
+    
+    elbowLeftSlot0Configs.kP = 0.015;
+    elbowLeftSlot0Configs.kI = 0.11;
+    elbowLeftSlot0Configs.kD = 0.015;
+    elbowLeft.configNeutralDeadband(0.06);
+
+    elbowLeft.getConfigurator().apply(elbowLeftSlot0Configs, 0.050);
+    
+    elbowRight.setControl(new Follower(elbowLeft.getDeviceID(), true));
 
     wristLeft = new CANSparkMax(Constants.wristLeft, MotorType.kBrushless);
     wristRight = new CANSparkMax(Constants.wristRight, MotorType.kBrushless);
@@ -219,8 +231,9 @@ public class ArmSubsystem extends SubsystemBase {
 
     }
 
-    setShoulderSetpoint(shoulderLeft.getSelectedSensorPosition());
-    setElbowSetpoint(elbowLeft.getSelectedSensorPosition());
+    
+    setShoulderSetpoint(shoulderLeft.getRotorPosition().getValue());
+    setElbowSetpoint(elbowLeft.getRotorPosition().getValue());
     setWristSetpoint(wristLeftEncoder.getPosition());
 
     timer.start();
@@ -238,7 +251,7 @@ public class ArmSubsystem extends SubsystemBase {
     if (elbowEncoderPreviousValue == getElbowAbsoluteEncoderPos()) elbowEncoderEnabled = false;
     if (wristEncoderPreviousValue == getWristAbsoluteEncoderPos()) wristEncoderEnabled = false;
 
-    if (state.piece == GamePiece.CONE && state.height == Height.SCORE_HIGH && Math.abs(elbowTargetPosition - elbowLeft.getSelectedSensorPosition()) > 50000) {
+    if (state.piece == GamePiece.CONE && state.height == Height.SCORE_HIGH && Math.abs(elbowTargetPosition - elbowLeft.getRotorPosition().getValue()*2048.0) > 50000) {
       // shoulderTargetPosition = shoulderLeft.getSelectedSensorPosition();
       shoulderTargetPosition = -10000;
       setWristSetpoint(armRetractPosition);
@@ -250,8 +263,8 @@ public class ArmSubsystem extends SubsystemBase {
       setWristSetpoint(armRetractPosition);
     }
 
-    double shoulderRelativeAngle = shoulderLeft.getSelectedSensorPosition() / 2048.0 * Constants.ArmConstants.shoulderRatio * 360.0;
-    double elbowRelativeAngle = elbowLeft.getSelectedSensorPosition() / 2048.0 * Constants.ArmConstants.elbowRatio * 360.0;
+    double shoulderRelativeAngle = shoulderLeft.getRotorPosition().getValue() * Constants.ArmConstants.shoulderRatio * 360.0;
+    double elbowRelativeAngle = elbowLeft.getRotorPosition().getValue() * Constants.ArmConstants.elbowRatio * 360.0;
 
     if (elbowRelativeAngle > 10) {
       shoulderTargetPosition = Math.min(shoulderTargetPosition, 5.0 / Constants.ArmConstants.shoulderRatio * 2048.0 / 360.0);
@@ -269,8 +282,12 @@ public class ArmSubsystem extends SubsystemBase {
 
     wristTargetPosition = MathUtil.clamp(wristTargetPosition, 0, 50);
 
+    VelocityVoltage shoulderLeftVelocity = new VelocityVoltage(0);
+
     shoulderLeft.set(ControlMode.Position, shoulderTargetPosition);
+    shoulderLeft.setControl(new PositionVoltage(0).withSlot(0).withPosition(shoulderTargetPosition/2048));
     elbowLeft.set(ControlMode.Position, elbowTargetPosition);
+    
     wristPID.setReference(wristTargetPosition, ControlType.kPosition);
 
     SmartDashboard.putNumber("Shoulder Relative Angle", shoulderRelativeAngle);
@@ -286,7 +303,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumber("Shoulder calculated relative pos", (-(getShoulderLeftAdjustedAbsoluteEncoderPos() - shoulderLeftAdjustedCalibration) / Constants.ArmConstants.shoulderRatio / 360.0) * 2048.0);
 
-    SmartDashboard.putNumber("Shoulder relative pos", shoulderLeft.getSelectedSensorPosition());
+    SmartDashboard.putNumber("Shoulder relative pos", shoulderLeft.getRotorPosition().getValue() * 2048);
     SmartDashboard.putNumber("Shoulder target position", shoulderTargetPosition);
 
     SmartDashboard.putNumber("Elbow absolute encoder", getElbowAbsoluteEncoderPos());
@@ -294,7 +311,7 @@ public class ArmSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Shoulder applied power", shoulderLeft.getMotorOutputPercent());
 
     SmartDashboard.putNumber("Elbow calculated relative pos", (getElbowCompensatedAbsoluteEncoderPos() / (Constants.ArmConstants.elbowBaseRatio * Constants.ArmConstants.elbowChainRunRatio) / 360.0) * 2048.0);
-    SmartDashboard.putNumber("Elbow relative pos", elbowLeft.getSelectedSensorPosition());
+    SmartDashboard.putNumber("Elbow relative pos", elbowLeft.getRotorPosition().getValue() * 2048);
 
     SmartDashboard.putNumber("Elbow calibrated absolute pos", getElbowAbsoluteEncoderPos() - Constants.ArmConstants.elbowCalibration);
     SmartDashboard.putNumber("Elbow compensated angle", getElbowCompensatedAbsoluteEncoderPos());
@@ -360,7 +377,7 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public void setShoulderSetpoint(double setpoint) {
-    shoulderTargetPosition = setpoint;
+    shoulderTargetPosition = setpoint * 2048;
   }
 
   public void fudgeShoulderSetpoint(double amountToMove) {
@@ -372,7 +389,7 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public void setElbowSetpoint(double setpoint) {
-    elbowTargetPosition = setpoint;
+    elbowTargetPosition = setpoint * 2048;
   }
 
   public void fudgeElbowSetpoint(double amountToMove) {
@@ -511,8 +528,8 @@ public class ArmSubsystem extends SubsystemBase {
   public void updateFudgeTrue() {
     if (!state.fudge) {
       state.fudge = true;
-      setShoulderSetpoint(shoulderLeft.getSelectedSensorPosition());
-      setElbowSetpoint(elbowLeft.getSelectedSensorPosition());
+      setShoulderSetpoint(shoulderLeft.getRotorPosition().getValue());
+      setElbowSetpoint(elbowLeft.getRotorPosition().getValue());
       setWristSetpoint(wristLeftEncoder.getPosition());
     }
   }

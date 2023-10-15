@@ -10,6 +10,9 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -23,10 +26,10 @@ public class SwerveModule {
     private final SwerveModuleConstants constants;
 
     /** The motor controlling the angle of the swerve module. */
-    private final LazyTalonFX angleMotor;
+    private final TalonFX angleMotor;
 
     /** The motor controlling the speed of the swerve module. */
-    private final LazyTalonFX driveMotor;
+    private final TalonFX driveMotor;
 
     private final AnalogEncoder angleEncoder;
     
@@ -35,13 +38,13 @@ public class SwerveModule {
     //private double lastAngle;
 
     public SwerveModule(SwerveModuleConstants constants) {
-        this.angleMotor = new LazyTalonFX(constants.angleMotor);
-        this.driveMotor = new LazyTalonFX(constants.driveMotor);
+        this.angleMotor = new TalonFX(constants.angleMotor);
+        this.driveMotor = new TalonFX(constants.driveMotor);
         this.angleEncoder = new AnalogEncoder(constants.angleEncoder);
         this.constants = constants;
 
-        driveMotor.configFactoryDefault();
-        angleMotor.configFactoryDefault();
+        driveMotor.getConfigurator().apply(new TalonFXConfiguration());
+        angleMotor.getConfigurator().apply(new TalonFXConfiguration());
 
         angleMotor.setInverted(true);
 
@@ -67,15 +70,23 @@ public class SwerveModule {
         driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
         angleMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 100, 100);
 
-        angleMotor.config_kP(0, 0.05); // 0.05
-        angleMotor.config_kI(0, 0);
-        angleMotor.config_kD(0, 0.0); // 0.2
+        var angleSlot0Configs = new Slot0Configs();
+        
+        angleSlot0Configs.kP = 0.05;
+        angleSlot0Configs.kI = 0;
+        angleSlot0Configs.kD = 0;
         angleMotor.configNeutralDeadband(0.02);
 
-        driveMotor.config_kP(0, 0.1); // 0.1
-        driveMotor.config_kI(0, 0); // 0
-        driveMotor.config_kD(0, 0.0); // 0.0
-        driveMotor.config_kF(0, 0.045); // 0.045
+        angleMotor.getConfigurator().apply(angleSlot0Configs, 0.050);
+
+        var driveSlot0Configs = new Slot0Configs();
+
+        driveSlot0Configs.kP = 0.1;
+        driveSlot0Configs.kI = 0;
+        driveSlot0Configs.kD = 0;
+        driveSlot0Configs.kV = 0.045;
+
+        driveMotor.getConfigurator().apply(driveSlot0Configs, 0.050);
 
         angleEncoder.setDistancePerRotation(360);
         resetSteerEncoder();
@@ -86,7 +97,7 @@ public class SwerveModule {
      * @param desired Desired state of the swerve module
      */
     public void drive(SwerveModuleState desired) {
-        double currentAngleRaw = angleMotor.getSelectedSensorPosition() / DriveConstants.ticksPerSteeringDegree;
+        double currentAngleRaw = angleMotor.getRotorPosition().getValue() * 2048 / DriveConstants.ticksPerSteeringDegree;
         double currentAngleVelocityRaw = angleMotor.getSelectedSensorVelocity();
 
         double currentAngle = currentAngleRaw % 360;
@@ -137,7 +148,7 @@ public class SwerveModule {
         double currentVelocity = driveMotor.getSelectedSensorVelocity() / DriveConstants.metersPerSecondToTicksPer100ms;
         //currentVelocity += angleMotor.getSelectedSensorVelocity() * constants.steeringToDriveRatio;
 
-        double currentAngle = (angleMotor.getSelectedSensorPosition() / DriveConstants.ticksPerSteeringDegree) % 360;
+        double currentAngle = (angleMotor.getRotorPosition().getValue() * 2048 / DriveConstants.ticksPerSteeringDegree) % 360;
         if (currentAngle < -180) {
             currentAngle += 360;
         } else if (currentAngle > 180) {
@@ -148,7 +159,7 @@ public class SwerveModule {
     }
 
     public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(driveMotor.getSelectedSensorPosition() / DriveConstants.metersToTicks, getState().angle);
+        return new SwerveModulePosition(driveMotor.getRotorPosition().getValue() * 2048 / DriveConstants.metersToTicks, getState().angle);
     }
 
     public SwerveModuleState getDesiredState() {
@@ -160,10 +171,10 @@ public class SwerveModule {
     }
 
     public double getAngleMotorPosition() {
-        return angleMotor.getSelectedSensorPosition();
+        return angleMotor.getRotorPosition().getValue() * 2048;
     }
     public double getDriveMotorPosition(){
-        return driveMotor.getSelectedSensorPosition();
+        return driveMotor.getRotorPosition().getValue() * 2048;
     }
 
     public double getCalculatedEncoderPos() {

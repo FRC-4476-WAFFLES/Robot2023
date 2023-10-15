@@ -257,18 +257,18 @@ public final class Constants {
     public static final double wristRatio = 1.0 / 80.0;
 
     public static final HashMap<ArmState, SetPoint> setPoints = new HashMap<ArmState, SetPoint>() {{
-      put(new ArmState(Height.SCORE_HIGH, GamePiece.CUBE, false), new SetPoint(7000, -113000, 10));
-      put(new ArmState(Height.SCORE_HIGH, GamePiece.CONE, false), new SetPoint(12000, -147000, 30));
-      put(new ArmState(Height.SCORE_MEDIUM, GamePiece.CUBE, false), new SetPoint(0, -80000, 6));     
-      put(new ArmState(Height.SCORE_MEDIUM, GamePiece.CONE, false), new SetPoint(-9000, -102000, 24)); 
-      put(new ArmState(Height.SCORE_LOW, GamePiece.CUBE, false), new SetPoint(25000, -36000, 0)); 
-      put(new ArmState(Height.SCORE_LOW, GamePiece.CONE, false), new SetPoint(25000, -36000, 0)); 
-      put(new ArmState(Height.PICKUP_SHELF, GamePiece.CUBE, false), new SetPoint(-17000, -136000, 40)); 
-      put(new ArmState(Height.PICKUP_SHELF, GamePiece.CONE, false), new SetPoint(-17000, -142000, 40)); 
-      put(new ArmState(Height.PICKUP_CHUTE, GamePiece.CUBE, false), new SetPoint(-17000, -47000, 0)); 
-      put(new ArmState(Height.PICKUP_CHUTE, GamePiece.CONE, false), new SetPoint(-17000, -47000, 0)); 
-      put(new ArmState(Height.PICKUP_GROUND, GamePiece.CUBE, false), new SetPoint(33000, -27000, 0)); 
-      put(new ArmState(Height.PICKUP_GROUND, GamePiece.CONE, false), new SetPoint(33000, -27000, 0)); 
+      put(new ArmState(Height.SCORE_HIGH, GamePiece.CUBE, false), new SetPoint(7000 / 2048, -113000 / 2048, 10));
+      put(new ArmState(Height.SCORE_HIGH, GamePiece.CONE, false), new SetPoint(12000 / 2048, -147000 / 2048, 30));
+      put(new ArmState(Height.SCORE_MEDIUM, GamePiece.CUBE, false), new SetPoint(0 / 2048, -80000 / 2048, 6));     
+      put(new ArmState(Height.SCORE_MEDIUM, GamePiece.CONE, false), new SetPoint(-9000 / 2048, -102000 / 2048, 24)); 
+      put(new ArmState(Height.SCORE_LOW, GamePiece.CUBE, false), new SetPoint(25000 / 2048, -36000 / 2048, 0)); 
+      put(new ArmState(Height.SCORE_LOW, GamePiece.CONE, false), new SetPoint(25000 / 2048, -36000 / 2048, 0)); 
+      put(new ArmState(Height.PICKUP_SHELF, GamePiece.CUBE, false), new SetPoint(-17000 / 2048, -136000 / 2048, 40)); 
+      put(new ArmState(Height.PICKUP_SHELF, GamePiece.CONE, false), new SetPoint(-17000 / 2048, -142000 / 2048, 40)); 
+      put(new ArmState(Height.PICKUP_CHUTE, GamePiece.CUBE, false), new SetPoint(-17000 / 2048, -47000 / 2048, 0)); 
+      put(new ArmState(Height.PICKUP_CHUTE, GamePiece.CONE, false), new SetPoint(-17000 / 2048, -47000 / 2048, 0)); 
+      put(new ArmState(Height.PICKUP_GROUND, GamePiece.CUBE, false), new SetPoint(33000 / 2048, -27000 / 2048, 0)); 
+      put(new ArmState(Height.PICKUP_GROUND, GamePiece.CONE, false), new SetPoint(33000 / 2048, -27000 / 2048, 0)); 
     }};
 
     public static class ArmState {
