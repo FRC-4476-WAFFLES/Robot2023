@@ -32,7 +32,10 @@ public class SwerveModule {
     
     private SwerveModuleState desiredState = new SwerveModuleState();
 
-    //private double lastAngle;
+    private double lastAngle;
+    private double lastSpeed = 0;
+    private double lastCurrentLimit = DriveConstants.maxDriveCurrentLimit;
+    private boolean lastBrakeMode = true;
 
     public SwerveModule(SwerveModuleConstants constants) {
         this.angleMotor = new LazyTalonFX(constants.angleMotor);
@@ -45,7 +48,7 @@ public class SwerveModule {
 
         angleMotor.setInverted(true);
 
-        driveMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 60, 60, 0.03));
+        driveMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, DriveConstants.maxDriveCurrentLimit, DriveConstants.maxDriveCurrentLimit, 0.03));
         angleMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 30, 30, 0.03));
 
         driveMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
@@ -122,6 +125,94 @@ public class SwerveModule {
         angleMotor.set(ControlMode.Position, targetAngle * DriveConstants.ticksPerSteeringDegree);
         driveMotor.set(ControlMode.Velocity, optimizedState.speedMetersPerSecond * DriveConstants.metersPerSecondToTicksPer100ms - velocityOffset);
         //driveMotor.set(ControlMode.Velocity, -velocityOffset);
+    }
+
+    /**Drives the swerve module in a direction at a speed with active traction control. 
+     * Traction control includes wheelspin reduction on power, ABS, and understeer reduction
+     * 
+     * @param desired Desired state of the swerve module
+     * @param robotAccelX X component of robot acceleration (m/s/s)
+     * @param robotAccelY Y component of robot acceleration (m/s/s)
+     * @param robotAccelTheta Yaw component of robot acceleration (rad/s/s)
+     */
+    public void driveWithTractionControl(SwerveModuleState desired, double robotAccelX, double robotAccelY, double robotAccelTheta) {
+        double currentAngleRaw = angleMotor.getSelectedSensorPosition() / DriveConstants.ticksPerSteeringDegree;
+        double currentAngleVelocityRaw = angleMotor.getSelectedSensorVelocity();
+
+        double currentAngle = currentAngleRaw % 360;
+
+        double velocityOffset = -currentAngleVelocityRaw * DriveConstants.steeringToDriveRatio;
+
+        SwerveModuleState optimizedState = SwerveModuleState.optimize(desired, Rotation2d.fromDegrees(currentAngle));
+        
+        // The minus function will currently give you an angle from -180 to 180.
+        // If future library versions change this, this code may no longer work.
+        double targetAngle = currentAngleRaw + optimizedState.angle.minus(Rotation2d.fromDegrees(currentAngleRaw)).getDegrees();
+
+        desiredState = new SwerveModuleState(desired.speedMetersPerSecond, Rotation2d.fromDegrees(targetAngle));
+
+        /* =========== Run traction control =========== */
+
+        double currentSpeed = driveMotor.getSelectedSensorVelocity() / DriveConstants.metersPerSecondToTicksPer100ms;
+
+        // Longitudenal traction control. Adjust the current limit of the drive motor to reduce wheel spin.
+        double robotAccelLong = robotAccelX * Math.cos(Math.toRadians(currentAngle)) + robotAccelY * Math.sin(Math.toRadians(currentAngle));
+        double wheelAccelLong = (currentSpeed - lastSpeed) / 0.02;
+        lastSpeed = currentSpeed;
+
+        double diffAccelLong = robotAccelLong - wheelAccelLong;
+
+        double maxDriveCurrent = DriveConstants.maxDriveCurrentLimit;
+        boolean driveBrakeMode = true;
+
+        // If there is a meaningful difference between longitudenal wheel and robot acceleration, run traction control
+        if (Math.abs(diffAccelLong) > 0.1) {
+            double outputCurrent = driveMotor.getStatorCurrent();
+            if (outputCurrent > 1) {
+                // Apply current limiting if on power
+                maxDriveCurrent = outputCurrent * 0.9;
+            } else {
+                // TODO: ABS control here. May be able to use stator current limiting again, as that might reduce braking effectiveness
+                // For now, just follow basic ABS and alternately disable and re-enable brake mode
+                driveBrakeMode = false;
+            }
+        }
+
+        // Only update the current limit if it has changed to save on CAN usage
+        if (maxDriveCurrent != lastCurrentLimit) {
+            driveMotor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, maxDriveCurrent, maxDriveCurrent, 0.0));
+            lastCurrentLimit = maxDriveCurrent;
+        }
+
+        // Only update brake mode if it has changed to save on CAN usage
+        if (driveBrakeMode != lastBrakeMode) {
+            driveMotor.setNeutralMode((driveBrakeMode) ? NeutralMode.Brake : NeutralMode.Coast);
+            lastBrakeMode = driveBrakeMode;
+        }
+
+        // Lateral traction control. Modify the target steering angle to reduce sliding
+        // TODO: make sure this works when robot is rotating (I am fairly sure the physics works out to having it work)
+        // aRad = rad/s * m/s
+        double wheelAccelLat = Math.toRadians(currentAngleVelocityRaw / DriveConstants.ticksPerSteeringDegree) * currentSpeed;
+        double robotAccelLat = robotAccelX * Math.sin(Math.toRadians(currentAngle)) + robotAccelY * Math.cos(Math.toRadians(currentAngle));
+        
+        double diffAccelLat = robotAccelLat - wheelAccelLat;
+
+        // If there is a meaningful difference between lateral wheel and robot acceleration, run understeer reduction
+        if (Math.abs(diffAccelLat) > 0.1) {
+            // Use arctan to adjust the target angle by an angle from -pi/2 to pi/2 based on magnitude of lateral acceleration difference
+            targetAngle += Math.atan(diffAccelLat);
+        }
+
+        /* =========== End of traction control =========== */
+
+        // Prevent rotating module if speed is less then 1%. Prevents jittering.
+        targetAngle = (Math.abs(desired.speedMetersPerSecond) <= (DriveConstants.maxAttainableSpeedMetersPerSecond * 0.01)) ? lastAngle : targetAngle;
+        
+        lastAngle = targetAngle;
+        
+        angleMotor.set(ControlMode.Position, targetAngle * DriveConstants.ticksPerSteeringDegree);
+        driveMotor.set(ControlMode.Velocity, optimizedState.speedMetersPerSecond * DriveConstants.metersPerSecondToTicksPer100ms - velocityOffset);
     }
 
     public void resetSteerEncoder() {

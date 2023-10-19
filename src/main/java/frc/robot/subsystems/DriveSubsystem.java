@@ -33,11 +33,15 @@ public class DriveSubsystem extends SubsystemBase {
 
     private final AHRS gyro = new AHRS(SPI.Port.kMXP);
 
+    private ArrayList<Translation2d> positions = new ArrayList<Translation2d>();
+
     private boolean lockWheels = false;
     private boolean isAutoAiming = false;
 
+    private double previousYawRate = 0;
+    private double yawAccel = 0;
+
     public DriveSubsystem() {
-        ArrayList<Translation2d> positions = new ArrayList<Translation2d>();
         ArrayList<SwerveModule> modules = new ArrayList<SwerveModule>();
 
         // Initialize each swerve module with its constants.
@@ -84,6 +88,10 @@ public class DriveSubsystem extends SubsystemBase {
         }
 
         odometry.update(gyro.getRotation2d(), modulePositions);
+
+        double currentYawRate = gyro.getRate();
+        yawAccel = (currentYawRate - previousYawRate) / 0.02;
+        previousYawRate = currentYawRate;
 
         SmartDashboard.putNumber("X location", getOdometryLocation().getX());
         SmartDashboard.putNumber("Y location", getOdometryLocation().getY());
@@ -164,7 +172,15 @@ public class DriveSubsystem extends SubsystemBase {
             }
         } else {
             for(int i = 0; i < modules.length; i++){
-                modules[i].drive(swerveModuleStates[i]);
+                // modules[i].drive(swerveModuleStates[i]);
+
+                // TODO: adjust the robot acceleration to account for rotational acceleration (dependant on module position)
+                modules[i].driveWithTractionControl(
+                    swerveModuleStates[i], 
+                    getAccelX() + positions.get(i).getX() * getYawAccel(), 
+                    getAccelY() + positions.get(i).getY() * getYawAccel(),
+                    getYawAccel()
+                );
             }
         }
     }
@@ -188,6 +204,22 @@ public class DriveSubsystem extends SubsystemBase {
     public double getPitch() {
         // Because of the orientation of the gyro, the getRoll() function returns the pitch of the robot
         return gyro.getRoll();
+    }
+
+    public double getAccelX() {
+        return gyro.getWorldLinearAccelX() * 9.8;
+    }
+
+    public double getAccelY() {
+        return gyro.getWorldLinearAccelY() * 9.8;
+    }
+
+    /**
+     * Get the acceleration of yaw (in rad/s/s)
+     * @return The yaw acceleration
+     */
+    public double getYawAccel() {
+        return yawAccel;
     }
 
     /** Stop all motors from running. */

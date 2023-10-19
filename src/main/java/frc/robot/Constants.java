@@ -119,6 +119,9 @@ public final class Constants {
     // Convert degrees to motor ticks
     public static final double ticksPerSteeringDegree = ticksPerSteeringRevolution / 360.0;
 
+    /** Maximum current limit for drive motors */
+    public static final double maxDriveCurrentLimit = 60.0;
+
     public static final double cameraHorisontalTolerance = 2;
 
     public static final HashMap<DriveState, Pose2d> scoringLocations = new HashMap<>() {{
