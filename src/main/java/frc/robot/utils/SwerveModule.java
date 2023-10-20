@@ -201,7 +201,7 @@ public class SwerveModule {
         // If there is a meaningful difference between lateral wheel and robot acceleration, run understeer reduction
         if (Math.abs(diffAccelLat) > 0.1) {
             // Use arctan to adjust the target angle by an angle from -pi/2 to pi/2 based on magnitude of lateral acceleration difference
-            targetAngle += Math.atan(diffAccelLat);
+            targetAngle += Math.toDegrees(Math.atan(diffAccelLat));
         }
 
         /* =========== End of traction control =========== */
